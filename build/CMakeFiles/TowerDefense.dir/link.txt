@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/TowerDefense.dir/apps/main.cpp.o CMakeFiles/TowerDefense.dir/src/game.cpp.o CMakeFiles/TowerDefense.dir/src/assetsmanager.cpp.o CMakeFiles/TowerDefense.dir/src/vector2.cpp.o CMakeFiles/TowerDefense.dir/src/instances.cpp.o -o TowerDefense  -lSDL2 -lSDL2_image -lSDL2 -lSDL2_image 

@@ -1,0 +1,89 @@
+Utiliser freesurface quand on détruit une entité de type sprite
+
+
+Tower Defense 
+    [Les étapes]
+    - Menu pour jouer 
+    - Le jeu se lance :
+        - Inventaire
+        - Timer de lancement
+        - Système de waves
+        - Ennemis différents
+
+    [World]
+        [Génération de base]
+            - Background
+            - Cells (Emplacements pour les tours)
+            - Path
+            - Spawners (Où les ennemies spawn)
+        [Éléments]
+
+    [Modules]
+        - Graphismes
+            - Gestion des fenêtres (Menu/Jeu/autres...)
+            - Sprites
+            - Gestion des Guis
+        - Sounds
+        - Game Logic
+            - Déplacement des ennemis
+            - Tours qui tirent si l'enemi rentre dans la zone de celle-ci (trigger des animations)
+                Je veux que les calculs et les animations soient syncros
+                
+            - Où la souris vise
+                - Si vise ennemis ou alliés
+                    - Affiche nom et PV
+                - Si vise tour 
+                    - Affiche nom, bouton pour upgrades et les upgrades
+                - Si vise inventaire
+                    - Peut déplacer une tour
+                    - Si tour sur cellule 
+                        Si argent alors pose la tour sur la cellule
+                            - player.money -= tower.cost
+        - Pool/Inventaire (in game)
+            - Draggable towers 
+
+        - PathFInder (enemies must be able to follow a clear path to the base)
+
+    [Classes]
+        - Sprites
+            - Afficher Sprite (position)
+            - Animer Sprite
+        - Towers
+            - Pouvoir placer des tours dans les cellules
+            - Range (Peut s'afficher quand on place la souris dessus)
+            - Dégâts par missile
+        - Ennemies
+            - Allocation dynamique en mémoire
+            - Points de vie
+            - Si touche la base : base -= enemy.HP
+        - Allies
+            - Rentre dans les ennemis (vehicles)
+            - Tirent sur les ennemis
+                - S'arrête quand ennemi dans range (hérite de prop range et fire(missiles))
+        - Joueur
+            - A un inventaire avec toutes les tours 
+            - A un inventaire actif (celui utilisé dans le jeu)
+                - Basiquement génère la pool à tours dans la partie en parcourant le tableau d'inventaire actif
+            - Attributs : 
+                - IG_Cash (cash utilisé durant la partie)            
+                - Cash (cash pour acheter des tours dans le SHOP)
+
+    [Order]
+        - Game Loop
+            - User Input
+            - Game logic
+            - Graphics
+
+    [IDEAS]
+        - Niveau d'amélioration pour les ennemis 
+        - Skins pour les tours
+        - Ennemis capables d'attaquer (désactivation des tours)
+
+    [ASSETS]
+        - https://kenney.nl/assets/topdown-tanks-redux
+        - https://kenney.nl/assets/tower-defense-top-down
+        - https://free-game-assets.itch.io/zombie-top-down-shooter-game-kit
+
+    [LOGICIELS]
+        - Tiled (Pour créer les maps)
+
