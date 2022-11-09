@@ -10,7 +10,7 @@ if(SDL_FOUND)
   message(STATUS "SDL FOUND")
 endif()
 
-add_executable(${PROJECT_NAME} apps/main.cpp src/game.cpp src/assetsmanager.cpp src/vector2.cpp src/instances.cpp)
+add_executable(${PROJECT_NAME} apps/main.cpp src/game.cpp src/assetsmanager.cpp src/vector2.cpp src/instances.cpp src/grid.cpp)
 
 INCLUDE(FindPkgConfig)
 

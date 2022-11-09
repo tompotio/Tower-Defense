@@ -1,10 +1,17 @@
 #include "../include/game.hpp"
 
-Game::Game()
-{}
-
-void Game::Init(const char *title, int xpos, int ypos, int width, int height, bool fullscreen)
-{   
+//! Constructor
+/**
+ * Constructeur de la classe game. Initialise les éléments du jeu.
+ * @param title Titre.
+ * @param xpos Position en x de la fenêtre.
+ * @param ypos Position en y de la fenêtre.
+ * @param width Largeur de la fenêtre.
+ * @param height Hauteur de la fenêtre.
+ * @param fullscreen FullScreen ou non.
+*/
+Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fullscreen)
+{
     int flags = 0;
     if(fullscreen){
         flags = SDL_WINDOW_FULLSCREEN;
@@ -32,12 +39,14 @@ void Game::Init(const char *title, int xpos, int ypos, int width, int height, bo
         isRunning = false;
     }
 
+    SDL_SetWindowTitle(window, "SDL Grid test");
+
     // Champ de déclaration des assets du jeu 
     AssetManager assetManager = AssetManager();
 
     assetManager.AddTexture(
         "enemyBlack1",
-        TextureManager::LoadTexture("../assets/enemyBlack1.png",renderer)
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile245.png",renderer)
     );
 
     instances = Instance();
@@ -54,62 +63,19 @@ void Game::Init(const char *title, int xpos, int ypos, int width, int height, bo
         )
     );
 
-    objective_t A;
-    objective_t B;
-    objective_t C;
+    grid_cell_size = 32;
 
-    instances.objectives.push_back(A);
-    instances.objectives.push_back(B);
-    instances.objectives.push_back(C);
+    menu = Grid(10,1,grid_cell_size,100, 670);
+    map = Grid(32,20,grid_cell_size,0,0);
 
-    instances.objectives[0].next = &B;
-    instances.objectives[0].position = Vector2(100,100);
+    grid_cursor = {
+        .x = (menu.GetWidth() - 1) / 2 * grid_cell_size,
+        .y = (menu.GetHeight() - 1) / 2 * grid_cell_size,
+        .w = grid_cell_size,
+        .h = grid_cell_size,
+    };
 
-    instances.objectives[1].next = &C;
-    instances.objectives[1].position = Vector2(400,200);
-
-    instances.objectives[2].next = NULL;
-    instances.objectives[2].position = Vector2(600,600);
-
-    Enemy& enei = instances.GetEnemy(0);
-    enei.SetObjective(
-        instances.objectives[0]
-    );
-
-    Vector2 v = (*enei.GetObjective()).position - enei.GetPosition(); 
-    v = Vector2(v.getX(),v.getY());
-    v.normalizeVector();
-
-    enei.SetDirection(v);
-   
-    /*
-        Le menu se lance
-            Choix jouer
-                Choix de la carte
-                Bouton start
-            Choix son
-
-        Le jeu se lance
-            Une partie
-                Lis la carte, 
-                    Infos 
-                        Position des tiles 
-                        Position des objectifs 
-    */
-
-    /*
-    instances.AddEnemy(
-        Enemy(
-            Vector2(
-                300,
-                300
-            ),
-            50,
-            1,
-            assetManager
-        )
-    );
-    */
+    grid_cursor_ghost = {grid_cursor.x, grid_cursor.y, grid_cell_size, grid_cell_size};
 }
 
 void Game::HandleEvents()
@@ -117,6 +83,27 @@ void Game::HandleEvents()
     SDL_Event event;
     SDL_PollEvent(&event);
     switch(event.type){
+
+        // Gestion de la souris
+        case SDL_MOUSEBUTTONDOWN:
+            grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
+            grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+            break;
+        case SDL_MOUSEMOTION:
+            grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
+            grid_cursor_ghost.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+
+            if (!mouse_active)
+                mouse_active = SDL_TRUE;
+            break;
+        case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_ENTER && !mouse_hover)
+                mouse_hover = SDL_TRUE;
+            else if (event.window.event == SDL_WINDOWEVENT_LEAVE && mouse_hover)
+                mouse_hover = SDL_FALSE;
+            break;
+
+            //Fermeture du jeu
         case SDL_QUIT:
             isRunning = false;
             break;
@@ -126,65 +113,52 @@ void Game::HandleEvents()
     }
 }
 
-// On va séparer les autres updates fonctions
+// Met à jour l'affichage du jeu
 void Game::Update()
-{   
-    // Example de code pour charger la map
-    /*
-        SDL_Rect t{0,0, 16,16};
-        for(int x = 0; x < 40; x++){
-            for(int z = 0; z < 40; z++){
-                SDL_Rect r{x*16,z*16, 16,16};
+{       
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+    DrawGrid(menu);
+    DrawGrid(map);
 
-                SDL_RenderCopy(renderer,tileset,&t,&r);
-            }
-        }
-    */
-    
-    for (auto enemy : instances.GetEnemies()) {
-        TextureManager::BlitSprite(
-            enemy.GetSprite(),
-            renderer
+    // Dessine le grid ghost cursor.
+    if (mouse_active && mouse_hover) {
+        SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r,
+                                grid_cursor_ghost_color.g,
+                                grid_cursor_ghost_color.b,
+                                grid_cursor_ghost_color.a);
+        SDL_RenderFillRect(renderer, &grid_cursor_ghost);
+    }
+
+    // Dessine le grid cursor.
+    SDL_SetRenderDrawColor(renderer, grid_cursor_color.r,
+                            grid_cursor_color.g, grid_cursor_color.b,
+                            grid_cursor_color.a);
+    SDL_RenderFillRect(renderer, &grid_cursor);
+
+    SDL_RenderPresent(renderer);
+}
+
+void Game::DrawGrid(Grid grid)
+{
+    for(int x = 0; x < grid.GetWidth() + 1; x++){
+        SDL_RenderDrawLine(
+            renderer, 
+            x * grid.GetCellSize() + grid.GetOffsetX(), // x de départ
+            grid.GetOffsetY(), // y de départ (câlé sur offset)
+            x * grid.GetCellSize() + grid.GetOffsetX(), // x de départ
+            grid.GetHeight() * grid.GetCellSize() + grid.GetOffsetY() // y d'arrivée
         );
     }
 
-    Enemy& e = instances.GetEnemy(0);
-    Vector2 v = e.GetDirection();
-    
-    Vector2 ob_pos = (*e.GetObjective()).position;
-    //ob_pos.printVector2();
-
-    Vector2 dis = ob_pos - e.GetPosition();
-    dis = Vector2(dis.getX(),dis.getY());
-
-    //printf("%f \n",dis.getMag());
-    
-    // Vérifier que l'ennemi est aux alentours de l'objectif
-    if (!(&dis == NULL)){
-        if (dis.getMag() <= 10){
-            //printf("Dépassement \n");
-            for(int i = 0; i < instances.objectives.size(); i++){
-                if (&(instances.objectives[i]) == e.GetObjective()){
-                    printf("premier");
-                    if ((i + 1) < instances.objectives.size()){
-                        e.SetObjective(instances.objectives[i+1]);
-                    }
-                }
-            }
-            (*e.GetObjective()).position.printVector2();
-
-            Vector2 v = (*e.GetObjective()).position - e.GetPosition(); 
-            v = Vector2(v.getX(),v.getY());
-            v.normalizeVector();
-
-            e.SetDirection(v);
-        }
+    for(int y = 0; y < grid.GetHeight() + 1; y++){
+        SDL_RenderDrawLine(
+            renderer, 
+            grid.GetOffsetX(), // x de départ (câlé sur offset)
+            y * grid.GetCellSize() + grid.GetOffsetY(), // y de départ
+            grid.GetWidth() * grid.GetCellSize() + grid.GetOffsetX(), // x d'arrivée
+            y * grid.GetCellSize() + grid.GetOffsetY() // y de départ
+        );
     }
-    
-    v.setMag(e.GetSpeed());
-    e.Move(
-        v
-    );
 }
 
 void Game::RenderClear()
