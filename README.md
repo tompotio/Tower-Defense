@@ -15,23 +15,22 @@ Tower Defense
 ### Installing
 
 * Any modifications needed to be made to files/folders
+
+- First time launching the game :
+- Create a build folder
+- Open build
+- Then open terminal
+- Type :
 ```
-    First time launching the game :
-
-    Create a build folder
-    Open build
-    Open terminal
-    Type " cmake .. "
-    At last, type " make "
-
+    cmake ..
+    make
 ```
 
 ### Executing program
 
 * How to run the program
-* Step-by-step
 ```
-    type " ./Tower Defense " to open the game
+   ./Tower Defense
 ```
 
 ## Help
