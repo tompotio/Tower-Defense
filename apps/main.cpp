@@ -7,10 +7,10 @@
 
 int main(int argc, char *args[])
 {   
-    const int frameDelay = 1000 / FPS;
+    const Uint32 frameDelay = 1000.0f / FPS;
 
     Uint32 frameStart;
-    int frameTime;
+    Uint32 frameTime;
 
     static Game* game = new Game(
         "GameWindow", 
@@ -26,12 +26,9 @@ int main(int argc, char *args[])
 
         frameStart = SDL_GetTicks();
 
-        game->HandleEvents();
-
-        //(couleur de fond de base du jeu)
-        SDL_SetRenderDrawColor(game->renderer, 22, 22, 22, 255);
-
         game->RenderClear();
+
+        game->HandleEvents();
 
         game->Update();
         
@@ -39,10 +36,20 @@ int main(int argc, char *args[])
 
         frameTime = SDL_GetTicks() - frameStart;
 
+        // Ajoute un délai lorsque l'ordinateur tourne trop rapidement pour rester à 60 fps
+        // NB : Pour je ne sais quelle raison, SDL_Delay ralenti énormément le déplacement de grid shadow tout en ayant 60 fps constant.
+        /* 
         if(frameDelay > frameTime)
         {
             SDL_Delay(frameDelay - frameTime);
         }
+        */
+
+       // En attendant qu'un jour le bug soit réglé, j'ai mis un mini délai de 1 qui semble ne pas trop trouble le jeu.
+       SDL_Delay(1);
+
+        // Affiche les FPS sur le terminal pour les tests
+        //std::cout << 1000 / (SDL_GetTicks() - frameStart) << std::endl; 
     }
     
     game->Clean();

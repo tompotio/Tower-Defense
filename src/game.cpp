@@ -84,7 +84,6 @@ void Game::HandleEvents()
     SDL_Event event;
     SDL_PollEvent(&event);
     switch(event.type){
-
         // Gestion de la souris
         case SDL_MOUSEBUTTONDOWN:
             grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
@@ -93,15 +92,9 @@ void Game::HandleEvents()
         case SDL_MOUSEMOTION:
             grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
             grid_cursor_ghost.y = (event.motion.y / grid_cell_size) * grid_cell_size;
-
-        case SDL_WINDOWEVENT:
-            if (event.window.event == SDL_WINDOWEVENT_ENTER && !mouse_hover)
-                mouse_hover = SDL_TRUE;
-            else if (event.window.event == SDL_WINDOWEVENT_LEAVE && mouse_hover)
-                mouse_hover = SDL_FALSE;
             break;
-
-            //Fermeture du jeu
+            
+        //Fermeture du jeu
         case SDL_QUIT:
             isRunning = false;
             break;
@@ -113,9 +106,9 @@ void Game::HandleEvents()
 
 // Met à jour l'affichage du jeu.
 void Game::Update()
-{       
-    // Applique la couleur de fond
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+{   
+    // Applique la couleur des lignes
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     // Affiche la grille menu
     DrawGrid(menu);
@@ -123,22 +116,29 @@ void Game::Update()
     // Affiche la grille map
     DrawGrid(map);
 
-    // Dessine le grid ghost cursor.
-    if (mouse_hover) {
-        SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r,
-                                grid_cursor_ghost_color.g,
-                                grid_cursor_ghost_color.b,
-                                grid_cursor_ghost_color.a);
-        SDL_RenderFillRect(renderer, &grid_cursor_ghost);
-    }
+    // Dessine le grid ghost cursor
+    SDL_SetRenderDrawColor(
+        renderer, grid_cursor_ghost_color.r,
+        grid_cursor_ghost_color.g,
+        grid_cursor_ghost_color.b,
+        grid_cursor_ghost_color.a
+    );
 
-    // Dessine le grid cursor.
-    SDL_SetRenderDrawColor(renderer, grid_cursor_color.r,
-                            grid_cursor_color.g, grid_cursor_color.b,
-                            grid_cursor_color.a);
+    //
+    SDL_RenderFillRect(renderer, &grid_cursor_ghost);
+
+    // Dessine le grid cursor
+    SDL_SetRenderDrawColor(
+        renderer, grid_cursor_color.r,
+        grid_cursor_color.g, grid_cursor_color.b,
+        grid_cursor_color.a
+    );
+
+    //
     SDL_RenderFillRect(renderer, &grid_cursor);
 
-    SDL_RenderPresent(renderer);
+    //(couleur de fond de base du jeu)
+    SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
 }
 
 // Dessine une grille sur l'écran.
