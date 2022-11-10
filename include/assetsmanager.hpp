@@ -16,7 +16,7 @@ class Sprite
 {
     public:
 		Sprite() = default;
-        Sprite(SDL_Rect rect, SDL_Texture* text);
+        Sprite(SDL_Rect rect, SDL_Texture* texture);
 
         bool Sprites_collide(Sprite sp1, Sprite sp2);
 

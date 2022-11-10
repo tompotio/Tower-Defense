@@ -1,10 +1,21 @@
 #include "../include/assetsmanager.hpp"
 
-Sprite::Sprite(SDL_Rect rect, SDL_Texture* text){
+//! Constructor
+/**
+ * @param rect rect.
+ * @param texture texture.
+*/
+Sprite::Sprite(SDL_Rect rect, SDL_Texture* texture){
     this->rect = rect;
-    this->texture = text;
+    this->texture = texture;
 }
 
+//! LoadTexture
+/**
+ * Charge une texture et la renvoie sous format SDL_Texture.
+ * @param fileName chemin vers le fichier.
+ * @param renderer renderer de SDL.
+*/
 SDL_Texture* TextureManager::LoadTexture(const char* fileName, SDL_Renderer* renderer)
 {
     // Charge l'image
@@ -16,12 +27,25 @@ SDL_Texture* TextureManager::LoadTexture(const char* fileName, SDL_Renderer* ren
 	return texture;
 }
 
+//! DestroyTexture
+/**
+ * Détruit la texture en question.
+ * @param texture pointeur vers une texture.
+*/
 void TextureManager::DestroyTexture(SDL_Texture* texture)
 {
     // Libérer une texture
     SDL_DestroyTexture(texture);
 }
 
+//! BlitTexture
+/**
+ * Applique une texture sur le renderer.
+ * @param texture pointeur vers une texture.
+ * @param renderer renderer de SDL.
+ * @param x position en x où placer la texture.
+ * @param y position en y où placer la texture.
+*/
 void TextureManager::BlitTexture(SDL_Texture* texture,SDL_Renderer* renderer, int x , int y)
 {
     SDL_Rect dstcrect; 
@@ -35,7 +59,13 @@ void TextureManager::BlitTexture(SDL_Texture* texture,SDL_Renderer* renderer, in
     SDL_RenderCopy(renderer, texture, NULL, &dstcrect);
 }
 
-// On suppose les coordonées de rect connues (modifiées lors d'un mouvement etc)
+//! BlitSprite
+/**
+ * Applique une texture sur le renderer depuis un sprite.
+ * On suppose les coordonées de rect connues (modifiées lors d'un mouvement etc)
+ * @param sprite objet sprite.
+ * @param renderer renderer de SDL.
+*/
 void TextureManager::BlitSprite(Sprite sprite, SDL_Renderer* renderer)
 {
     SDL_Rect r = sprite.GetRect();
@@ -44,12 +74,23 @@ void TextureManager::BlitSprite(Sprite sprite, SDL_Renderer* renderer)
     SDL_RenderCopy(renderer, sprite.GetTexture(), NULL, &r);
 }
 
+//! AddTexture
+/**
+ * Ajoute une texture dans assetManager.
+ * @param id identifiant de la texture.
+ * @param texture texture à stocker.
+*/
 void AssetManager::AddTexture(std::string id, SDL_Texture* texture)
 {
     //emplace() is preferred for efficiency reasons.
     textures.emplace(id, texture);
 }
 
+//! GetTexture
+/**
+ * Récupère une texture stockée dans assetManager.
+ * @param id identifiant de la texture.
+*/
 SDL_Texture* AssetManager::GetTexture(std::string id)
 {
 	return textures[id];
@@ -62,7 +103,6 @@ int* Map::ParseMap(const char* fileName){
 void Map::GetTiles(const char* fileName){
 
 }
-
 
 void Map::PrintMap(const char* fileName){
 
