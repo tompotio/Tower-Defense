@@ -1,8 +1,8 @@
 #include "../include/game.hpp"
 #include "../include/vector2.hpp"
 
-#define RESOLUTION_X 1280
-#define RESOLUTION_Y 720
+#define RESOLUTION_X 1440
+#define RESOLUTION_Y 1080
 #define FPS 60
 
 int main(int argc, char *args[])

@@ -117,14 +117,14 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
 
     // NB : Dessiner une grille n'est pas obligatoire, c'est juste un affichage test
     // Je vais avoir besoin de la grille map pour afficher les tiles et avoir d'autres informations
-    grid_cell_size = 32;
+    grid_cell_size = 64;
 
-    menu = Grid(10,1,grid_cell_size,100, 670);
-    map = Grid(32,20,grid_cell_size,0,0);
+    inventory = Grid(10,1,grid_cell_size,100, 670);
+    map = Grid(20,10,grid_cell_size,0,0);
 
     grid_cursor = {
-        .x = (menu.GetWidth() - 1) / 2 * grid_cell_size,
-        .y = (menu.GetHeight() - 1) / 2 * grid_cell_size,
+        .x = (inventory.GetWidth() - 1) * grid_cell_size,
+        .y = (inventory.GetHeight() - 1) * grid_cell_size,
         .w = grid_cell_size,
         .h = grid_cell_size,
     };
@@ -162,12 +162,15 @@ void Game::HandleEvents()
 // Met à jour l'affichage du jeu.
 void Game::Update()
 {   
-    
+
     // Applique la couleur des lignes
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    // Affiche la grille menu
-    DrawGrid(menu);
+    // Affiche les tiles sur la grille
+    DrawTiles();
+
+    // Affiche la grille inventory
+    DrawGrid(inventory);
 
     // Affiche la grille map
     DrawGrid(map);
@@ -196,8 +199,13 @@ void Game::Update()
     //(couleur de fond de base du jeu)
     SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
 
-    // Affiche les tiles sur la grille
-    DrawTiles();
+    // Affiche les ennemis pour le fun
+    for (auto enemy : instances.GetEnemies()) {
+        TextureManager::BlitSprite(
+            enemy.GetSprite(),
+            renderer
+        );
+    }
 }
 
 // Dessiner les tiles
@@ -214,22 +222,8 @@ void Game::DrawTiles()
         exit(EXIT_FAILURE);
     }
 
-    TextureManager::BlitTexture(
-        assetManager.GetTexture("soldier"),
-        renderer,
-        50,
-        50
-    );
-
-    for (auto enemy : instances.GetEnemies()) {
-    TextureManager::BlitSprite(
-        enemy.GetSprite(),
-        renderer
-    );
-}
-
-    for(int x = 0; x < 32; x++){
-        for(int y = 0; y < 20; y++){
+    for(int x = 0; x < 20; x++){
+        for(int y = 0; y < 10; y++){
             c = fgetc(fp);
             switch(c){
                 case ',':
@@ -237,7 +231,7 @@ void Game::DrawTiles()
 
                 case '1':
                     TextureManager::BlitTexture(
-                        assetManager.GetTexture("grass"),
+                        assetManager.GetTexture("grass-top"),
                         renderer,
                         x * grid_cell_size,
                         y * grid_cell_size
@@ -246,7 +240,7 @@ void Game::DrawTiles()
 
                 case '4':
                     TextureManager::BlitTexture(
-                        assetManager.GetTexture("grass"),
+                        assetManager.GetTexture("grass-top"),
                         renderer,
                         x * grid_cell_size,
                         y * grid_cell_size
@@ -255,7 +249,7 @@ void Game::DrawTiles()
 
                 case '5':
                     TextureManager::BlitTexture(
-                        assetManager.GetTexture("grass"),
+                        assetManager.GetTexture("dirt"),
                         renderer,
                         x * grid_cell_size,
                         y * grid_cell_size
@@ -327,7 +321,7 @@ void Game::RenderPresent()
 }
 
 // Appelle les destructeurs de SDL.
-// NB : Sera bientôt deprecated, lors de l'ajout du menu.
+// NB : Sera bientôt deprecated, lors de l'ajout du inventory.
 void Game::Clean()
 {
     SDL_DestroyWindow(window);

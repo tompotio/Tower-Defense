@@ -35,7 +35,7 @@ class Game
         AssetManager assetManager;
         Instance instances;
         Grid map;
-        Grid menu;
+        Grid inventory;
 
         SDL_Renderer *renderer;
 
