@@ -60,6 +60,26 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
     );
 
     assetManager.AddTexture(
+        "grass-top-curve-right",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile004.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-top-curve-left",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile003.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-bottom-curve-right",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile027.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-bottom-curve-left",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile026.png",renderer)
+    );
+
+    assetManager.AddTexture(
         "grass-right",
         TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile023.png",renderer)
     );
@@ -85,12 +105,12 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
     );
 
     assetManager.AddTexture(
-        "grass-bottow-corner-right",
+        "grass-bottom-corner-right",
         TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile002.png",renderer)
     );
 
     assetManager.AddTexture(
-        "grass-bottow-corner-left",
+        "grass-bottom-corner-left",
         TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile299.png",renderer)
     );
 
@@ -107,7 +127,31 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
         Enemy(
             Vector2(
                 100,
-                300
+                500
+            ),
+            50,
+            1,
+            assetManager
+        )
+    );
+
+    instances.AddEnemy(
+        Enemy(
+            Vector2(
+                500,
+                500
+            ),
+            50,
+            1,
+            assetManager
+        )
+    );
+
+    instances.AddEnemy(
+        Enemy(
+            Vector2(
+                200,
+                500
             ),
             50,
             1,
@@ -162,12 +206,23 @@ void Game::HandleEvents()
 // Met à jour l'affichage du jeu.
 void Game::Update()
 {   
-
-    // Applique la couleur des lignes
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
     // Affiche les tiles sur la grille
     DrawTiles();
+
+    // Dessine le grid cursor
+    SDL_SetRenderDrawColor(renderer, grid_cursor_color.r, grid_cursor_color.g, grid_cursor_color.b, grid_cursor_color.a);
+
+    //
+    SDL_RenderFillRect(renderer, &grid_cursor);
+
+    // Dessine le grid ghost cursor
+    SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r, grid_cursor_ghost_color.g, grid_cursor_ghost_color.b, grid_cursor_ghost_color.a);
+
+    //
+    SDL_RenderFillRect(renderer, &grid_cursor_ghost);
+
+    // Applique la couleur des lignes (Lire la doc de la fonction pour comprendre le fonctionnement)
+    SDL_SetRenderDrawColor(renderer, grid_line_color.r, grid_line_color.g, grid_line_color.b, grid_line_color.a);
 
     // Affiche la grille inventory
     DrawGrid(inventory);
@@ -175,29 +230,8 @@ void Game::Update()
     // Affiche la grille map
     DrawGrid(map);
 
-    // Dessine le grid ghost cursor
-    SDL_SetRenderDrawColor(
-        renderer, grid_cursor_ghost_color.r,
-        grid_cursor_ghost_color.g,
-        grid_cursor_ghost_color.b,
-        grid_cursor_ghost_color.a
-    );
-
-    //
-    SDL_RenderFillRect(renderer, &grid_cursor_ghost);
-
-    // Dessine le grid cursor
-    SDL_SetRenderDrawColor(
-        renderer, grid_cursor_color.r,
-        grid_cursor_color.g, grid_cursor_color.b,
-        grid_cursor_color.a
-    );
-
-    //
-    SDL_RenderFillRect(renderer, &grid_cursor);
-
     //(couleur de fond de base du jeu)
-    SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
+    SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
 
     // Affiche les ennemis pour le fun
     for (auto enemy : instances.GetEnemies()) {
@@ -216,70 +250,156 @@ void Game::DrawTiles()
     FILE * fp = NULL;
     fp = fopen("../assets/map1.txt", "r");
     int c;
+    int x = 0;
+    int y = 0;
 
     if (fp == NULL){
         std::cerr << "Le programme n'a pas réussi à lire la map..." << std::endl;
         exit(EXIT_FAILURE);
     }
+    while(c != EOF){
+        c = fgetc(fp);
+        switch(c){
+            case '1':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
 
-    for(int x = 0; x < 20; x++){
-        for(int y = 0; y < 10; y++){
-            c = fgetc(fp);
-            switch(c){
-                case ',':
-                    break;
+            case '2':
+            TextureManager::BlitTexture(
+                assetManager.GetTexture("grass-right"),
+                renderer,
+                x * grid_cell_size,
+                y * grid_cell_size
+            );
+            break;
 
-                case '1':
-                    TextureManager::BlitTexture(
-                        assetManager.GetTexture("grass-top"),
-                        renderer,
-                        x * grid_cell_size,
-                        y * grid_cell_size
-                    );
-                    break;
+            case '3':
+            TextureManager::BlitTexture(
+                assetManager.GetTexture("grass-top-curve-right"),
+                renderer,
+                x * grid_cell_size,
+                y * grid_cell_size
+            );
+            break;
 
-                case '4':
-                    TextureManager::BlitTexture(
-                        assetManager.GetTexture("grass-top"),
-                        renderer,
-                        x * grid_cell_size,
-                        y * grid_cell_size
-                    );
-                    break;
+            case '4':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-top"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
 
-                case '5':
-                    TextureManager::BlitTexture(
-                        assetManager.GetTexture("dirt"),
-                        renderer,
-                        x * grid_cell_size,
-                        y * grid_cell_size
-                    );
-                    break;
+            case '5':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("dirt"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
 
-                case '6':
-                    TextureManager::BlitTexture(
-                        assetManager.GetTexture("grass"),
-                        renderer,
-                        x * grid_cell_size,
-                        y * grid_cell_size
-                    );
-                    break;
+            case '6':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-top-corner-right"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
 
-                case '7':
-                    TextureManager::BlitTexture(
-                        assetManager.GetTexture("grass"),
-                        renderer,
-                        x * grid_cell_size,
-                        y * grid_cell_size
-                    );
-                    break;
+            case '7':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-bottom-curve-right"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
+            
+            case '8':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-bottom"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
 
-                default:
-                    break;
-            }
+            case '9':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-left"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
+
+            case 'A':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-top-curve-left"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
+
+            case 'B':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-bottom-corner-right"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
+
+            case 'C':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-bottom-curve-left"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
+
+            case 'D':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-top-corner-right"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
+
+            case 'E':
+                TextureManager::BlitTexture(
+                    assetManager.GetTexture("grass-top-corner-left"),
+                    renderer,
+                    x * grid_cell_size,
+                    y * grid_cell_size
+                );
+                break;
+            
+
+            default:
+                break;
+        }
+
+        if(c == '\n'){
+            y+=1;
+            x = 0;
+        }
+        if(c != ',' && c != '\n' && c != ' '){
+            x+=1;
         }
     }
-
+    fclose (fp);
 }
 
 // Dessine une grille sur l'écran.

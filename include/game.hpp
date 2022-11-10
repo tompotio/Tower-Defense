@@ -53,7 +53,7 @@ class Game
         SDL_Window *window;
 
         SDL_Color grid_background = {22, 22, 22, 255};
-        SDL_Color grid_line_color = {44, 44, 44, 255};
+        SDL_Color grid_line_color = {255, 255, 255, 255};
         SDL_Color grid_cursor_ghost_color = {44, 44, 44, 255};
-        SDL_Color grid_cursor_color = {150, 0, 0, 255};
+        SDL_Color grid_cursor_color = {50, 50, 50, 255};
 };
