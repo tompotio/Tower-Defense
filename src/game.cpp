@@ -78,6 +78,7 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
     grid_cursor_ghost = {grid_cursor.x, grid_cursor.y, grid_cell_size, grid_cell_size};
 }
 
+// Met à jour les éléments du jeu en fonction des événements SDL (souris, keys etc).
 void Game::HandleEvents()
 {
     SDL_Event event;
@@ -93,9 +94,6 @@ void Game::HandleEvents()
             grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
             grid_cursor_ghost.y = (event.motion.y / grid_cell_size) * grid_cell_size;
 
-            if (!mouse_active)
-                mouse_active = SDL_TRUE;
-            break;
         case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_ENTER && !mouse_hover)
                 mouse_hover = SDL_TRUE;
@@ -113,15 +111,20 @@ void Game::HandleEvents()
     }
 }
 
-// Met à jour l'affichage du jeu
+// Met à jour l'affichage du jeu.
 void Game::Update()
 {       
+    // Applique la couleur de fond
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+
+    // Affiche la grille menu
     DrawGrid(menu);
+
+    // Affiche la grille map
     DrawGrid(map);
 
     // Dessine le grid ghost cursor.
-    if (mouse_active && mouse_hover) {
+    if (mouse_hover) {
         SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r,
                                 grid_cursor_ghost_color.g,
                                 grid_cursor_ghost_color.b,
@@ -138,8 +141,10 @@ void Game::Update()
     SDL_RenderPresent(renderer);
 }
 
+// Dessine une grille sur l'écran.
 void Game::DrawGrid(Grid grid)
 {
+    // Dessine les lignes de la grille verticalement à chaque position x
     for(int x = 0; x < grid.GetWidth() + 1; x++){
         SDL_RenderDrawLine(
             renderer, 
@@ -150,6 +155,7 @@ void Game::DrawGrid(Grid grid)
         );
     }
 
+    // Dessine les lignes horizontales à chaque position y
     for(int y = 0; y < grid.GetHeight() + 1; y++){
         SDL_RenderDrawLine(
             renderer, 
@@ -161,16 +167,20 @@ void Game::DrawGrid(Grid grid)
     }
 }
 
+// Applique le nouveau rendu (Donc ce qu'il y avait dans le backbuffer précédent)
 void Game::RenderClear()
 {
     SDL_RenderClear(renderer);
 }
 
+// Rajoute un nouveau rendu à afficher.
 void Game::RenderPresent()
 {
     SDL_RenderPresent(renderer);
 }
 
+// Appelle les destructeurs de SDL.
+// NB : Sera bientôt deprecated, lors de l'ajout du menu.
 void Game::Clean()
 {
     SDL_DestroyWindow(window);

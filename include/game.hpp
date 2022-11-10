@@ -43,7 +43,6 @@ class Game
         int grid_cell_size;
 
         bool isRunning;
-        bool mouse_active = false;
         bool mouse_hover = true;
 
         SDL_Rect grid_cursor;

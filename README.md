@@ -4,6 +4,12 @@ Tower Defense
 
 ## Description
 
+* Les fonctions SDL
+Les fonctions de SDL sont automatisées et cachées par de nouvelels fonctions utiles, dans les différentes classes cf. : RenderClean, AddTexture etc.
+
+* Les commentaires
+Si par exemple il n'y a pas beaucoup de commentaires dans le main, c'est parce que les fonctions appelées sont déjà commentées dans leur header respectifs.
+Il suffit donc de passer la souris dessus par exemple, pour afficher leur description (marche sous VS code, sinon lire dans le .hpp).
 
 ## Getting Started
 
