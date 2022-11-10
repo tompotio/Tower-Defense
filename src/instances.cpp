@@ -5,7 +5,7 @@ Enemy::Enemy(Vector2 spawnPosition, int Max_HP, int Speed, AssetManager& assetma
     this->Current_HP = Max_HP;
     this->speed = Speed;
 
-    SDL_Texture* texture = assetmanager.GetTexture("enemyBlack1");
+    SDL_Texture* texture = assetmanager.GetTexture("soldier");
     int w;
     int h;
 

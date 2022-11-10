@@ -1,3 +1,4 @@
+/*
 Utiliser freesurface quand on détruit une entité de type sprite
 
 
@@ -87,6 +88,7 @@ Tower Defense
     [LOGICIELS]
         - Tiled (Pour créer les maps)
 
+*/
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 INIT
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -151,58 +153,58 @@ UPDATE
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Example de code pour charger la map
-    /*
-        SDL_Rect t{0,0, 16,16};
-        for(int x = 0; x < 40; x++){
-            for(int z = 0; z < 40; z++){
-                SDL_Rect r{x*16,z*16, 16,16};
+/*
+    SDL_Rect t{0,0, 16,16};
+    for(int x = 0; x < 40; x++){
+        for(int z = 0; z < 40; z++){
+            SDL_Rect r{x*16,z*16, 16,16};
 
-                SDL_RenderCopy(renderer,tileset,&t,&r);
-            }
+            SDL_RenderCopy(renderer,tileset,&t,&r);
         }
-    */
-    
-    for (auto enemy : instances.GetEnemies()) {
-        TextureManager::BlitSprite(
-            enemy.GetSprite(),
-            renderer
-        );
     }
+*/
 
-    Enemy& e = instances.GetEnemy(0);
-    Vector2 v = e.GetDirection();
-    
-    Vector2 ob_pos = (*e.GetObjective()).position;
-    //ob_pos.printVector2();
+for (auto enemy : instances.GetEnemies()) {
+    TextureManager::BlitSprite(
+        enemy.GetSprite(),
+        renderer
+    );
+}
 
-    Vector2 dis = ob_pos - e.GetPosition();
-    dis = Vector2(dis.getX(),dis.getY());
+Enemy& e = instances.GetEnemy(0);
+Vector2 v = e.GetDirection();
 
-    //printf("%f \n",dis.getMag());
-    
-    // Vérifier que l'ennemi est aux alentours de l'objectif
-    if (!(&dis == NULL)){
-        if (dis.getMag() <= 10){
-            //printf("Dépassement \n");
-            for(int i = 0; i < instances.objectives.size(); i++){
-                if (&(instances.objectives[i]) == e.GetObjective()){
-                    printf("premier");
-                    if ((i + 1) < instances.objectives.size()){
-                        e.SetObjective(instances.objectives[i+1]);
-                    }
+Vector2 ob_pos = (*e.GetObjective()).position;
+//ob_pos.printVector2();
+
+Vector2 dis = ob_pos - e.GetPosition();
+dis = Vector2(dis.getX(),dis.getY());
+
+//printf("%f \n",dis.getMag());
+
+// Vérifier que l'ennemi est aux alentours de l'objectif
+if (!(&dis == NULL)){
+    if (dis.getMag() <= 10){
+        //printf("Dépassement \n");
+        for(int i = 0; i < instances.objectives.size(); i++){
+            if (&(instances.objectives[i]) == e.GetObjective()){
+                printf("premier");
+                if ((i + 1) < instances.objectives.size()){
+                    e.SetObjective(instances.objectives[i+1]);
                 }
             }
-            (*e.GetObjective()).position.printVector2();
-
-            Vector2 v2 = (*e.GetObjective()).position - e.GetPosition(); 
-            v2 = Vector2(v.getX(),v.getY());
-            v2.normalizeVector();
-
-            e.SetDirection(v);
         }
+        (*e.GetObjective()).position.printVector2();
+
+        Vector2 v2 = (*e.GetObjective()).position - e.GetPosition(); 
+        v2 = Vector2(v.getX(),v.getY());
+        v2.normalizeVector();
+
+        e.SetDirection(v);
     }
-    
-    v.setMag(e.GetSpeed());
-    e.Move(
-        v
-    );
+}
+
+v.setMag(e.GetSpeed());
+e.Move(
+    v
+);

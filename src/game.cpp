@@ -39,15 +39,67 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
         isRunning = false;
     }
 
-    SDL_SetWindowTitle(window, "SDL Grid test");
+    SDL_SetWindowTitle(window, "SDL tiles on grid test");
 
     // Champ de déclaration des assets du jeu 
-    AssetManager assetManager = AssetManager();
+    assetManager = AssetManager();
 
     assetManager.AddTexture(
-        "enemyBlack1",
+        "soldier",
         TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile245.png",renderer)
     );
+
+    assetManager.AddTexture(
+        "grass",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile024.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "dirt",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile050.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-right",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile023.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-left",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile025.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-top-corner-right",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile046.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-top",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile047.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-bottom",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile001.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-bottow-corner-right",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile002.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-bottow-corner-left",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile299.png",renderer)
+    );
+
+    assetManager.AddTexture(
+        "grass-top-corner-left",
+        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile048.png",renderer)
+    );
+
+    //std::cout << assetManager.GetTexture("grass") << std::endl;
 
     instances = Instance();
 
@@ -63,6 +115,8 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
         )
     );
 
+    // NB : Dessiner une grille n'est pas obligatoire, c'est juste un affichage test
+    // Je vais avoir besoin de la grille map pour afficher les tiles et avoir d'autres informations
     grid_cell_size = 32;
 
     menu = Grid(10,1,grid_cell_size,100, 670);
@@ -76,6 +130,7 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
     };
 
     grid_cursor_ghost = {grid_cursor.x, grid_cursor.y, grid_cell_size, grid_cell_size};
+
 }
 
 // Met à jour les éléments du jeu en fonction des événements SDL (souris, keys etc).
@@ -93,7 +148,7 @@ void Game::HandleEvents()
             grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
             grid_cursor_ghost.y = (event.motion.y / grid_cell_size) * grid_cell_size;
             break;
-            
+
         //Fermeture du jeu
         case SDL_QUIT:
             isRunning = false;
@@ -107,6 +162,7 @@ void Game::HandleEvents()
 // Met à jour l'affichage du jeu.
 void Game::Update()
 {   
+    
     // Applique la couleur des lignes
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
@@ -139,6 +195,97 @@ void Game::Update()
 
     //(couleur de fond de base du jeu)
     SDL_SetRenderDrawColor(renderer, 22, 22, 22, 255);
+
+    // Affiche les tiles sur la grille
+    DrawTiles();
+}
+
+// Dessiner les tiles
+// (Pour le moment sans paramètre, il n'y a qu'une seule map dans le dossier de toute façon)
+void Game::DrawTiles()
+{
+    // Utiliser fopen est 4 à 5 fois plus rapide que std:ifstream ! 
+    FILE * fp = NULL;
+    fp = fopen("../assets/map1.txt", "r");
+    int c;
+
+    if (fp == NULL){
+        std::cerr << "Le programme n'a pas réussi à lire la map..." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    TextureManager::BlitTexture(
+        assetManager.GetTexture("soldier"),
+        renderer,
+        50,
+        50
+    );
+
+    for (auto enemy : instances.GetEnemies()) {
+    TextureManager::BlitSprite(
+        enemy.GetSprite(),
+        renderer
+    );
+}
+
+    for(int x = 0; x < 32; x++){
+        for(int y = 0; y < 20; y++){
+            c = fgetc(fp);
+            switch(c){
+                case ',':
+                    break;
+
+                case '1':
+                    TextureManager::BlitTexture(
+                        assetManager.GetTexture("grass"),
+                        renderer,
+                        x * grid_cell_size,
+                        y * grid_cell_size
+                    );
+                    break;
+
+                case '4':
+                    TextureManager::BlitTexture(
+                        assetManager.GetTexture("grass"),
+                        renderer,
+                        x * grid_cell_size,
+                        y * grid_cell_size
+                    );
+                    break;
+
+                case '5':
+                    TextureManager::BlitTexture(
+                        assetManager.GetTexture("grass"),
+                        renderer,
+                        x * grid_cell_size,
+                        y * grid_cell_size
+                    );
+                    break;
+
+                case '6':
+                    TextureManager::BlitTexture(
+                        assetManager.GetTexture("grass"),
+                        renderer,
+                        x * grid_cell_size,
+                        y * grid_cell_size
+                    );
+                    break;
+
+                case '7':
+                    TextureManager::BlitTexture(
+                        assetManager.GetTexture("grass"),
+                        renderer,
+                        x * grid_cell_size,
+                        y * grid_cell_size
+                    );
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
 }
 
 // Dessine une grille sur l'écran.

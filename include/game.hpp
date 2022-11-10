@@ -21,6 +21,8 @@ class Game
 
         void Draw();
 
+        void DrawTiles();
+
         void DrawGrid(Grid grid);
 
         void RenderPresent();

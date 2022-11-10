@@ -42,8 +42,6 @@ class Enemy
 
         objective_t* GetObjective(){return this->objective;};
 
-        // Une fonction nextObjective qui update l'objectif suivant directement ?
-
         // Modifie la position de l'ennemi via un vecteur
         void SetPosition(Vector2 pos);
 

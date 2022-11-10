@@ -20,7 +20,7 @@ class Sprite
 
         bool Sprites_collide(Sprite sp1, Sprite sp2);
 
-		SDL_Rect GetRect(){return rect;};
+		SDL_Rect& GetRect(){return rect;};
 
 		void SetRect(SDL_Rect r){this->rect = r;};
 
@@ -36,16 +36,15 @@ class Sprite
 };
 
 
-class TextureManager
+namespace TextureManager
 {
-	public:
-		static SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
+	SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
 
-		static void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
+	void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
 
-		static void DestroyTexture(SDL_Texture* texture);
+	void DestroyTexture(SDL_Texture* texture);
 
-		static void BlitSprite(Sprite sprite, SDL_Renderer* renderer);
+	void BlitSprite(Sprite sprite, SDL_Renderer* renderer);
 };
 
 class AssetManager
