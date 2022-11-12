@@ -136,6 +136,13 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
         TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile048.png",renderer)
     );
 
+
+    // MENU ASSETS
+    assetManager.AddTexture(
+        "playbutton",
+        TextureManager::LoadTexture("../assets/playbutton.png",renderer)
+    );
+
     //std::cout << assetManager.GetTexture("grass") << std::endl;
 
     instances = Instance();
