@@ -1,5 +1,22 @@
 #include "../include/game.hpp"
 
+/*
+    NB : 
+        [CURSEUR DE GRILLE]
+            - Ne doit s'afficher que lorsqu'il la souris est sur la grille map ou sur l'inventaire
+            - Positionner le curseur en fonction de la position de la grille (pour qu'il n'y ait pas de décalage sur l'inventaire)
+
+        [PATHFINDING]
+
+        [WIDGETS]
+
+        [Autres]
+            Créer un singleton pour le rendu
+
+            Créer une superclasse pour les instances 
+
+*/
+
 //! Constructor
 /**
  * Constructeur de la classe game. Initialise les éléments du jeu.
@@ -163,8 +180,13 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
     // Je vais avoir besoin de la grille map pour afficher les tiles et avoir d'autres informations
     grid_cell_size = 64;
 
-    inventory = Grid(10,1,grid_cell_size,100, 670);
-    map = Grid(20,10,grid_cell_size,0,0);
+    this->inventory = Grid(10,1,grid_cell_size,100, 670);
+
+    this->map = Grid(20,10,grid_cell_size,0,0);
+
+    Grid& var = map;
+
+    this->pathfinding = new Pathfinding(var);
 
     grid_cursor = {
         .x = (inventory.GetWidth() - 1) * grid_cell_size,
@@ -185,8 +207,12 @@ void Game::HandleEvents()
     switch(event.type){
         // Gestion de la souris
         case SDL_MOUSEBUTTONDOWN:
-            grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
-            grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+            if (event.button.button == SDL_BUTTON_LEFT){
+                grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
+                grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+            }else if (event.button.button == SDL_BUTTON_RIGHT){
+                showgrid = !showgrid;
+            }
             break;
         case SDL_MOUSEMOTION:
             grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
@@ -209,26 +235,30 @@ void Game::Update()
     // Affiche les tiles sur la grille
     DrawTiles();
 
-    // Dessine le grid cursor
-    SDL_SetRenderDrawColor(renderer, grid_cursor_color.r, grid_cursor_color.g, grid_cursor_color.b, grid_cursor_color.a);
+    if (showgrid){
+        // Dessine le grid cursor
+        SDL_SetRenderDrawColor(renderer, grid_cursor_color.r, grid_cursor_color.g, grid_cursor_color.b, grid_cursor_color.a);
 
-    //
-    SDL_RenderFillRect(renderer, &grid_cursor);
+        //
+        SDL_RenderFillRect(renderer, &grid_cursor);
 
-    // Dessine le grid ghost cursor
-    SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r, grid_cursor_ghost_color.g, grid_cursor_ghost_color.b, grid_cursor_ghost_color.a);
+        // Dessine le grid ghost cursor
+        SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r, grid_cursor_ghost_color.g, grid_cursor_ghost_color.b, grid_cursor_ghost_color.a);
 
-    //
-    SDL_RenderFillRect(renderer, &grid_cursor_ghost);
+        //
+        SDL_RenderFillRect(renderer, &grid_cursor_ghost);
+    }
 
     // Applique la couleur des lignes (Lire la doc de la fonction pour comprendre le fonctionnement)
     SDL_SetRenderDrawColor(renderer, grid_line_color.r, grid_line_color.g, grid_line_color.b, grid_line_color.a);
 
-    // Affiche la grille inventory
-    DrawGrid(inventory);
+    if (showgrid){
+        // Affiche la grille map
+        map.DrawGrid(renderer);
+    }
 
-    // Affiche la grille map
-    DrawGrid(map);
+    // Affiche la grille inventory
+    inventory.DrawGrid(renderer);
 
     //(couleur de fond de base du jeu)
     SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
@@ -400,32 +430,6 @@ void Game::DrawTiles()
         }
     }
     fclose (fp);
-}
-
-// Dessine une grille sur l'écran.
-void Game::DrawGrid(Grid grid)
-{
-    // Dessine les lignes de la grille verticalement à chaque position x
-    for(int x = 0; x < grid.GetWidth() + 1; x++){
-        SDL_RenderDrawLine(
-            renderer, 
-            x * grid.GetCellSize() + grid.GetOffsetX(), // x de départ
-            grid.GetOffsetY(), // y de départ (câlé sur offset)
-            x * grid.GetCellSize() + grid.GetOffsetX(), // x de départ
-            grid.GetHeight() * grid.GetCellSize() + grid.GetOffsetY() // y d'arrivée
-        );
-    }
-
-    // Dessine les lignes horizontales à chaque position y
-    for(int y = 0; y < grid.GetHeight() + 1; y++){
-        SDL_RenderDrawLine(
-            renderer, 
-            grid.GetOffsetX(), // x de départ (câlé sur offset)
-            y * grid.GetCellSize() + grid.GetOffsetY(), // y de départ
-            grid.GetWidth() * grid.GetCellSize() + grid.GetOffsetX(), // x d'arrivée
-            y * grid.GetCellSize() + grid.GetOffsetY() // y de départ
-        );
-    }
 }
 
 // Applique le nouveau rendu (Donc ce qu'il y avait dans le backbuffer précédent)

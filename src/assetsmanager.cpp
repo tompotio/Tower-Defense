@@ -95,15 +95,3 @@ SDL_Texture* AssetManager::GetTexture(std::string id)
 {
 	return textures[id];
 }
-
-int* Map::ParseMap(const char* fileName){
-    return NULL;
-}  
-
-void Map::GetTiles(const char* fileName){
-
-}
-
-void Map::PrintMap(const char* fileName){
-
-}

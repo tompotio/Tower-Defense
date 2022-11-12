@@ -34,8 +34,11 @@ class Game
         
         AssetManager assetManager;
         Instance instances;
+
         Grid map;
         Grid inventory;
+
+        Pathfinding* pathfinding;
 
         SDL_Renderer *renderer;
 
@@ -46,6 +49,7 @@ class Game
 
         bool isRunning;
         bool mouse_hover = true;
+        bool showgrid = false;
 
         SDL_Rect grid_cursor;
         SDL_Rect grid_cursor_ghost;

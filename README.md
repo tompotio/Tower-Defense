@@ -1,6 +1,4 @@
-# Project Title
-
-Tower Defense
+# Tower Defense
 
 ## Description
 
