@@ -1,41 +1,10 @@
-#include "../include/game.hpp"
+#include "../include/menu.hpp"
 
-/*
-    NB : 
-        [CURSEUR DE GRILLE]
-            - Ne doit s'afficher que lorsqu'il la souris est sur la grille map ou sur l'inventaire
-            - Positionner le curseur en fonction de la position de la grille (pour qu'il n'y ait pas de décalage sur l'inventaire)
-
-        [PATHFINDING]
-
-        [WIDGETS]
-
-        [Autres]
-            Créer un singleton pour le rendu
-
-            Créer une superclasse pour les instances 
-
-*/
-
-//! Constructor
-/**
- * Constructeur de la classe game. Initialise les éléments du jeu.
- * @param title Titre.
- * @param xpos Position en x de la fenêtre.
- * @param ypos Position en y de la fenêtre.
- * @param width Largeur de la fenêtre.
- * @param height Hauteur de la fenêtre.
- * @param fullscreen FullScreen ou non.
-*/
 Menu::Menu()
 {
     
 
-    
-
-    
-
-
+   
     grid_cell_size = 64;
 
     this->inventory = Grid(1,1,grid_cell_size,100, 670);
