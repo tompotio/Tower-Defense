@@ -1,4 +1,5 @@
 #include "../include/game.hpp"
+#include "../include/menu.hpp"
 #include "../include/vector2.hpp"
 
 #define RESOLUTION_X 1440
@@ -21,6 +22,8 @@ int main(int argc, char *args[])
         false
     );
 
+    static Menu* menu = new Menu(game->renderer);
+
     while(game->running())
     {
 
@@ -30,7 +33,13 @@ int main(int argc, char *args[])
 
         game->HandleEvents();
 
-        game->Update();
+        if (menu->running()) {
+            game->DrawTiles();
+            menu->Update(game->renderer);
+        }
+        else {
+            game->Update();
+        }
         
         game->RenderPresent();
 

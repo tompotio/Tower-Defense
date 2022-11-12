@@ -451,6 +451,9 @@ void Game::RenderPresent()
     SDL_RenderPresent(renderer);
 }
 
+
+
+
 // Appelle les destructeurs de SDL.
 // NB : Sera bientôt deprecated, lors de l'ajout du inventory.
 void Game::Clean()
