@@ -12,16 +12,14 @@ class Menu
         ~Menu() = default;
 
         void Update(SDL_Renderer* renderer); 
-
-
-        // Renvoie si le jeu est en cours
-        bool running() {return isRunning; };
+        bool running() {return isRunning;};
         
-        AssetManager assetManager;
+        std::vector<Sprite> widgets;
+        Sprite sprite;
+        SDL_Rect rect;
+
 
     private:
-        
-
         bool isRunning;
      
         

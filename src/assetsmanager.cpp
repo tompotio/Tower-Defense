@@ -46,7 +46,7 @@ void TextureManager::DestroyTexture(SDL_Texture* texture)
  * @param x position en x où placer la texture.
  * @param y position en y où placer la texture.
 */
-void TextureManager::BlitTexture(SDL_Texture* texture,SDL_Renderer* renderer, int x , int y)
+void TextureManager::BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x , int y)
 {
     SDL_Rect dstcrect; 
     dstcrect.x = x;
