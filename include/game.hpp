@@ -38,7 +38,9 @@ class Game
         Grid map;
         Grid inventory;
 
-        Pathfinding* pathfinding;
+        std::vector<Cell> path;
+
+        bool foundpath = false;
 
         SDL_Renderer *renderer;
 

@@ -180,13 +180,9 @@ Game::Game(const char *title, int xpos, int ypos, int width, int height, bool fu
     // Je vais avoir besoin de la grille map pour afficher les tiles et avoir d'autres informations
     grid_cell_size = 64;
 
-    this->inventory = Grid(10,1,grid_cell_size,100, 670);
+    //inventory = Grid(10,1,grid_cell_size,100, 670);
 
-    this->map = Grid(20,10,grid_cell_size,0,0);
-
-    Grid& var = map;
-
-    this->pathfinding = new Pathfinding(var);
+    map = Grid(20,10,grid_cell_size,0,0);
 
     grid_cursor = {
         .x = (inventory.GetWidth() - 1) * grid_cell_size,
@@ -210,6 +206,14 @@ void Game::HandleEvents()
             if (event.button.button == SDL_BUTTON_LEFT){
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
                 grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+                std::cout << "position = " << grid_cursor.x / 64 << " : " << grid_cursor.y / 64 << std::endl;
+                path = map.FindPath(
+                    5,
+                    5,
+                    grid_cursor.x / grid_cell_size,
+                    grid_cursor.y / grid_cell_size
+                );
+                foundpath = true;
             }else if (event.button.button == SDL_BUTTON_RIGHT){
                 showgrid = !showgrid;
             }
@@ -236,11 +240,11 @@ void Game::Update()
     DrawTiles();
 
     if (showgrid){
-        // Dessine le grid cursor
-        SDL_SetRenderDrawColor(renderer, grid_cursor_color.r, grid_cursor_color.g, grid_cursor_color.b, grid_cursor_color.a);
+        // Dessine le grid cursor (Si on souhaite afficher où on clique)
+        //SDL_SetRenderDrawColor(renderer, grid_cursor_color.r, grid_cursor_color.g, grid_cursor_color.b, grid_cursor_color.a);
 
         //
-        SDL_RenderFillRect(renderer, &grid_cursor);
+        //SDL_RenderFillRect(renderer, &grid_cursor);
 
         // Dessine le grid ghost cursor
         SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r, grid_cursor_ghost_color.g, grid_cursor_ghost_color.b, grid_cursor_ghost_color.a);
@@ -258,10 +262,22 @@ void Game::Update()
     }
 
     // Affiche la grille inventory
-    inventory.DrawGrid(renderer);
+    //inventory.DrawGrid(renderer);
+    if (foundpath){
+        SDL_SetRenderDrawColor(renderer, 0, 150, 0, 255);
 
-    //(couleur de fond de base du jeu)
-    SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
+        if (path.size() > 0){
+            for (int i = 0; i < path.size() - 1; i++){
+                SDL_RenderDrawLine(
+                    renderer, 
+                    path[i].x * grid_cell_size, // x de départ
+                    path[i].y * grid_cell_size, // y de départ
+                    path[i + 1].x * grid_cell_size, // x d'arrivée
+                    path[i + 1].y * grid_cell_size// y d'arrivée
+                );
+            }
+        }
+    }
 
     // Affiche les ennemis pour le fun
     for (auto enemy : instances.GetEnemies()) {
@@ -270,6 +286,10 @@ void Game::Update()
             renderer
         );
     }
+
+    //(couleur de fond de base du jeu)
+    SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
+    
 }
 
 // Dessiner les tiles

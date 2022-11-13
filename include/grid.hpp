@@ -6,14 +6,13 @@
 #include "vector"
 #include <algorithm>
 #include <cmath>
+#include <functional>
 
 class Cell{
     public:
         Cell(int x, int y);
 
-        void CalculateFCost(){
-            fCost = gCost + hCost;
-        };
+        void CalculateFCost(){this->fCost = this->gCost + this->hCost;};
 
         Cell* cameFromCell;
 
@@ -41,13 +40,31 @@ class Grid
 
         int GetOffsetY(){return this->offsety;};
 
-        Cell& GetGridObject(int x, int y);
+        Cell* GetGridObject(int x, int y);
 
         void DrawGrid(SDL_Renderer* renderer);
 
-        //Vector2 GetWorldPosition(int x, int y);
+        int CalculateDistanceCost(Cell* a, Cell* b);
+
+        Cell* GetLowestFCostCell();
+
+        bool Find(Cell* cell, std::vector<Cell*> list);
+
+        int GetPositionInList(Cell* cell, std::vector<Cell*> list);
+
+        std::vector<Cell*> GetNeighbourList(Cell* currentCell);
+
+        std::vector<Cell> CalculatePath(Cell* endCell);
+
+        std::vector<Cell> FindPath(int startX, int startY, int endX, int endY);
 
     private:
+        int MOVE_STRAIGHT_COST = 10;
+        int MOVE_DIAGONAL_COST = 14;
+
+        std::vector<Cell*> openList;
+        std::vector<Cell*> closedList;
+
         int width;
         int height;
         int cellsize;
@@ -56,33 +73,4 @@ class Grid
 
         // Tableau à deux dimensions des cellules contenues dans la grille
         std::vector<std::vector<Cell>> cells;
-};
-
-class Pathfinding
-{
-    public:
-        Pathfinding(Grid grid);
-
-        int CalculateDistanceCost(Cell a, Cell b);
-
-        Cell& GetLowestFCostCell(std::vector<Cell> List);
-
-        bool Find(Cell cell, std::vector<Cell> list);
-
-        int GetPositionInList(Cell cell, std::vector<Cell> list);
-
-        std::vector<Cell> GetNeighbourList(Cell currentCell);
-
-        std::vector<Cell> CalculatePath(Cell endCell);
-
-        std::vector<Cell> FindPath(int startX, int startY, int endX, int endY);
-
-    private:
-        const int MOVE_STRAIGHT_COST = 10;
-        const int MOVE_DIAGONAL_COST = 14;
-
-        Grid grid = Grid();
-
-        std::vector<Cell> openList;
-        std::vector<Cell> closedList;
 };

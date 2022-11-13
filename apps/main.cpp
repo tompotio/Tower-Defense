@@ -1,5 +1,6 @@
 #include "../include/game.hpp"
 #include "../include/vector2.hpp"
+#include <unistd.h>
 
 #define RESOLUTION_X 1440
 #define RESOLUTION_Y 1080
@@ -38,6 +39,7 @@ int main(int argc, char *args[])
 
         // Ajoute un délai lorsque l'ordinateur tourne trop rapidement pour rester à 60 fps
         // NB : Pour je ne sais quelle raison, SDL_Delay ralenti énormément le déplacement de grid shadow tout en ayant 60 fps constant.
+
         /* 
         if(frameDelay > frameTime)
         {
@@ -45,11 +47,11 @@ int main(int argc, char *args[])
         }
         */
 
-       // En attendant qu'un jour le bug soit réglé, j'ai mis un mini délai de 1 qui semble ne pas trop trouble le jeu.
+       // En attendant qu'un jour le bug soit réglé, j'ai mis un mini délai de 1 qui semble ne pas trop troubler le jeu.
        SDL_Delay(1);
 
         // Affiche les FPS sur le terminal pour les tests
-        //std::cout << 1000 / (SDL_GetTicks() - frameStart) << std::endl; 
+        //std::cout << 1000 / (SDL_GetTicks() - frameStart) << std::endl;
     }
     
     game->Clean();

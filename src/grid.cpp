@@ -19,17 +19,17 @@ Grid::Grid(int width,int height,int cellsize, int offsetx, int offsety){
     this->offsetx = offsetx;
     this->offsety = offsety;
 
-    for (int x = 0; x < width; x++){
+    for (int x = 0; x < GetWidth(); x++){
         std::vector<Cell> newrow;
         cells.push_back(newrow);
-        for (int y = 0; y < width; y++){
+        for (int y = 0; y < GetHeight(); y++){
             cells[x].push_back(Cell(x,y));
         }
     }
 }
 
-Cell& Grid::GetGridObject(int x, int y){
-    return cells[x][y];
+Cell* Grid::GetGridObject(int x, int y){
+    return &(cells[x][y]);
 }
 
 // Dessine une grille sur l'écran.
@@ -57,129 +57,122 @@ void Grid::DrawGrid(SDL_Renderer* renderer){
     }
 }
 
-Pathfinding::Pathfinding(Grid grid){
-    this->grid = grid;
-}
-
-bool Pathfinding::Find(Cell cell, std::vector<Cell> list){
-    for(Cell c : list){
-        if (c.x == cell.x && c.y == cell.y) return true;
+bool Grid::Find(Cell* cell, std::vector<Cell*> list){
+    for(Cell* c : list){
+        if (c == cell) return true;
     }
     return false;
 }
 
-int Pathfinding::GetPositionInList(Cell cell, std::vector<Cell> list){
+int Grid::GetPositionInList(Cell* cell, std::vector<Cell*> list){
     int i = 0;
-    for (Cell c : list){
-        if (c.x == cell.x && c.y == cell.y)return i;
+    for (Cell* c : list){
+        if (c == cell)return i;
         i++;
     }
     exit(1);
 }
 
-std::vector<Cell> Pathfinding::FindPath(int startX, int startY, int endX, int endY){
-    Cell& startCell = grid.GetGridObject(startX,startY);
-    Cell& endCell = grid.GetGridObject(endX,endY);
+std::vector<Cell> Grid::FindPath(int startX, int startY, int endX, int endY){
+    Cell* startCell = GetGridObject(startX,startY);
+    Cell* endCell = GetGridObject(endX,endY);
 
     openList.push_back(startCell);
 
-    for (int x = 0; x < grid.GetWidth(); x++){
-        for (int y = 0; y < grid.GetHeight(); y++){
-            Cell cell = grid.GetGridObject(x,y);
-            cell.gCost = std::numeric_limits<int>::max();;
-            cell.CalculateFCost();
-            cell.cameFromCell = nullptr;
+    for (int x = 0; x < GetWidth(); x++){
+        for (int y = 0; y < GetHeight(); y++){
+            Cell* cell = GetGridObject(x,y);
+            cell->gCost = 100000000;
+            cell->CalculateFCost();
+            cell->cameFromCell = nullptr;
         }
     }
 
-    startCell.gCost = 0;
-    startCell.hCost = CalculateDistanceCost(startCell,endCell);
-    startCell.CalculateFCost();
+    startCell->gCost = 0;
+    startCell->hCost = CalculateDistanceCost(startCell,endCell);
+    startCell->CalculateFCost();
 
     while (openList.size() > 0){
-        Cell& currentCell = GetLowestFCostCell(openList);
-        if (&currentCell == &endCell){
+        Cell* currentCell = GetLowestFCostCell();
+        if (currentCell == endCell){
             return CalculatePath(endCell);
         }
-        // Oui tout ça juste pour retirer un élément spécifique...
-        openList.erase(openList.begin() + GetPositionInList(currentCell, openList) - 1);
+        openList.erase(openList.begin() + GetPositionInList(currentCell, openList));
         closedList.push_back(currentCell);
-
-        for (Cell neighbourcell : GetNeighbourList(currentCell)){
+    
+        for (Cell* neighbourcell : GetNeighbourList(currentCell)){
             if (Find(neighbourcell, closedList)) continue;
-
-            int tentativeGCost = currentCell.gCost + CalculateDistanceCost(currentCell, neighbourcell);
-            if (tentativeGCost < neighbourcell.gCost){
-                neighbourcell.cameFromCell = &currentCell;
-                neighbourcell.gCost = tentativeGCost;
-                neighbourcell.hCost = CalculateDistanceCost(neighbourcell, endCell);
-                neighbourcell.CalculateFCost();
-
+            int tentativeGCost = currentCell->gCost + CalculateDistanceCost(currentCell, neighbourcell);
+            if (tentativeGCost < neighbourcell->gCost){
+                neighbourcell->cameFromCell = currentCell;
+                neighbourcell->gCost = tentativeGCost;
+                neighbourcell->hCost = CalculateDistanceCost(neighbourcell, endCell);
+                neighbourcell->CalculateFCost();
                 if (!(Find(neighbourcell, openList))){
                     openList.push_back(neighbourcell);
                 }
             }
         }
     }
+    // Vector de taille nulle
     std::vector<Cell> null;
     return null;
 }
 
-std::vector<Cell> Pathfinding::GetNeighbourList(Cell currentCell){
-    std::vector<Cell> neighbourList;
-
-    if (currentCell.x - 1 >= 0){
+std::vector<Cell*> Grid::GetNeighbourList(Cell* currentCell){
+    std::vector<Cell*> neighbourList;
+    if (currentCell->x - 1 >= 0){
         // À gauche
-        neighbourList.push_back(grid.GetGridObject(currentCell.x -1, currentCell.y));
+        neighbourList.push_back(GetGridObject(currentCell->x -1, currentCell->y));
         // À gauche en bas
-        if (currentCell.y - 1 >= 0) neighbourList.push_back(grid.GetGridObject(currentCell.x - 1, currentCell.y - 1));
+        if (currentCell->y - 1 >= 0) neighbourList.push_back(GetGridObject(currentCell->x - 1, currentCell->y - 1));
         // À gauche en haut
-        if (currentCell.y + 1 < grid.GetHeight()) neighbourList.push_back(grid.GetGridObject(currentCell.x - 1, currentCell.y + 1));
+        if (currentCell->y + 1 < GetHeight()) neighbourList.push_back(GetGridObject(currentCell->x - 1, currentCell->y + 1));
     }
-    if (currentCell.x + 1 < grid.GetWidth()) {
+    if (currentCell->x + 1 < GetWidth()) {
         // À droite
-        neighbourList.push_back(grid.GetGridObject(currentCell.x + 1, currentCell.y));
+        neighbourList.push_back(GetGridObject(currentCell->x + 1, currentCell->y));
         // À droite en bas
-        if (currentCell.y - 1 >= 0) neighbourList.push_back(grid.GetGridObject(currentCell.x + 1, currentCell.y - 1));
+        if (currentCell->y - 1 >= 0) neighbourList.push_back(GetGridObject(currentCell->x + 1, currentCell->y - 1));
         // À droite en haut
-        if (currentCell.y + 1 < grid.GetHeight()) neighbourList.push_back(grid.GetGridObject(currentCell.x + 1, currentCell.y + 1));
+        if (currentCell->y + 1 < GetHeight()) neighbourList.push_back(GetGridObject(currentCell->x + 1, currentCell->y + 1));
     }
     // En bas
-    if (currentCell.y - 1 >= 0) neighbourList.push_back(grid.GetGridObject(currentCell.x, currentCell.y -1));
+    if (currentCell->y - 1 >= 0) neighbourList.push_back(GetGridObject(currentCell->x, currentCell->y -1));
     // En haut
-    if (currentCell.y + 1 < grid.GetHeight()) neighbourList.push_back(grid.GetGridObject(currentCell.x, currentCell.y + 1));
+    if (currentCell->y + 1 < GetHeight()) neighbourList.push_back(GetGridObject(currentCell->x, currentCell->y + 1));
 
     return neighbourList;
 }
 
-std::vector<Cell> Pathfinding::CalculatePath(Cell endCell){
+std::vector<Cell> Grid::CalculatePath(Cell* endCell){
     std::vector<Cell> path;
-    path.push_back(endCell);
+    path.push_back(*endCell);
 
-    Cell& currentCell = endCell;
-    while (currentCell.cameFromCell != nullptr){
-        path.push_back(*(currentCell.cameFromCell));
-        currentCell = *(currentCell.cameFromCell);
-
+    Cell* currentCell = endCell;
+    
+    while (!(currentCell->cameFromCell == nullptr)){
+        path.push_back(*currentCell->cameFromCell);
+        currentCell = (currentCell->cameFromCell);
     }
-
     std::reverse(path.begin(), path.end());
     return path;
 }
 
-Cell& Pathfinding::GetLowestFCostCell(std::vector<Cell> List){
-    Cell& lowestFCostNode = List[0];
-    for (int i = 1; i < List.size(); i++){
-        if (List[i].fCost < lowestFCostNode.fCost) {
-            lowestFCostNode = List[i];
+Cell* Grid::GetLowestFCostCell(){
+    Cell* lowestFCostNode = openList[0];
+
+    for (int i = 1; i < openList.size(); i++){
+        if (openList[i]->fCost < lowestFCostNode->fCost) {
+            lowestFCostNode = openList[i];
         }
     }
     return lowestFCostNode;
 }
 
-int Pathfinding::CalculateDistanceCost(Cell a, Cell b){
-    int xDistance = std::abs(a.x - b.x);
-    int yDistance = std::abs(a.y - b.y);
+int Grid::CalculateDistanceCost(Cell* a, Cell* b){
+    int xDistance = std::abs(a->x - b->x);
+    int yDistance = std::abs(a->y - b->y);
     int remaining = std::abs(xDistance - yDistance);
     return MOVE_DIAGONAL_COST * std::min(xDistance,yDistance) + MOVE_STRAIGHT_COST * remaining;
 }
