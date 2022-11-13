@@ -150,6 +150,8 @@ std::vector<Cell> Grid::CalculatePath(Cell* endCell){
     path.push_back(*endCell);
 
     Cell* currentCell = endCell;
+    openList.clear();
+    closedList.clear();
     
     while (!(currentCell->cameFromCell == nullptr)){
         path.push_back(*currentCell->cameFromCell);

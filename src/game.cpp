@@ -263,17 +263,16 @@ void Game::Update()
 
     // Affiche la grille inventory
     //inventory.DrawGrid(renderer);
-    if (foundpath){
-        SDL_SetRenderDrawColor(renderer, 0, 150, 0, 255);
-
+    if (foundpath && showgrid){
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         if (path.size() > 0){
             for (int i = 0; i < path.size() - 1; i++){
                 SDL_RenderDrawLine(
                     renderer, 
-                    path[i].x * grid_cell_size, // x de départ
-                    path[i].y * grid_cell_size, // y de départ
-                    path[i + 1].x * grid_cell_size, // x d'arrivée
-                    path[i + 1].y * grid_cell_size// y d'arrivée
+                    (path[i].x * grid_cell_size) + (grid_cell_size / 2), // x de départ
+                    (path[i].y * grid_cell_size) + (grid_cell_size / 2), // y de départ
+                    (path[i + 1].x * grid_cell_size) + (grid_cell_size / 2), // x d'arrivée
+                    (path[i + 1].y * grid_cell_size) + (grid_cell_size / 2) // y d'arrivée
                 );
             }
         }
