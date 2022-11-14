@@ -13,7 +13,7 @@ int main(int argc, char *args[])
     Uint32 frameStart;
     Uint32 frameTime;
 
-    static Game* game = new Game(
+    static Body* body = new Body(
         "GameWindow", 
         SDL_WINDOWPOS_CENTERED, 
         SDL_WINDOWPOS_CENTERED, 
@@ -21,6 +21,8 @@ int main(int argc, char *args[])
         RESOLUTION_Y,
         false
     );
+
+    static Game* game = new Game(body);
 
     while(game->running())
     {
@@ -54,7 +56,7 @@ int main(int argc, char *args[])
         //std::cout << 1000 / (SDL_GetTicks() - frameStart) << std::endl;
     }
     
-    game->Clean();
+    body->Clean();
 
     return 0;
 }

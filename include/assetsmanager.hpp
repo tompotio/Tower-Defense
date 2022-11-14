@@ -64,7 +64,8 @@ class AssetManager
 
 		//Sound Management
 		void AddMusic(std::string id, std::string path);
-		void AddSFX(std::string id, std::string path); // Basiquement les WAV (je crois)
+		// Basiquement les WAV
+		void AddSFX(std::string id, std::string path); 
 		Mix_Music* GetMusic(std::string id);
 		Mix_Chunk* GetSFX(std::string id);
 

@@ -53,7 +53,7 @@ Tower::Tower(){
 }
 
 Tower::Tower(Towers_t type){
-
+    
 }
 
 Enemy Tower::GetEnemy(){

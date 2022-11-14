@@ -6,18 +6,21 @@ Cell::Cell(int x, int y){
 }
 
 //! Constructor
-/**
+/** Constructeur d'une grille.
+ * Une grille possède un algorithme de calcul de "path". C'est un algorithme A * (https://fr.wikipedia.org/wiki/Algorithme_A*). 
+ * L'algorithme recherche le plus court chemin entre deux cellules.
  * @param width largeur de la grille.
  * @param height hauteur de la grille.
  * @param cellsize taille d'une cellule.
  * @param offset position de la grille par rapport à l'écran SDL (0,0).
 */
-Grid::Grid(int width,int height,int cellsize, int offsetx, int offsety){
+Grid::Grid(int width,int height,int cellsize, int offsetx, int offsety, SDL_Renderer* renderer){
     this->width = width;
     this->height = height;
     this->cellsize = cellsize;
     this->offsetx = offsetx;
     this->offsety = offsety;
+    this->renderer = renderer;
 
     for (int x = 0; x < GetWidth(); x++){
         std::vector<Cell> newrow;
@@ -28,11 +31,42 @@ Grid::Grid(int width,int height,int cellsize, int offsetx, int offsety){
     }
 }
 
+//! Constructor
+/**
+ * @param x position x dans vector cells.
+ * @param y position y dans vector cells.
+ * @param c choix pour le type de la cellule (TOWER, DIRT ou MISC).
+*/
+void Grid::AffectTypeToCell(int x, int y, char c){
+    switch(c){
+            case 'T':
+                cells[x][y].type = TOWER;
+                break;
+            break;
+
+            case '5':
+                cells[x][y].type = DIRT;
+                break;
+
+            default:
+                cells[x][y].type = MISC;
+                break;
+        }
+}
+
+/**
+ * Renvoie un pointeur vers une cellule dans la liste cells.
+ * @param x position x.
+ * @param y position y.
+*/
 Cell* Grid::GetGridObject(int x, int y){
     return &(cells[x][y]);
 }
 
-// Dessine une grille sur l'écran.
+/**
+ * Dessine une grille sur l'écran.
+ * @param renderer renderer de SDL.
+*/
 void Grid::DrawGrid(SDL_Renderer* renderer){
     // Dessine les lignes de la grille verticalement à chaque position x
     for(int x = 0; x < GetWidth() + 1; x++){
@@ -57,6 +91,11 @@ void Grid::DrawGrid(SDL_Renderer* renderer){
     }
 }
 
+/**
+ * Renvoie vrai si la cellule a été retrouvée dans une liste.
+ * @param cell la cellule.
+ * @param list la liste.
+*/
 bool Grid::Find(Cell* cell, std::vector<Cell*> list){
     for(Cell* c : list){
         if (c == cell) return true;
@@ -64,6 +103,11 @@ bool Grid::Find(Cell* cell, std::vector<Cell*> list){
     return false;
 }
 
+/**
+ * Renvoie la position de la cellule dans une liste.
+ * @param cell la cellule.
+ * @param list la liste.
+*/
 int Grid::GetPositionInList(Cell* cell, std::vector<Cell*> list){
     int i = 0;
     for (Cell* c : list){
@@ -73,6 +117,13 @@ int Grid::GetPositionInList(Cell* cell, std::vector<Cell*> list){
     exit(1);
 }
 
+/**
+ * Créer une chaîne de cellules à suivre de manière optimale. En d'autres termes, crée le chemin pour les troupes. 
+ * @param startX position de départ X de la cellule dans la grille (ex x = 5 et y = 5, la cellule cells[5][5] de grid).
+ * @param startY position de départ y de la cellule.
+ * @param endX position d'arrivée x.
+ * @param endY position d'arrivée y.
+*/
 std::vector<Cell> Grid::FindPath(int startX, int startY, int endX, int endY){
     Cell* startCell = GetGridObject(startX,startY);
     Cell* endCell = GetGridObject(endX,endY);
@@ -92,14 +143,16 @@ std::vector<Cell> Grid::FindPath(int startX, int startY, int endX, int endY){
     startCell->hCost = CalculateDistanceCost(startCell,endCell);
     startCell->CalculateFCost();
 
+    // Tant qu'il y a des cellules dans openlist à traiter on lance l'algorithme
     while (openList.size() > 0){
         Cell* currentCell = GetLowestFCostCell();
         if (currentCell == endCell){
             return CalculatePath(endCell);
         }
+        // On retire la cellule courante d'openlist car elle a été traité et est mise dans closedlist
         openList.erase(openList.begin() + GetPositionInList(currentCell, openList));
         closedList.push_back(currentCell);
-    
+
         for (Cell* neighbourcell : GetNeighbourList(currentCell)){
             if (Find(neighbourcell, closedList)) continue;
             int tentativeGCost = currentCell->gCost + CalculateDistanceCost(currentCell, neighbourcell);
@@ -119,6 +172,10 @@ std::vector<Cell> Grid::FindPath(int startX, int startY, int endX, int endY){
     return null;
 }
 
+/**
+ * Renvoie une liste des cellules voisines d'une cellule.
+ * @param currentCell cellule en cours d'analyse.
+*/
 std::vector<Cell*> Grid::GetNeighbourList(Cell* currentCell){
     std::vector<Cell*> neighbourList;
     if (currentCell->x - 1 >= 0){
@@ -145,11 +202,16 @@ std::vector<Cell*> Grid::GetNeighbourList(Cell* currentCell){
     return neighbourList;
 }
 
+/**
+ * Utilise la cellule d'arrivée pour retracer le chemin optimal dans une liste et la renverse pour que l'index 0 corresponde à la cellule de départ.
+ * @param endCell Cellule d'arrivée.
+*/
 std::vector<Cell> Grid::CalculatePath(Cell* endCell){
     std::vector<Cell> path;
     path.push_back(*endCell);
 
     Cell* currentCell = endCell;
+    // Lire le chemin revient à lire la jointure entre chaque cellule (c.f cameFromCell), donc on vide openList et closedList.
     openList.clear();
     closedList.clear();
     
@@ -161,6 +223,7 @@ std::vector<Cell> Grid::CalculatePath(Cell* endCell){
     return path;
 }
 
+// Renvoie la cellule dont le coût est le plus faible dans la liste openList.
 Cell* Grid::GetLowestFCostCell(){
     Cell* lowestFCostNode = openList[0];
 
@@ -172,6 +235,11 @@ Cell* Grid::GetLowestFCostCell(){
     return lowestFCostNode;
 }
 
+/**
+ * Renvoie le coût de ddistance entre deux cellules (utilisé pour "l'heuristic cost", l'hypothèse de coût sans obstacle).
+ * @param a une cellule.
+ * @param b une cellule.
+*/
 int Grid::CalculateDistanceCost(Cell* a, Cell* b){
     int xDistance = std::abs(a->x - b->x);
     int yDistance = std::abs(a->y - b->y);

@@ -4,13 +4,14 @@
 #include "audiomanager.hpp"
 #include "instances.hpp"
 #include "grid.hpp"
+#include "body.hpp"
 
 class Audiomanager;
 
 class Game 
 {
     public:
-        Game(const char *title, int xpos, int ypos, int width, int height, bool fullscreen);
+        Game(Body* body);
         ~Game() = default;
 
         void HandleEvents();
@@ -25,33 +26,43 @@ class Game
 
         void DrawGrid(Grid grid);
 
+        void DrawInstances();
+
         void RenderPresent();
 
-        void Clean();
+        Body* GetBody(){return body;};
 
         // Renvoie si le jeu est en cours
         bool running() {return isRunning; };
-        
+
+    private:
+        Body* body;
+
+        int cnt;
+        int playerMonney;
+        int grid_cell_size;
+
+        bool mouse_hover = true;
+        bool showgrid = false;
+        bool pressing_key_k = false;
+
+        Sprite spt;
+
+        int X = 0;
+        int Y = 0;
+
         AssetManager assetManager;
         Instance instances;
 
         Grid map;
         Grid inventory;
 
-        std::vector<Cell> path;
+        std::vector<Cell> path_test;
 
         bool foundpath = false;
+        bool isRunning;
 
         SDL_Renderer *renderer;
-
-    private:
-        int cnt;
-        int playerMonney;
-        int grid_cell_size;
-
-        bool isRunning;
-        bool mouse_hover = true;
-        bool showgrid = false;
 
         SDL_Rect grid_cursor;
         SDL_Rect grid_cursor_ghost;

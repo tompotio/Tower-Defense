@@ -1,19 +1,28 @@
 #pragma once
 
 #include <iostream>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include "vector"
 #include <algorithm>
 #include <cmath>
 #include <functional>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
+enum Cell_type_t 
+{   
+    TOWER,
+    DIRT,
+    MISC,
+};
 
 class Cell{
     public:
         Cell(int x, int y);
 
         void CalculateFCost(){this->fCost = this->gCost + this->hCost;};
-
+        
+        Cell_type_t type;
         Cell* cameFromCell;
 
         int gCost;
@@ -21,14 +30,14 @@ class Cell{
         int fCost;
 
         int x;
-        int y;      
+        int y;
 };
 
 class Grid
 {
     public:
         Grid() = default;
-        Grid(int width,int height,int cellsize, int offsetx, int offsety);
+        Grid(int width,int height,int cellsize, int offsetx, int offsety, SDL_Renderer* renderer);
 
         int GetWidth(){return this->width;};
 
@@ -40,37 +49,41 @@ class Grid
 
         int GetOffsetY(){return this->offsety;};
 
-        Cell* GetGridObject(int x, int y);
+        void DrawGrid(SDL_Renderer* renderer);        
 
-        void DrawGrid(SDL_Renderer* renderer);
-
-        int CalculateDistanceCost(Cell* a, Cell* b);
-
-        Cell* GetLowestFCostCell();
-
-        bool Find(Cell* cell, std::vector<Cell*> list);
-
-        int GetPositionInList(Cell* cell, std::vector<Cell*> list);
-
-        std::vector<Cell*> GetNeighbourList(Cell* currentCell);
-
-        std::vector<Cell> CalculatePath(Cell* endCell);
+        void AffectTypeToCell(int x, int y, char c);
 
         std::vector<Cell> FindPath(int startX, int startY, int endX, int endY);
 
     private:
+        Cell* GetGridObject(int x, int y);
+
+        Cell* GetLowestFCostCell();
+
+        int GetPositionInList(Cell* cell, std::vector<Cell*> list);
+
+        int CalculateDistanceCost(Cell* a, Cell* b);
+
+        bool Find(Cell* cell, std::vector<Cell*> list);
+
         int MOVE_STRAIGHT_COST = 10;
         int MOVE_DIAGONAL_COST = 14;
-
-        std::vector<Cell*> openList;
-        std::vector<Cell*> closedList;
-
         int width;
         int height;
         int cellsize;
         int offsetx;
         int offsety;
 
+        SDL_Renderer* renderer;
+
+        // Liste des cellules en cours de traitement
+        std::vector<Cell*> openList;
+
+        // Liste des cellules déjà parcourues
+        std::vector<Cell*> closedList;
+
         // Tableau à deux dimensions des cellules contenues dans la grille
         std::vector<std::vector<Cell>> cells;
+        std::vector<Cell*> GetNeighbourList(Cell* currentCell);
+        std::vector<Cell> CalculatePath(Cell* endCell);
 };
