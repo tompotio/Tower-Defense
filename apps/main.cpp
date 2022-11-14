@@ -29,13 +29,13 @@ int main(int argc, char *args[])
 
         frameStart = SDL_GetTicks();
 
-        game->RenderClear();
+        body->RenderClear();
 
         game->HandleEvents();
 
         game->Update();
         
-        game->RenderPresent();
+        body->RenderPresent();
 
         frameTime = SDL_GetTicks() - frameStart;
 

@@ -212,6 +212,9 @@ void Game::HandleEvents()
             if (event.key.keysym.sym == SDLK_k){
                 pressing_key_k = true;
             }
+            if (event.key.keysym.sym == SDLK_ESCAPE){
+                isRunning = false;
+            }
             break;
         // Lache une touche du clavier
         case SDL_KEYUP:
@@ -219,7 +222,6 @@ void Game::HandleEvents()
                 pressing_key_k = false;
             }
             break;
-
         //Fermeture du jeu
         case SDL_QUIT:
             isRunning = false;
@@ -295,7 +297,7 @@ void Game::DrawTiles()
     // Utiliser fopen est 4 à 5 fois plus rapide que std:ifstream ! 
     FILE * fp = NULL;
     fp = fopen("../assets/map1.txt", "r");
-    int c;
+    char c = '1';
     int x = 0;
     int y = 0;
 
@@ -305,6 +307,7 @@ void Game::DrawTiles()
     }
     while(c != EOF){
         c = fgetc(fp);
+        
         switch(c){
             case '1':
                 TextureManager::BlitTexture(
@@ -436,27 +439,15 @@ void Game::DrawTiles()
             default:
                 break;
         }
-        map.AffectTypeToCell(x,y,c);
 
         if(c == '\n'){
-            y+=1;
+            y += 1;
             x = 0;
         }
         if(c != ',' && c != '\n' && c != ' '){
-            x+=1;
+            map.AffectTypeToCell(x,y,c);
+            x += 1;
         }
     }
     fclose (fp);
-}
-
-// Applique le nouveau rendu (Donc ce qu'il y avait dans le backbuffer précédent)
-void Game::RenderClear()
-{
-    SDL_RenderClear((*GetBody()).GetRenderer());
-}
-
-// Rajoute un nouveau rendu à afficher.
-void Game::RenderPresent()
-{
-    SDL_RenderPresent((*GetBody()).GetRenderer());
 }

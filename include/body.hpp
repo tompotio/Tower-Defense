@@ -43,6 +43,18 @@ class Body{
             std::cout << "Game Cleaned" << std::endl;
         };
 
+        // Applique le nouveau rendu (Donc ce qu'il y avait dans le backbuffer précédent)
+        void RenderClear()
+        {
+            SDL_RenderClear(renderer);
+        }
+
+        // Rajoute un nouveau rendu à afficher.
+        void RenderPresent()
+        {
+            SDL_RenderPresent(renderer);
+        }
+
         // Renvoie si le jeu est en coursmake
 
         bool running() {return isRunning; };

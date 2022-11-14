@@ -39,19 +39,17 @@ Grid::Grid(int width,int height,int cellsize, int offsetx, int offsety, SDL_Rend
 */
 void Grid::AffectTypeToCell(int x, int y, char c){
     switch(c){
-            case 'T':
-                cells[x][y].type = TOWER;
-                break;
+        case 'T':
+            cells[x][y].type = TOWER;
             break;
-
-            case '5':
-                cells[x][y].type = DIRT;
-                break;
-
-            default:
-                cells[x][y].type = MISC;
-                break;
-        }
+        break;
+        case '5':
+            cells[x][y].type = DIRT;
+            break;
+        default:
+            cells[x][y].type = MISC;
+            break;
+    }
 }
 
 /**

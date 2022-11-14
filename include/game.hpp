@@ -18,8 +18,6 @@ class Game
 
         void Update(); 
 
-        void RenderClear();
-
         void Draw();
 
         void DrawTiles();
@@ -27,9 +25,7 @@ class Game
         void DrawGrid(Grid grid);
 
         void DrawInstances();
-
-        void RenderPresent();
-
+        
         Body* GetBody(){return body;};
 
         // Renvoie si le jeu est en cours
