@@ -22,7 +22,8 @@ int main(int argc, char *args[])
         false
     );
 
-    static Game* game = new Game(body);
+    // Game n'est plus static pour permettre la désallocation lorsque recrée une partie. (Voir plus tard dans le projet)
+    Game* game = new Game(body);
 
     while(game->running())
     {

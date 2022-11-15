@@ -153,14 +153,16 @@ std::vector<Cell> Grid::FindPath(int startX, int startY, int endX, int endY){
 
         for (Cell* neighbourcell : GetNeighbourList(currentCell)){
             if (Find(neighbourcell, closedList)) continue;
-            int tentativeGCost = currentCell->gCost + CalculateDistanceCost(currentCell, neighbourcell);
-            if (tentativeGCost < neighbourcell->gCost){
-                neighbourcell->cameFromCell = currentCell;
-                neighbourcell->gCost = tentativeGCost;
-                neighbourcell->hCost = CalculateDistanceCost(neighbourcell, endCell);
-                neighbourcell->CalculateFCost();
-                if (!(Find(neighbourcell, openList))){
-                    openList.push_back(neighbourcell);
+            if ((*neighbourcell).type == DIRT){
+                int tentativeGCost = currentCell->gCost + CalculateDistanceCost(currentCell, neighbourcell);
+                if (tentativeGCost < neighbourcell->gCost){
+                    neighbourcell->cameFromCell = currentCell;
+                    neighbourcell->gCost = tentativeGCost;
+                    neighbourcell->hCost = CalculateDistanceCost(neighbourcell, endCell);
+                    neighbourcell->CalculateFCost();
+                    if (!(Find(neighbourcell, openList))){
+                        openList.push_back(neighbourcell);
+                    }
                 }
             }
         }

@@ -31,21 +31,20 @@ class Game
         // Renvoie si le jeu est en cours
         bool running() {return isRunning; };
 
+        Uint32 FPS;
+
     private:
         Body* body;
 
         int cnt;
         int playerMonney;
         int grid_cell_size;
+        int X = 0;
+        int Y = 0;
 
         bool mouse_hover = true;
         bool showgrid = false;
         bool pressing_key_k = false;
-
-        Sprite spt;
-
-        int X = 0;
-        int Y = 0;
 
         AssetManager assetManager;
         Instance instances;

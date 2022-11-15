@@ -115,7 +115,7 @@ Game::Game(Body* body)
 
     instances.AddEnemy(
         Enemy(
-            Vector2(
+            vec2<double>(
                 100,
                 500
             ),
@@ -127,7 +127,7 @@ Game::Game(Body* body)
 
     instances.AddEnemy(
         Enemy(
-            Vector2(
+            vec2<double>(
                 500,
                 500
             ),
@@ -139,7 +139,7 @@ Game::Game(Body* body)
 
     instances.AddEnemy(
         Enemy(
-            Vector2(
+            vec2<double>(
                 200,
                 500
             ),
@@ -180,7 +180,7 @@ void Game::HandleEvents()
             if (event.button.button == SDL_BUTTON_LEFT){
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
                 grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
-                std::cout << "Position souris : { X = " << grid_cursor.x << "; Y = " << grid_cursor.y << " } " << std::endl;
+                std::cout << "Position souris : {X = " << grid_cursor.x << "; Y = " << grid_cursor.y << " } " << std::endl;
                 // Lettre K enfoncée
                 if (pressing_key_k){
                     X = grid_cursor.x;
@@ -188,13 +188,15 @@ void Game::HandleEvents()
                 }else{
                     if (X >= 0 && X < (map.GetWidth() * grid_cell_size) && Y >= 0 && Y < (map.GetHeight() * grid_cell_size)&&
                     grid_cursor.x >= 0 && grid_cursor.x < (map.GetWidth() * grid_cell_size) && grid_cursor.y >= 0 && grid_cursor.y < (map.GetHeight() * grid_cell_size)){
-                        path_test = map.FindPath(
-                            X / grid_cell_size,
-                            Y / grid_cell_size,
-                            grid_cursor.x / grid_cell_size,
-                            grid_cursor.y / grid_cell_size
-                        );
-                        foundpath = true;
+                    int enemyposx = instances.GetEnemy(0).GetPosition().x / grid_cell_size;
+                    int enemyposy = instances.GetEnemy(0).GetPosition().y / grid_cell_size;
+                    path_test = map.FindPath(
+                        enemyposx, //X / grid_cell_size, 
+                        enemyposy, //Y / grid_cell_size, 
+                        grid_cursor.x / grid_cell_size,
+                        grid_cursor.y / grid_cell_size
+                    );
+                    foundpath = true;
                     }
                 }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
@@ -262,6 +264,8 @@ void Game::Update()
 
     // Affiche la grille inventory
     //inventory.DrawGrid((*GetBody()).GetRenderer());
+
+    //Dessine les lignes du chemin
     if (foundpath && showgrid){
         SDL_SetRenderDrawColor((*GetBody()).GetRenderer(), 255, 64, 0, 255);
         if (path_test.size() > 0){
@@ -273,6 +277,16 @@ void Game::Update()
                     (path_test[i + 1].x * grid_cell_size) + (grid_cell_size / 2), // x d'arrivée
                     (path_test[i + 1].y * grid_cell_size) + (grid_cell_size / 2) // y d'arrivée
                 );
+                /**
+                 * [BUGUÉ] En cours...
+                 * [NB :] L'ennemi avance en pixel/frame. Rajouter un produit en croix pour qu'il avance en pixel par seconde.
+                 * (1 / FPS) 
+                */
+               
+                vec2<double> cellpos = vec2<double>(path_test[i].x * grid_cell_size,path_test[i].y * grid_cell_size);
+                vec2<double> dir = cellpos - instances.GetEnemy(0).GetPosition();
+                dir.normalize();
+                instances.GetEnemy(0).Move(dir);
             }
         }
     }
@@ -281,8 +295,7 @@ void Game::Update()
     for (auto enemy : instances.GetEnemies()) {
         TextureManager::BlitSprite(
             enemy.GetSprite(),
-            (*GetBody()).GetRenderer()
-        );
+            (*GetBody()).GetRenderer());
     }
 
     //(couleur de fond de base du jeu)
