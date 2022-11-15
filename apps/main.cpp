@@ -31,13 +31,14 @@ int main(int argc, char *args[])
 
         game->RenderClear();
 
-        game->HandleEvents();
 
         if (menu->running()) {
             game->DrawTiles();
+            menu->HandleEvents();
             menu->Update(game->renderer);
         }
         else {
+            game->HandleEvents();
             game->Update();
         }
         

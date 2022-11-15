@@ -1,9 +1,9 @@
 #pragma once
 
 #include "assetsmanager.hpp"
-#include "audiomanager.hpp"
-#include "instances.hpp"
+#include "widget.hpp"
 #include "grid.hpp"
+
 
 class Menu
 {
@@ -11,15 +11,19 @@ class Menu
         Menu(SDL_Renderer* renderer);
         ~Menu() = default;
 
+        void HandleEvents();
+        void leftClick(double x, double y);
+        //void rightClick(double x, double y);
         void Update(SDL_Renderer* renderer); 
         bool running() {return isRunning;};
-        
-        std::vector<Sprite> widgets;
+
+        std::vector<Widget> widgets;
         Sprite sprite;
         SDL_Rect rect;
 
 
     private:
+        Vector2 cursor;
         bool isRunning;
      
         
