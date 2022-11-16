@@ -40,7 +40,6 @@ void Menu::HandleEvents()
 
 void Menu::Update(SDL_Renderer* renderer)
 {   
-    cout << "size =" << widgets.size() << endl;
     for(Widget widget : widgets) {
         
         widget.BlitWidget(renderer);
@@ -55,7 +54,6 @@ void Menu::leftClick(double x, double y) {
         
         if (widget.hasClick(x, y)) {
             
-            cout << "heee" << endl;
             isRunning = false;
         }
         

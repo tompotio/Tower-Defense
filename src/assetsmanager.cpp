@@ -53,7 +53,7 @@ void TextureManager::BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, i
     dstcrect.y = y;
 
     // Récupère les informations de la texture (width et height)
-    SDL_QueryTexture(texture, NULL, NULL,&dstcrect.w, &dstcrect.h);
+    SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
 
     // Copier (une partie de) la texture dans le renderer
     SDL_RenderCopy(renderer, texture, NULL, &dstcrect);
