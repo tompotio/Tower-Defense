@@ -1,4 +1,5 @@
 #include "../include/game.hpp"
+#include "../include/menu.hpp"
 #include "../include/vector2.hpp"
 #include <unistd.h>
 
@@ -22,8 +23,14 @@ int main(int argc, char *args[])
         false
     );
 
+    std::cout << "Body créé" << std::endl;
+
     // Game n'est plus static pour permettre la désallocation lorsque recrée une partie. (Voir plus tard dans le projet)
     Game* game = new Game(body);
+
+    std::cout << "Game créé" << std::endl;
+
+    static Menu* menu = new Menu(body->GetRenderer());
 
     while(game->running())
     {
@@ -32,9 +39,15 @@ int main(int argc, char *args[])
 
         body->RenderClear();
 
-        game->HandleEvents();
-
-        game->Update();
+        if (menu->running()) {
+            game->DrawTiles();
+            menu->HandleEvents();
+            menu->Update(body->GetRenderer());
+        }
+        else {
+            game->HandleEvents();
+            game->Update();
+        }
         
         body->RenderPresent();
 
