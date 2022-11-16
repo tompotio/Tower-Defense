@@ -183,16 +183,17 @@ void Game::HandleEvents()
                 std::cout << "Position souris : {X = " << grid_cursor.x << "; Y = " << grid_cursor.y << " } " << std::endl;
                 // Lettre K enfoncée
                 if (pressing_key_k){
-                    X = grid_cursor.x;
+                    X = grid_cursor.x;  
                     Y = grid_cursor.y;
+                    instances.GetEnemy(0).SetPosition(vec2<double>(X,Y));
                 }else{
                     if (X >= 0 && X < (map.GetWidth() * grid_cell_size) && Y >= 0 && Y < (map.GetHeight() * grid_cell_size)&&
                     grid_cursor.x >= 0 && grid_cursor.x < (map.GetWidth() * grid_cell_size) && grid_cursor.y >= 0 && grid_cursor.y < (map.GetHeight() * grid_cell_size)){
-                    int enemyposx = instances.GetEnemy(0).GetPosition().x / grid_cell_size;
-                    int enemyposy = instances.GetEnemy(0).GetPosition().y / grid_cell_size;
+                    int enemyposx = instances.GetEnemy(0).GetPosition().x;
+                    int enemyposy = instances.GetEnemy(0).GetPosition().y;
                     path_test = map.FindPath(
-                        enemyposx, //X / grid_cell_size, 
-                        enemyposy, //Y / grid_cell_size, 
+                        (enemyposx / grid_cell_size), // (X / grid_cell_size), 
+                        (enemyposy / grid_cell_size), // (Y / grid_cell_size), 
                         grid_cursor.x / grid_cell_size,
                         grid_cursor.y / grid_cell_size
                     );
@@ -277,14 +278,16 @@ void Game::Update()
                     (path_test[i + 1].x * grid_cell_size) + (grid_cell_size / 2), // x d'arrivée
                     (path_test[i + 1].y * grid_cell_size) + (grid_cell_size / 2) // y d'arrivée
                 );
+
                 /**
                  * [BUGUÉ] En cours...
                  * [NB :] L'ennemi avance en pixel/frame. Rajouter un produit en croix pour qu'il avance en pixel par seconde.
-                 * (1 / FPS) 
+                 * (1 / FPS)
                 */
                
                 vec2<double> cellpos = vec2<double>(path_test[i].x * grid_cell_size,path_test[i].y * grid_cell_size);
                 vec2<double> dir = cellpos - instances.GetEnemy(0).GetPosition();
+                
                 dir.normalize();
                 instances.GetEnemy(0).Move(dir);
             }

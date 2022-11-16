@@ -125,6 +125,10 @@ int Grid::GetPositionInList(Cell* cell, std::vector<Cell*> list){
 std::vector<Cell> Grid::FindPath(int startX, int startY, int endX, int endY){
     Cell* startCell = GetGridObject(startX,startY);
     Cell* endCell = GetGridObject(endX,endY);
+    // Vector de taille nulle
+    std::vector<Cell> null;
+
+    if((*startCell).type != DIRT || (*endCell).type != DIRT)return null;
 
     openList.push_back(startCell);
 
@@ -151,8 +155,8 @@ std::vector<Cell> Grid::FindPath(int startX, int startY, int endX, int endY){
         openList.erase(openList.begin() + GetPositionInList(currentCell, openList));
         closedList.push_back(currentCell);
 
-        for (Cell* neighbourcell : GetNeighbourList(currentCell)){
-            if (Find(neighbourcell, closedList)) continue;
+        for (Cell* neighbourcell : GetNeighbourList(currentCell)){// À optimiser
+            if (Find(neighbourcell, closedList)) continue; // Mettre l'information parcourue dans la cellule
             if ((*neighbourcell).type == DIRT){
                 int tentativeGCost = currentCell->gCost + CalculateDistanceCost(currentCell, neighbourcell);
                 if (tentativeGCost < neighbourcell->gCost){
@@ -167,8 +171,6 @@ std::vector<Cell> Grid::FindPath(int startX, int startY, int endX, int endY){
             }
         }
     }
-    // Vector de taille nulle
-    std::vector<Cell> null;
     return null;
 }
 

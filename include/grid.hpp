@@ -67,7 +67,7 @@ class Grid
         bool Find(Cell* cell, std::vector<Cell*> list);
 
         int MOVE_STRAIGHT_COST = 10;
-        int MOVE_DIAGONAL_COST = 14;
+        int MOVE_DIAGONAL_COST = 21;
         int width;
         int height;
         int cellsize;
