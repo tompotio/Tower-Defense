@@ -38,6 +38,18 @@ void TextureManager::DestroyTexture(SDL_Texture* texture)
     SDL_DestroyTexture(texture);
 }
 
+void TextureManager::BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x , int y){
+    SDL_Rect dstcrect; 
+    dstcrect.x = x;
+    dstcrect.y = y;
+
+    // Récupère les informations de la texture (width et height)
+    SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
+    SDL_SetTextureAlphaMod(texture, 150);
+    // Copier (une partie de) la texture dans le renderer
+    SDL_RenderCopy(renderer, texture, NULL, &dstcrect);
+}
+
 //! BlitTexture
 /**
  * Applique une texture sur le renderer.
@@ -51,7 +63,7 @@ void TextureManager::BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, i
     SDL_Rect dstcrect; 
     dstcrect.x = x;
     dstcrect.y = y;
-
+    SDL_SetTextureAlphaMod(texture, 255);
     // Récupère les informations de la texture (width et height)
     SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
 

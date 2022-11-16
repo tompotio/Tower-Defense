@@ -38,7 +38,11 @@ void Menu::HandleEvents()
 void Menu::Update(SDL_Renderer* renderer)
 {   
     for(Widget widget : widgets) {
-        widget.BlitWidget(renderer);
+        if (widget.isHovering(cursor.x, cursor.y)){
+            widget.BlitWidget(renderer);
+        }else{
+            widget.BlitWidgetTransparent(renderer);
+        }
     }
    
 }
@@ -47,8 +51,7 @@ void Menu::leftClick(double x, double y) {
 
     for(Widget widget : widgets) {
         
-        if (widget.hasClick(x, y)) {
-            
+        if (widget.isHovering(x, y)) {
             isRunning = false;
         }
         

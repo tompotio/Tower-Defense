@@ -34,7 +34,6 @@ int main(int argc, char *args[])
 
     while(game->running())
     {
-
         frameStart = SDL_GetTicks();
 
         body->RenderClear();

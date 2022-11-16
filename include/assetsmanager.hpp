@@ -42,6 +42,8 @@ namespace TextureManager
 
 	void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
 
+	void BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
+
 	void DestroyTexture(SDL_Texture* texture);
 
 	void BlitSprite(Sprite sprite, SDL_Renderer* renderer);

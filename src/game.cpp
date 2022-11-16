@@ -186,18 +186,20 @@ void Game::HandleEvents()
                     X = grid_cursor.x;  
                     Y = grid_cursor.y;
                     instances.GetEnemy(0).SetPosition(vec2<double>(X,Y));
+                    instances.GetEnemy(0).i = 1;
                 }else{
                     if (X >= 0 && X < (map.GetWidth() * grid_cell_size) && Y >= 0 && Y < (map.GetHeight() * grid_cell_size)&&
                     grid_cursor.x >= 0 && grid_cursor.x < (map.GetWidth() * grid_cell_size) && grid_cursor.y >= 0 && grid_cursor.y < (map.GetHeight() * grid_cell_size)){
                     int enemyposx = instances.GetEnemy(0).GetPosition().x;
                     int enemyposy = instances.GetEnemy(0).GetPosition().y;
                     path_test = map.FindPath(
-                        (enemyposx / grid_cell_size), // (X / grid_cell_size), 
-                        (enemyposy / grid_cell_size), // (Y / grid_cell_size), 
+                        (enemyposx / grid_cell_size),//(X / grid_cell_size),
+                        (enemyposy / grid_cell_size),//(Y / grid_cell_size),
                         grid_cursor.x / grid_cell_size,
                         grid_cursor.y / grid_cell_size
                     );
                     foundpath = true;
+                    instances.GetEnemy(0).maxcell = path_test.size();
                     }
                 }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
@@ -278,19 +280,20 @@ void Game::Update()
                     (path_test[i + 1].x * grid_cell_size) + (grid_cell_size / 2), // x d'arrivée
                     (path_test[i + 1].y * grid_cell_size) + (grid_cell_size / 2) // y d'arrivée
                 );
-
-                /**
-                 * [BUGUÉ] En cours...
-                 * [NB :] L'ennemi avance en pixel/frame. Rajouter un produit en croix pour qu'il avance en pixel par seconde.
-                 * (1 / FPS)
-                */
-               
-                vec2<double> cellpos = vec2<double>(path_test[i].x * grid_cell_size,path_test[i].y * grid_cell_size);
-                vec2<double> dir = cellpos - instances.GetEnemy(0).GetPosition();
-                
-                dir.normalize();
-                instances.GetEnemy(0).Move(dir);
             }
+            /**
+            * [BUGUÉ] En cours...
+            * [NB :] L'ennemi avance en pixel/frame. Rajouter un produit en croix pour qu'il avance en pixel par seconde.
+            * (1 / FPS)
+            */
+            Enemy& enemy = instances.GetEnemy(0);
+            vec2<double> cellpos = vec2<double>(path_test[enemy.i].x * grid_cell_size,path_test[enemy.i].y * grid_cell_size);
+            vec2<double> dir = vec2<double>(cellpos - (enemy.GetPosition()));
+            if((enemy.GetPosition() - cellpos).length() <= 10 && (enemy.i < enemy.maxcell)){
+                enemy.i += 1;
+            }
+            dir.normalize();
+            enemy.Move(dir);
         }
     }
 
@@ -298,7 +301,8 @@ void Game::Update()
     for (auto enemy : instances.GetEnemies()) {
         TextureManager::BlitSprite(
             enemy.GetSprite(),
-            (*GetBody()).GetRenderer());
+            (*GetBody()).GetRenderer()
+        );
     }
 
     //(couleur de fond de base du jeu)

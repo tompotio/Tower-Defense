@@ -12,7 +12,8 @@ class Widget
         void BlitWidget(SDL_Renderer* renderer);
         SDL_Rect& getRect() {return rect;}
         SDL_Texture* getTexture() {return texture;}
-        bool hasClick(int x, int y);
+        bool isHovering(int x, int y);
+        void BlitWidgetTransparent(SDL_Renderer* renderer);
         //void onClick();
         
     private:

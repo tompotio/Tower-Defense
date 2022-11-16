@@ -36,6 +36,9 @@ class Enemy
         // Déplace l'ennemi via un vecteur (exemple avance de 10 en x et 0 en y)
         void Move(vec2<double>  step);
 
+        int maxcell = 0;
+        int i = 0;
+
     private:
         vec2<double>  direction;
         vec2<double>  position = vec2<double>();
