@@ -1,11 +1,17 @@
 #include "../include/menu.hpp"
 
-Menu::Menu(SDL_Renderer* renderer)
+Menu::Menu(Body* body)
 {
-    isRunning = true;
+    this->isRunning = true;
+    this->body = body;
+    this->cursor = vec2<double>();
+    this->assets = AssetManager();
 
-    cursor = vec2<double>();
-    widgets.push_back(Widget(300, 400, TextureManager::LoadTexture("../assets/playbutton.png", renderer)));
+    assets.AddTexture(
+        "pb",
+        TextureManager::LoadTexture("../assets/playbutton.png", body->GetRenderer())
+    );
+    // widgets.push_back(Widget(body->GetWindow().w/2, body->GetWindow().h/2, assets.GetTexture("pb")));
 
 }
 
@@ -16,7 +22,7 @@ void Menu::HandleEvents()
     switch(event.type){
         case SDL_MOUSEBUTTONDOWN:
             if (event.button.button == SDL_BUTTON_LEFT){
-                leftClick(event.motion.x, event.motion.y);
+                leftClick();
             }else if (event.button.button == SDL_BUTTON_RIGHT){
                 //rightClick(event.motion.x, event.motion.y);
             }
@@ -37,6 +43,7 @@ void Menu::HandleEvents()
 
 void Menu::Update(SDL_Renderer* renderer)
 {   
+    SDL_RenderCopy(renderer, TextureManager::LoadTexture("../assets/PNG/Menu/bg1.jpg", renderer), NULL, NULL);
     for(Widget widget : widgets) {
         if (widget.isHovering(cursor.x, cursor.y)){
             widget.BlitWidget(renderer);
@@ -47,11 +54,11 @@ void Menu::Update(SDL_Renderer* renderer)
    
 }
 
-void Menu::leftClick(double x, double y) {
+void Menu::leftClick() {
 
     for(Widget widget : widgets) {
         
-        if (widget.isHovering(x, y)) {
+        if (widget.isHovering(cursor.x, cursor.y)) {
             isRunning = false;
         }
         

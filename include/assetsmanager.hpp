@@ -40,6 +40,8 @@ namespace TextureManager
 {
 	SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
 
+	SDL_Rect GetTextureSize(SDL_Texture* texture);
+
 	void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
 
 	void BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);

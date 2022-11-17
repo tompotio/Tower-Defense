@@ -3,24 +3,28 @@
 #include "assetsmanager.hpp"
 #include "widget.hpp"
 #include "grid.hpp"
-
+#include "body.hpp"
 
 class Menu
 {
     public:
-        Menu(SDL_Renderer* renderer);
+        Menu(Body* body);
         ~Menu() = default;
 
         void HandleEvents();
-        void leftClick(double x, double y);
+        void leftClick();
         //void rightClick(double x, double y);
         void Update(SDL_Renderer* renderer); 
         bool running() {return isRunning;};
+        Body* GetBody(){return body;};
+        AssetManager GetAssets() {return assets;};
 
         std::vector<Widget> widgets;
         Sprite sprite;
         SDL_Rect rect;
     private:
+        AssetManager assets;
+        Body* body;
         vec2<double> cursor;
         bool isRunning;
      

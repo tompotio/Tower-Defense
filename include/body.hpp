@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
-class Body{
+class Body {
     public:
         Body(const char *title, int xpos, int ypos, int width, int height, bool fullscreen){
             int flags = 0;

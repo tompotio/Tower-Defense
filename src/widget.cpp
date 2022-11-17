@@ -2,10 +2,12 @@
 
 Widget::Widget(int x, int y, SDL_Texture* texture){
     
-    this->rect = {x, y};
-    SDL_QueryTexture(texture, NULL, NULL, &rect.w, &rect.h);
+    this->rect = TextureManager::GetTextureSize(texture);
+    this->rect.x = x;
+    this->rect.y = y;
     std::cout << "size = " << rect.x << "  " << rect.y << "  " << rect.w << "  " << rect.h << std::endl;
     this->texture = texture;
+
 }
 
 void Widget::BlitWidget(SDL_Renderer* renderer) {

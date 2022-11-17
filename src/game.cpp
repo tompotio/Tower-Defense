@@ -29,7 +29,7 @@
 */
 Game::Game(Body* body)
 {   
-    this-> body = body;
+    this->body = body;
 
     // Champ de déclaration des assets du jeu 
     assetManager = AssetManager();

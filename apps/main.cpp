@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #define RESOLUTION_X 1440
-#define RESOLUTION_Y 1080
+#define RESOLUTION_Y 720
 #define FPS 60
 
 int main(int argc, char *args[])
@@ -30,7 +30,7 @@ int main(int argc, char *args[])
 
     std::cout << "Game créé" << std::endl;
 
-    static Menu* menu = new Menu(body->GetRenderer());
+    static Menu* menu = new Menu(body);
 
     while(game->running())
     {

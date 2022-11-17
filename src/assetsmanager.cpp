@@ -27,6 +27,14 @@ SDL_Texture* TextureManager::LoadTexture(const char* fileName, SDL_Renderer* ren
 	return texture;
 }
 
+SDL_Rect TextureManager::GetTextureSize(SDL_Texture* texture){
+    SDL_Rect dstcrect; 
+    
+    SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
+    
+    return dstcrect;
+}
+
 //! DestroyTexture
 /**
  * Détruit la texture en question.
@@ -37,6 +45,7 @@ void TextureManager::DestroyTexture(SDL_Texture* texture)
     // Libérer une texture
     SDL_DestroyTexture(texture);
 }
+
 
 void TextureManager::BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x , int y){
     SDL_Rect dstcrect; 
