@@ -27,14 +27,8 @@ class Body{
                     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
                     std::cout << "Renderer created!" << std::endl;
                 }
-
-                isRunning = true;
             }
-            else {
-                isRunning = false;
-            }
-
-            SDL_SetWindowTitle(window, "SDL tiles on grid test");
+            SDL_SetWindowTitle(window, "Tower Defense");
         };
 
         void Clean(){
@@ -54,10 +48,6 @@ class Body{
         {
             SDL_RenderPresent(renderer);
         }
-
-        // Renvoie si le jeu est en coursmake
-
-        bool running() {return isRunning; };
         
         SDL_Renderer* GetRenderer(){return renderer;};
         SDL_Window* GetWindow(){return window;};
@@ -65,5 +55,4 @@ class Body{
     private:
         SDL_Renderer* renderer;
         SDL_Window *window;
-        bool isRunning;
 };

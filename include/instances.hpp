@@ -46,7 +46,7 @@ class Enemy
 
         int Max_HP;
         int Current_HP;
-        int speed;
+        float speed;
 };
 
 enum Towers_t 

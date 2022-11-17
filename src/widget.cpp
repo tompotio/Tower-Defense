@@ -20,7 +20,7 @@ bool Widget::isHovering(int x, int y) {
     /* cout << "size = " << getRect().x << "  " << getRect().y << "  " << getRect().w << "  " << getRect().h << endl;
     cout << "pos = " << x << "  " << y  << endl; */
     
-    if (x >= getRect().x && x < (getRect().x+getRect().w) && y < (getRect().y+getRect().h) && y >= getRect().y) {
+    if (x >= getRect().x && x < (getRect().x + getRect().w) && y < (getRect().y + getRect().h) && y >= getRect().y) {
         return true;
     }
     return false;

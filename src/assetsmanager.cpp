@@ -21,7 +21,7 @@ SDL_Texture* TextureManager::LoadTexture(const char* fileName, SDL_Renderer* ren
     // Charge l'image
     SDL_Texture* texture = IMG_LoadTexture(renderer, fileName);
     if (!texture){
-        std::cerr<<"La texture ne s'est pas chargée! \n";
+        std::cerr<<"La texture : " << fileName << " ne s'est pas chargée!" << std::endl;
 		exit(EXIT_FAILURE);
     };
 	return texture;
