@@ -217,7 +217,7 @@ void Game::UpdateGraphics()
         if (found_testing_path){
             DrawPath(testingpath,orange);
         }
-        else if (found_bottom_path){
+        if (found_bottom_path){
             DrawPath(bottompath,yellow_green);
         }
     }
@@ -268,7 +268,7 @@ void Game::UpdateGame(){
             );
         }
         // Fait avancer chaque ennemi
-        std::vector<Enemy>& enemies = instances.GetEnemies();
+        std::vector<Enemy>& enemies = instances.GetEnemies(); // On ne peut pas créer un vector de références. Par contre ! On peut créer la référence/alias d'un vector :D
         for (int i = 0; i < enemies.size(); i++){
             Enemy& enemy = enemies[i];
             vec2<double> cellpos = vec2<double>(bottompath[enemy.i].x * grid_cell_size,bottompath[enemy.i].y * grid_cell_size);
@@ -305,17 +305,17 @@ void Game::DrawEnemies(){
 */
 void Game::DrawPath(std::vector<Cell> path, SDL_Color color){
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-        if (path.size() > 0){
-            for (int i = 0; i < path.size() - 1; i++){
-                SDL_RenderDrawLine(
-                    renderer, 
-                    (path[i].x * grid_cell_size) + (grid_cell_size / 2), // x de départ
-                    (path[i].y * grid_cell_size) + (grid_cell_size / 2), // y de départ
-                    (path[i + 1].x * grid_cell_size) + (grid_cell_size / 2), // x d'arrivée
-                    (path[i + 1].y * grid_cell_size) + (grid_cell_size / 2) // y d'arrivée
-                );
-            }
+    if (path.size() > 0){
+        for (int i = 0; i < path.size() - 1; i++){
+            SDL_RenderDrawLine(
+                renderer, 
+                (path[i].x * grid_cell_size) + (grid_cell_size / 2), // x de départ
+                (path[i].y * grid_cell_size) + (grid_cell_size / 2), // y de départ
+                (path[i + 1].x * grid_cell_size) + (grid_cell_size / 2), // x d'arrivée
+                (path[i + 1].y * grid_cell_size) + (grid_cell_size / 2) // y d'arrivée
+            );
         }
+    }
 }
 
 // Dessiner les tiles

@@ -4,7 +4,7 @@
 
 * Les fonctions SDL
 
-Les fonctions de SDL sont automatisées et cachées par de nouvelles fonctions utiles, dans les différentes classes cf. : RenderClean, AddTexture etc.
+Les fonctions de SDL sont automatisées/wrappées par de nouvelles fonctions, dans les différentes classes cf. : RenderClean, AddTexture etc.
 
 * Les commentaires
 
@@ -15,18 +15,17 @@ Il suffit donc de passer la souris dessus pour afficher une description (marche 
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+* librairie SDL
 
 ### Installing
 
 * Any modifications needed to be made to files/folders
 
-- First time launching the game :
-- Create a build folder
-- Open build
-- Then open terminal
-- Type :
+- Pour lancer le jeu la première fois :
+Créer un dossier build dans le dossier principal (Tower Defense),
+Ouvrir le terminal dans build, 
+Taper les commandes : 
+
 ```
     cmake ..
     make
@@ -34,14 +33,14 @@ Il suffit donc de passer la souris dessus pour afficher une description (marche 
 
 ### Executing program
 
-* How to run the program
+* Pour lancer le programme, il faut taper
 ```
    ./Tower Defense
 ```
 
 ## Help
 
-Any advise for common problems or issues.
+Problèmes communs 
 ```
 
 ```
