@@ -47,5 +47,8 @@ Problèmes communs
 
 ## Authors
 
+Tompotio
+Vopexx
+
 ## Version History
 
