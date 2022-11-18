@@ -91,6 +91,7 @@ class Instance
 
         //Enemy Management
         void AddEnemy(const Enemy& enemy);
+        void DeleteEnemy(int id);
         Enemy& GetEnemy(int id);
         std::vector<Enemy>& GetEnemies();
 

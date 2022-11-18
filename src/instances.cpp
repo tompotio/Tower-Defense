@@ -81,6 +81,10 @@ void Instance::AddEnemy(const Enemy& enemy){
     enemies.push_back(enemy);
 }
 
+void Instance::DeleteEnemy(int id){
+    enemies.erase(enemies.begin()+(id-1));
+}
+
 
 Enemy& Instance::GetEnemy(int id){
     return enemies[id];

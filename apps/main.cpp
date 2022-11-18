@@ -32,11 +32,14 @@ int main(int argc, char *args[])
 
         body->RenderClear();
 
-        game->UpdateGame();
-        
+        // Affichage
+        game->UpdateGraphics();
+
+        // Input du joueur d'abord
         game->HandleEvents();
 
-        game->UpdateGraphics();
+        // Déroulement de la partie
+        game->UpdateGame();
 
         body->RenderPresent();
 

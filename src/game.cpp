@@ -1,6 +1,6 @@
 #include "../include/game.hpp"
 
-//! Constructor
+
 /**
  * Constructeur de la classe game. Initialise les éléments du jeu.
  * @param title Titre.
@@ -128,7 +128,7 @@ void Game::HandleEvents()
             if (event.button.button == SDL_BUTTON_LEFT){
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
                 grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
-                std::cout << "Position souris : {X = " << grid_cursor.x << "; Y = " << grid_cursor.y << " } " << std::endl;
+                std::cout << "Position souris : {X = " << grid_cursor.x / grid_cell_size << "; Y = " << grid_cursor.y / grid_cell_size << " } " << std::endl;
                 // Lettre K enfoncée
                 if (pressing_key_k){
                     X = grid_cursor.x;  
@@ -136,14 +136,14 @@ void Game::HandleEvents()
                 }else{
                     if (X >= 0 && X < (map.GetWidth() * grid_cell_size) && Y >= 0 && Y < (map.GetHeight() * grid_cell_size)&&
                     grid_cursor.x >= 0 && grid_cursor.x < (map.GetWidth() * grid_cell_size) && grid_cursor.y >= 0 && grid_cursor.y < (map.GetHeight() * grid_cell_size)){
-                        std::cout << "Generate path" << std::endl;
-                        path = map.FindPath(
+                        std::cout << "Generate a testing path" << std::endl;
+                        testingpath = map.FindPath(
                             (X / grid_cell_size),
                             (Y / grid_cell_size),
                             grid_cursor.x / grid_cell_size,
                             grid_cursor.y / grid_cell_size
                         );
-                        foundpath = true;
+                        found_testing_path = true;
                     }
                 }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
@@ -213,8 +213,98 @@ void Game::UpdateGraphics()
     inventory.DrawGrid(renderer);
 
     //Dessine les lignes du chemin
-    if (foundpath && showgrid){
-        SDL_SetRenderDrawColor(renderer, 255, 64, 0, 255);
+    if (showgrid){
+        if (found_testing_path){
+            DrawPath(testingpath,orange);
+        }
+        else if (found_bottom_path){
+            DrawPath(bottompath,yellow_green);
+        }
+    }
+
+    // Affiche les ennemis
+    DrawEnemies();
+
+    //(couleur de fond de base du jeu)
+    SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
+}
+
+// Met à jour les unités du jeu.
+void Game::UpdateGame(){
+    // Initiliase la partie
+    if ((wave_ongoing == false) && wave_nb == 0){
+        bottompath = map.FindPath(
+            0,
+            8,
+            21,
+            6
+        );
+        bottompath_size = bottompath.size();
+        found_bottom_path = true;
+        wave_ongoing = true;
+        wave_nb += 1;
+    }
+    if ((wave_ongoing)){
+        // On met à jour le temps que la partie a duré
+        wave_cout_s += deltatime;
+
+        // Crée un ennemi toutes les environ 5 secondes
+        if(((int)wave_cout_s + 1) % 2 == 0){
+            std::cout << "Énemi généré !" << std::endl;
+            wave_cout_s +=1;
+            Enemy new_enemy = Enemy(
+                vec2<double>(-32,512),
+                50,
+                300,
+                assetManager
+            );
+            vec2<double> nextcellpos = vec2<double>(bottompath[1].x * grid_cell_size,bottompath[1].y * grid_cell_size);
+            new_enemy.SetDirection(
+                (nextcellpos - new_enemy.GetPosition()).normalize()
+            );
+            new_enemy.maxcell = bottompath_size;
+            instances.AddEnemy(
+                new_enemy
+            );
+        }
+        // Fait avancer chaque ennemi
+        std::vector<Enemy>& enemies = instances.GetEnemies();
+        for (int i = 0; i < enemies.size(); i++){
+            Enemy& enemy = enemies[i];
+            vec2<double> cellpos = vec2<double>(bottompath[enemy.i].x * grid_cell_size,bottompath[enemy.i].y * grid_cell_size);
+            if((enemy.GetPosition() - cellpos).length() <= 10 && (enemy.i < enemy.maxcell)){
+                enemy.i += 1;
+                if(enemy.i < enemy.maxcell){
+                    vec2<double> nextcellpos = vec2<double>(bottompath[enemy.i].x * grid_cell_size,bottompath[enemy.i].y * grid_cell_size);
+                    enemy.SetDirection((nextcellpos - (enemy.GetPosition())).normalize());
+                }
+            }
+            if((enemy.i >= enemy.maxcell)){
+                instances.DeleteEnemy(i);
+            }
+            // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
+            enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
+        }
+    }
+}
+
+// Dessine les ennemis sur l'écran
+void Game::DrawEnemies(){
+    for (Enemy enemy : instances.GetEnemies()) {
+        TextureManager::BlitSprite(
+            enemy.GetSprite(),
+            renderer
+        );
+    }
+}
+
+/**
+ * Dessine un chemin généré (peut être utilisé pour débugger ou simplement avoir l'affichage).
+ * @param path le chemin de cellules à afficher.
+ * @param color couleur que le chemin doit prendre.
+*/
+void Game::DrawPath(std::vector<Cell> path, SDL_Color color){
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
         if (path.size() > 0){
             for (int i = 0; i < path.size() - 1; i++){
                 SDL_RenderDrawLine(
@@ -226,68 +316,9 @@ void Game::UpdateGraphics()
                 );
             }
         }
-    }
-
-
-    // Affiche les ennemis pour le fun
-    for (Enemy enemy : instances.GetEnemies()) {
-        TextureManager::BlitSprite(
-            enemy.GetSprite(),
-            renderer
-        );
-    }
-
-    
-
-    //(couleur de fond de base du jeu)
-    SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
-}
-
-// Met à jour les unités du jeu
-void Game::UpdateGame(){
-    if ((wave_ongoing == false) && wave_nb == 1){
-        // Ouais bon j'ai bullshité un truc pour que ça marche
-        if(((int)wave_cout_s + 1) % 5 == 0){
-            std::cout << "Énemi généré !" << std::endl;
-            wave_cout_s +=1;
-            instances.AddEnemy(
-                Enemy(
-                    vec2<double>(30,500),
-                    50,
-                    30,
-                    assetManager
-                )
-            );
-        }
-    }
-
-    wave_cout_s += deltatime;
-
-    // Fait avancer chaque ewavnnemi
-    if (foundpath){
-        for (Enemy& enemy : instances.GetEnemies()){
-            vec2<double> cellpos = vec2<double>(path[enemy.i].x * grid_cell_size,path[enemy.i].y * grid_cell_size);
-            vec2<double> dir = vec2<double>(cellpos - (enemy.GetPosition()));
-            if((enemy.GetPosition() - cellpos).length() <= 10 && (enemy.i < enemy.maxcell)){
-                enemy.i += 1;
-                if(enemy.i < enemy.maxcell){
-                    vec2<double> nextcellpos = vec2<double>(path[enemy.i + 1].x * grid_cell_size,path[enemy.i + 1].y * grid_cell_size);
-                    vec2<double> nextdir = vec2<double>(nextcellpos - (enemy.GetPosition()));
-                    enemy.SetDirection(dir);
-                }
-            }
-
-            // Normalise le vecteur vu que les mouvements sont assezl linéaires
-            dir.normalize();
-
-            // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
-            enemy.Move(dir * (deltatime * enemy.GetSpeed()));
-        }
-    }
 }
 
 // Dessiner les tiles
-// (Pour le moment sans paramètre, il n'y a qu'une seule map dans le dossier de toute façon)
 void Game::DrawTiles()
 {
     // Utiliser fopen est 4 à 5 fois plus rapide que std:ifstream ! 
