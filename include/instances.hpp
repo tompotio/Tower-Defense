@@ -82,24 +82,3 @@ class Allies
         Allies(/* args */);
         ~Allies();
 };
-
-class Instance
-{
-    public:
-        Instance();
-        ~Instance() = default;
-
-        //Enemy Management
-        void AddEnemy(const Enemy& enemy);
-        void DeleteEnemy(int id);
-        Enemy& GetEnemy(int id);
-        std::vector<Enemy>& GetEnemies();
-
-        //Tower Management
-        void AddTower(std::string id, Tower tower);
-        Tower GetTower(std::int16_t id);
-
-    private:
-        std::vector<Enemy> enemies;
-        std::vector<Tower> towers;
-};

@@ -14,9 +14,11 @@ class Game
         Game(Body* body);
         ~Game() = default;
 
+        void InitCellTypes();
+
         void HandleEvents();
 
-        void UpdateGraphics(); 
+        void UpdateGraphics();
 
         void UpdateGame();
 
@@ -31,6 +33,18 @@ class Game
         void DrawGrid(Grid grid);
 
         void DrawInstances();
+
+        //Enemy Management
+        void AddEnemy(const Enemy& enemy);
+
+        void DeleteEnemy(int id);
+
+        Enemy& GetEnemy(int id);
+
+        //Tower Management
+        void AddTower(std::string id, Tower tower);
+
+        Tower GetTower(std::int16_t id);
         
         Body* GetBody(){return body;};
 
@@ -49,12 +63,14 @@ class Game
         int Y = 512;
         int wave_nb = 0;
         int bottompath_size;
+        int toppath_size;
+        int map_x_size;
+        int map_y_size;
 
         double wave_cout_s = 0;
 
         // Bools
         bool found_testing_path = false;
-        bool found_bottom_path = false;
         bool isRunning;
         bool mouse_hover = true;
         bool showgrid = false;
@@ -63,7 +79,6 @@ class Game
 
         // Utilitaries classes
         AssetManager assetManager;
-        Instance instances;
 
         // Grid
         Grid map;
@@ -73,6 +88,10 @@ class Game
         std::vector<Cell> bottompath;
         std::vector<Cell> toppath;
         std::vector<Cell> testingpath;
+
+        // Les entités du jeu
+        std::vector<Enemy> enemies;
+        std::vector<Tower> towers;
 
         // Cursor
         SDL_Rect grid_cursor;
@@ -89,5 +108,4 @@ class Game
         SDL_Color grid_cursor_color = {50, 50, 50, 255};
         SDL_Color yellow_green = {154,205,50,255};
         SDL_Color orange = {255,165,0,255};
-
 };

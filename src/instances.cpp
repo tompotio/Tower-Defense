@@ -72,32 +72,3 @@ void Tower::AttackEnemy(){
 void Tower::RotateSprite(){
     
 }
-
-Instance::Instance(){
-
-}
-
-void Instance::AddEnemy(const Enemy& enemy){
-    enemies.push_back(enemy);
-}
-
-void Instance::DeleteEnemy(int id){
-    enemies.erase(enemies.begin()+(id-1));
-}
-
-
-Enemy& Instance::GetEnemy(int id){
-    return enemies[id];
-}
-
-std::vector<Enemy>& Instance::GetEnemies(){
-    return enemies;
-}
-
-void Instance::AddTower(std::string id, Tower tower){
-
-}
-
-Tower Instance::GetTower(std::int16_t id){
-    return Tower();
-}
