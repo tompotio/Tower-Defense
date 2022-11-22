@@ -5,7 +5,7 @@ Enemy::Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& as
     this->Current_HP = Max_HP;
     this->speed = Speed;
 
-    SDL_Texture* texture = assetmanager.GetTexture("soldier");
+    SDL_Texture* texture = assetmanager.GetTexture("zombie");
     int w;
     int h;
 
@@ -51,24 +51,4 @@ void Enemy::SetPosition(vec2<double>  pos){
 // Déplace l'ennemi via un vecteur
 void Enemy::Move(vec2<double>  step){
     SetPosition(step + position);
-}
-
-Tower::Tower(){
-    Tower(ARCHER);
-}
-
-Tower::Tower(Towers_t type){
-    
-}
-
-Enemy Tower::GetEnemy(){
-    return Enemy();
-}
-
-void Tower::AttackEnemy(){
-
-}
-
-void Tower::RotateSprite(){
-    
 }

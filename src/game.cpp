@@ -19,97 +19,105 @@ Game::Game(Body* body)
     assetManager = AssetManager();
 
     assetManager.AddTexture(
-        "soldier",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile245.png",renderer)
+        "zombie",
+        TextureManager::LoadTexture("../assets/tiles/zombie_000.png",renderer)
     );
 
     assetManager.AddTexture(
+        "cadre",
+        TextureManager::LoadTexture("../assets/u_wu.png",renderer)
+    );
+
+    //TextureManager::LoadTexture("../../move/skeleton-move_0t.png",renderer)
+
+    assetManager.AddTexture(
         "grass",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile024.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile024.png",renderer)
     );
 
     assetManager.AddTexture(
         "dirt",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile050.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile050.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top-curve-right",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile004.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile004.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top-curve-left",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile003.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile003.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom-curve-right",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile027.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile027.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom-curve-left",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile026.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile026.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-right",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile023.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile023.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-left",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile025.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile025.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top-corner-right",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile046.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile046.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile047.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile047.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile001.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile001.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom-corner-right",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile002.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile002.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom-corner-left",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile299.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile299.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top-corner-left",
-        TextureManager::LoadTexture("../assets/PNG/Default size/towerDefense_tile048.png",renderer)
+        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile048.png",renderer)
     );
 
     // Dimension d'une cellule (On pourra peut être créer des maps plus petites)
     grid_cell_size = 64;
+    base_HP = 100;
+    current_HP = 100;
 
     // Dimension de la carte en cellules (On pourra directement lire)
     map_x_size = 22;
     map_y_size = 10;
 
     // Génère les grilles pour la partie
-    inventory = Grid(10,1,grid_cell_size,100,670,renderer);
     map = Grid(map_x_size,map_y_size,grid_cell_size,0,0,renderer);
 
     InitCellTypes();
 
     // Génère les curseurs de la partie (On peut imaginer qu'on pourra les personnaliser plus tard)
     grid_cursor = {
-        .x = (inventory.GetWidth() - 1) * grid_cell_size,
-        .y = (inventory.GetHeight() - 1) * grid_cell_size,
+        .x = (map.GetWidth() - 1) * grid_cell_size,
+        .y = (map.GetHeight() - 1) * grid_cell_size,
         .w = grid_cell_size,
         .h = grid_cell_size,
     };
@@ -140,7 +148,7 @@ Game::Game(Body* body)
 void Game::InitCellTypes(){
     // Utiliser fopen est 4 à 5 fois plus rapide que std:ifstream ! 
     FILE * fp = NULL;
-    fp = fopen("../assets/map1.txt", "r");
+    fp = fopen("../assets/maps/map1.txt", "r");
     char c;
     int x = 0;
     int y = 0;
@@ -179,15 +187,15 @@ void Game::HandleEvents()
                 std::cout << "Position souris : {X = " << grid_cursor.x / grid_cell_size << "; Y = " << grid_cursor.y / grid_cell_size << " } " << std::endl;
                 // Lettre K enfoncée
                 if (pressing_key_k){
-                    X = grid_cursor.x;  
-                    Y = grid_cursor.y;
+                    mouse_X = grid_cursor.x;  
+                    mouse_Y = grid_cursor.y;
                 }else{
-                    if (X >= 0 && X < (map.GetWidth() * grid_cell_size) && Y >= 0 && Y < (map.GetHeight() * grid_cell_size)&&
+                    if (mouse_X >= 0 && mouse_X < (map.GetWidth() * grid_cell_size) && mouse_Y >= 0 && mouse_Y < (map.GetHeight() * grid_cell_size)&&
                     grid_cursor.x >= 0 && grid_cursor.x < (map.GetWidth() * grid_cell_size) && grid_cursor.y >= 0 && grid_cursor.y < (map.GetHeight() * grid_cell_size)){
                         std::cout << "Generate a testing path" << std::endl;
                         testingpath = map.FindPath(
-                            (X / grid_cell_size),
-                            (Y / grid_cell_size),
+                            (mouse_X / grid_cell_size),
+                            (mouse_Y / grid_cell_size),
                             grid_cursor.x / grid_cell_size,
                             grid_cursor.y / grid_cell_size
                         );
@@ -232,6 +240,8 @@ void Game::HandleEvents()
 // Met à jour l'affichage graphique du jeu.
 void Game::UpdateGraphics()
 {   
+    DrawMenu();
+
     // Affiche les tiles sur la grille
     DrawTiles();
 
@@ -257,9 +267,6 @@ void Game::UpdateGraphics()
         map.DrawGrid(renderer);
     }
 
-    // Affiche la grille inventory
-    inventory.DrawGrid(renderer);
-
     //Dessine les lignes du chemin
     if (showgrid){
         if (found_testing_path){
@@ -270,6 +277,8 @@ void Game::UpdateGraphics()
 
     // Affiche les ennemis
     DrawEnemies();
+
+    DrawBaseHealthBar();
 
     //(couleur de fond de base du jeu)
     SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
@@ -299,7 +308,9 @@ void Game::UpdateGame(){
             AddEnemy(
                 new_enemy
             );
+            current_HP -= 10;
         }
+        
         // Fait avancer chaque ennemi
         for (int i = 0; i < enemies.size(); i++){
             Enemy& enemy = enemies[i];
@@ -348,6 +359,33 @@ void Game::DrawPath(std::vector<Cell> path, SDL_Color color){
             );
         }
     }
+}
+
+void Game::DrawBaseHealthBar(){
+    // NB : IL faudra wrapper SetRender dans une autre fonction pour ne pas à avoir à mettre 5 paramètres à chaque fois !
+    SDL_Rect fond = {900,750,3 * base_HP, 10};
+    SDL_SetRenderDrawColor(renderer, black.r, black.g, black.b, black.a);
+    SDL_RenderFillRect(renderer, &fond);
+
+    if(current_HP >= 0){
+        SDL_Rect vie = {900,750,3 * current_HP, 10};
+        SDL_SetRenderDrawColor(renderer, lime.r, lime.g, lime.b, lime.a);
+        SDL_RenderFillRect(renderer, &vie);
+    }
+}
+
+void Game::DrawMenu(){
+    /*
+    
+    SDL_SetRenderDrawColor(renderer, saddlebrown.r, saddlebrown.g, saddlebrown.b, saddlebrown.a);
+
+    Declaring the surface. 
+    SDL_Rect rect = {0,641,1409, 262};
+
+    // Render rect
+    SDL_RenderFillRect(renderer, &rect);
+    */
+    TextureManager::BlitTexture(assetManager.GetTexture("cadre"),renderer,0,640);
 }
 
 // Dessine les tiles
@@ -498,22 +536,40 @@ void Game::DrawTiles()
     }
 }
 
-void Game::AddEnemy(const Enemy& enemy){
+/**
+ * Rajoute un ennemi dans la liste d'ennemis (vector).
+ * @param enemy l'ennemi à rajouter.
+*/
+void Game::AddEnemy(Enemy enemy){
     enemies.push_back(enemy);
 }
 
+/**
+ * Détruit un ennemi.
+ * @param id indexe de l'ennemi à détruire.
+*/
 void Game::DeleteEnemy(int id){
     enemies.erase(enemies.begin()+(id-1));
 }
 
+/**
+ * Récupère un ennemi dans la liste d'ennemis (vector) via son indexe.
+ * @param id indexe de l'ennemi à récupérer.
+*/
 Enemy& Game::GetEnemy(int id){
     return enemies[id];
 }
 
-void Game::AddTower(std::string id, Tower tower){
+/**
+ * Rajoute une tour dans la liste des tours (vector).
+ * @param indexe de la tour.
+ * @param tower tour à ajouter.
+*/
+void Game::AddTower(Tower tower){
 
 }
 
-Tower Game::GetTower(std::int16_t id){
-    return Tower();
-}
+/**
+ * Récupère une tour dans la liste (vector) via son indexe.
+ * @param id l'ennemi à rajouter.
+*/

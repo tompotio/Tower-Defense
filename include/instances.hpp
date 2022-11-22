@@ -9,19 +9,25 @@
         Je pense que c'est plus propre de définir les fonctions dans le header et de les rédiger uniquement dans le .cpp.
 */
 
-class Enemy
+class Entity
 {
     public: 
-        Enemy() = default;
-        Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& assetmanager);
-
-        ~Enemy() = default;
-
-        vec2<double> GetDirection(){return this->direction;};
-
         // Renvoie le sprite de l'ennemi
         Sprite& GetSprite(){return sprite;};
 
+        vec2<double> GetDirection(){return this->direction;};
+
+    protected:
+        vec2<double>  direction;
+        vec2<double>  position;
+        Sprite sprite;
+
+};
+
+class Enemy : public Entity
+{
+    public: 
+        Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& assetmanager);
         // Renvoie la vitesse de l'ennemi
         int GetSpeed(){return this->speed;};
 
@@ -40,10 +46,6 @@ class Enemy
         int i = 0;
 
     private:
-        vec2<double>  direction;
-        vec2<double>  position = vec2<double>();
-        Sprite sprite;
-
         int Max_HP;
         int Current_HP;
         float speed;
@@ -54,19 +56,17 @@ enum Towers_t
     ARCHER,
 };
 
-class Tower
+class Tower : public Entity
 {
     public: 
-        Tower();
         Tower(Towers_t type);
-        ~Tower() = default;
 
         Enemy GetEnemy();
         void AttackEnemy();
         void RotateSprite(); //Modifie l'angle de rotation du sprite        
 
     private:
-        Enemy target;
+        Enemy& target;
         vec2<double>  dir;
         vec2<double>  position;
         Sprite sprite;

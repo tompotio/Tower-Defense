@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #define RESOLUTION_X 1410
-#define RESOLUTION_Y 832
+#define RESOLUTION_Y 900
 #define FPS 60
 
 int main(int argc, char *args[])
