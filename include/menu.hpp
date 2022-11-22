@@ -25,6 +25,7 @@ class Menu
     private:
         AssetManager assets;
         Body* body;
+        SDL_Rect WindowSize;
         vec2<double> cursor;
         bool isRunning;
      

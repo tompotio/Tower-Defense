@@ -5,23 +5,34 @@ Widget::Widget(int x, int y, SDL_Texture* texture){
     this->rect = TextureManager::GetTextureSize(texture);
     this->rect.x = x;
     this->rect.y = y;
-    std::cout << "size = " << rect.x << "  " << rect.y << "  " << rect.w << "  " << rect.h << std::endl;
     this->texture = texture;
 
 }
 
-void Widget::BlitWidget(SDL_Renderer* renderer) {
-    TextureManager::BlitTextureTransparent(getTexture(), renderer, getRect().x, getRect().y);
+// Widget Center
+Widget::Widget(SDL_Texture* texture, SDL_Rect WindowSize){
+    
+    this->rect = TextureManager::GetTextureSize(texture);
+
+    this->rect.x = (WindowSize.w-rect.w)/2;
+    this->rect.y = (WindowSize.h-rect.h)/2;
+    this->texture = texture;
+    //std::cout << "size = " << rect.x << "  " << rect.y << "  " << rect.w << "  " << rect.h << std::endl;
+
 }
 
-void Widget::BlitWidgetTransparent(SDL_Renderer* renderer) {
+void Widget::BlitWidget(SDL_Renderer* renderer) {
     TextureManager::BlitTexture(getTexture(), renderer, getRect().x, getRect().y);
 }
 
-bool Widget::isHovering(int x, int y) {
-    /* cout << "size = " << getRect().x << "  " << getRect().y << "  " << getRect().w << "  " << getRect().h << endl;
-    cout << "pos = " << x << "  " << y  << endl; */
+
+
+/* void Widget::BlitWidgetTransparent(SDL_Renderer* renderer) {
     
+} */
+
+bool Widget::isHovering(int x, int y) {
+
     if (x >= getRect().x && x < (getRect().x+getRect().w) && y < (getRect().y+getRect().h) && y >= getRect().y) {
         return true;
     }

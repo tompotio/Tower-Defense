@@ -6,12 +6,15 @@ Menu::Menu(Body* body)
     this->body = body;
     this->cursor = vec2<double>();
     this->assets = AssetManager();
+    
+    SDL_GetWindowSize(body->GetWindow(), &WindowSize.w, &WindowSize.h);
 
     assets.AddTexture(
         "pb",
         TextureManager::LoadTexture("../assets/playbutton.png", body->GetRenderer())
     );
-    // widgets.push_back(Widget(body->GetWindow().w/2, body->GetWindow().h/2, assets.GetTexture("pb")));
+    
+    widgets.push_back(Widget(assets.GetTexture("pb"), WindowSize));
 
 }
 
@@ -45,11 +48,12 @@ void Menu::Update(SDL_Renderer* renderer)
 {   
     SDL_RenderCopy(renderer, TextureManager::LoadTexture("../assets/PNG/Menu/bg1.jpg", renderer), NULL, NULL);
     for(Widget widget : widgets) {
-        if (widget.isHovering(cursor.x, cursor.y)){
+        widget.BlitWidget(renderer);
+        /* if (widget.isHovering(cursor.x, cursor.y)){
             widget.BlitWidget(renderer);
         }else{
             widget.BlitWidgetTransparent(renderer);
-        }
+        } */
     }
    
 }

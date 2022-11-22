@@ -72,7 +72,7 @@ void TextureManager::BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, i
     SDL_Rect dstcrect; 
     dstcrect.x = x;
     dstcrect.y = y;
-    SDL_SetTextureAlphaMod(texture, 255);
+    // SDL_SetTextureAlphaMod(texture, 255);
     // Récupère les informations de la texture (width et height)
     SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
 

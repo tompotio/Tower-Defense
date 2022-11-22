@@ -8,7 +8,8 @@ class Widget
     public:
         Widget() = default;
         Widget(int x, int y, SDL_Texture* texture);
-        
+        Widget(SDL_Texture* texture, SDL_Rect WindowSize);
+
         void BlitWidget(SDL_Renderer* renderer);
         SDL_Rect& getRect() {return rect;}
         SDL_Texture* getTexture() {return texture;}
