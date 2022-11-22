@@ -47,9 +47,9 @@ Problèmes communs
 
 ## Authors
 
-Tompotio
+Tompotio - CLEMENT Aïssa
 
-Vopexx
+Vopexx - HADIBI Neil
 
 ## Version History
 
