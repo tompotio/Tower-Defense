@@ -2,6 +2,7 @@
 
 #include "vector2.hpp"
 #include "assetsmanager.hpp"
+#include "grid.hpp"
 
 /*
     Notes : 
@@ -30,6 +31,7 @@ class Enemy : public Entity
         Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& assetmanager);
         // Renvoie la vitesse de l'ennemi
         int GetSpeed(){return this->speed;};
+        int GetDamage(){return this->dmg;};
 
         // Modifie la direction de l'ennemi
         void SetDirection(vec2<double>  direction);
@@ -44,10 +46,12 @@ class Enemy : public Entity
 
         int maxcell = 0;
         int i = 0;
+        std::vector<Cell>* path;
 
     private:
         int Max_HP;
         int Current_HP;
+        int dmg;
         float speed;
 };
 

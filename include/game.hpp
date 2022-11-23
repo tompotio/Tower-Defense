@@ -38,6 +38,8 @@ class Game
 
         void DrawMenu();
 
+        void SpawnEnemy(int choice, vec2<double> position);
+
         //Enemy Management
         void AddEnemy(Enemy enemy);
 

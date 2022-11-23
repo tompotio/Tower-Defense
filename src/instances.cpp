@@ -8,6 +8,7 @@ Enemy::Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& as
     SDL_Texture* texture = assetmanager.GetTexture("zombie");
     int w;
     int h;
+    this->dmg = 5;
 
     SetPosition(spawnPosition);
     

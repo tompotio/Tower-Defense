@@ -28,6 +28,11 @@ Game::Game(Body* body)
         TextureManager::LoadTexture("../assets/u_wu.png",renderer)
     );
 
+    assetManager.AddTexture(
+        "blur",
+        TextureManager::LoadTexture("../assets/beur.png",renderer)
+    );
+
     //TextureManager::LoadTexture("../../move/skeleton-move_0t.png",renderer)
 
     assetManager.AddTexture(
@@ -136,11 +141,9 @@ Game::Game(Body* body)
         21,
         6
     );
-    
-    wave_nb += 1;
-
-    bottompath_size = bottompath.size();
     toppath_size = toppath.size();
+    bottompath_size = bottompath.size();
+    wave_nb += 1;
     wave_ongoing = true; // Je bougerai cette valeur plus tard qui se mettra true après une petite fenêtre de dialogue dans le jeu avant de débuter la partie ! 
     isRunning = true;
 }
@@ -284,6 +287,34 @@ void Game::UpdateGraphics()
     SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
 }
 
+void Game::SpawnEnemy(int choice, vec2<double> position){
+    Enemy new_enemy = Enemy(
+        position,
+        50,
+        500,
+        assetManager
+    );
+
+    vec2<double> nextcellpos;
+    if (choice == 1){
+        nextcellpos = vec2<double>(bottompath[1].x * grid_cell_size,bottompath[1].y * grid_cell_size);
+        new_enemy.maxcell = bottompath_size;
+        new_enemy.path = &bottompath;
+    }else{
+        nextcellpos = vec2<double>(toppath[1].x * grid_cell_size,toppath[1].y * grid_cell_size);
+        new_enemy.maxcell = toppath_size;
+        new_enemy.path = &toppath;
+    }
+
+    new_enemy.SetDirection(
+        (nextcellpos - new_enemy.GetPosition()).normalize()
+    );
+
+    AddEnemy(
+        new_enemy
+    );
+}
+
 // Met à jour les unités du jeu.
 void Game::UpdateGame(){
     if ((wave_ongoing)){
@@ -292,38 +323,36 @@ void Game::UpdateGame(){
 
         // Crée un ennemi toutes les environ 5 secondes
         if(((int)wave_cout_s + 1) % 2 == 0){
-            std::cout << "Énemi généré !" << std::endl;
             wave_cout_s += 1;
-            Enemy new_enemy = Enemy(
-                vec2<double>(-32,512),
-                50,
-                50,
-                assetManager
-            );
-            vec2<double> nextcellpos = vec2<double>(bottompath[1].x * grid_cell_size,bottompath[1].y * grid_cell_size);
-            new_enemy.SetDirection(
-                (nextcellpos - new_enemy.GetPosition()).normalize()
-            );
-            new_enemy.maxcell = bottompath_size;
-            AddEnemy(
-                new_enemy
-            );
-            current_HP -= 10;
+            int random = rand() % 2 +1; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
+            switch (random)
+            {
+            case 1:
+                SpawnEnemy(random, vec2<double>(-32,512));
+                break;
+            case 2:
+                SpawnEnemy(random, vec2<double>(320,-32));
+                break;
+            default:
+                break;
+            }
         }
         
         // Fait avancer chaque ennemi
         for (int i = 0; i < enemies.size(); i++){
             Enemy& enemy = enemies[i];
-            vec2<double> cellpos = vec2<double>(bottompath[enemy.i].x * grid_cell_size,bottompath[enemy.i].y * grid_cell_size);
+            vec2<double> cellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
             if((enemy.GetPosition() - cellpos).length() <= 10 && (enemy.i < enemy.maxcell)){
                 enemy.i += 1;
                 if(enemy.i < enemy.maxcell){
-                    vec2<double> nextcellpos = vec2<double>(bottompath[enemy.i].x * grid_cell_size,bottompath[enemy.i].y * grid_cell_size);
+                    vec2<double> nextcellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
                     enemy.SetDirection((nextcellpos - (enemy.GetPosition())).normalize());
                 }
             }
             if((enemy.i >= enemy.maxcell)){
                 DeleteEnemy(i);
+                std::cout << "dégât encaissé" << std::endl;
+                current_HP -= enemy.GetDamage();
             }
             // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
             enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
@@ -371,7 +400,11 @@ void Game::DrawBaseHealthBar(){
         SDL_Rect vie = {900,750,3 * current_HP, 10};
         SDL_SetRenderDrawColor(renderer, lime.r, lime.g, lime.b, lime.a);
         SDL_RenderFillRect(renderer, &vie);
+    }else{
+        //TextureManager::BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
     }
+
+    //TextureManager::BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
 }
 
 void Game::DrawMenu(){
