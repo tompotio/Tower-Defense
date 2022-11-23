@@ -60,6 +60,7 @@ class Game
         bool running() {return isRunning; };
 
         double deltatime;
+        double fps = 60;
 
     private:
         Body* body;
@@ -115,6 +116,7 @@ class Game
         // Screen
         SDL_Renderer *renderer;
         SDL_Window *window;
+        TTF_Font* font;
 
         // Colors (bientôt deprecated)
         SDL_Color grid_background = {22, 22, 22, 255};

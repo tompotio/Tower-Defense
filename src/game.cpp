@@ -12,97 +12,99 @@
 */
 Game::Game(Body* body)
 {   
-    this-> body = body;
+    this->body = body;
     renderer = body->GetRenderer();
 
     // Champ de déclaration des assets du jeu 
     assetManager = AssetManager();
 
+    font = load_font( "../assets/Roboto-ThinItalic.ttf", 14);
+
     assetManager.AddTexture(
         "zombie",
-        TextureManager::LoadTexture("../assets/tiles/zombie_000.png",renderer)
+        LoadTexture("../assets/tiles/zombie_000.png",renderer)
     );
 
     assetManager.AddTexture(
         "cadre",
-        TextureManager::LoadTexture("../assets/u_wu.png",renderer)
+        LoadTexture("../assets/u_wu.png",renderer)
     );
 
     assetManager.AddTexture(
         "blur",
-        TextureManager::LoadTexture("../assets/beur.png",renderer)
+        LoadTexture("../assets/beur.png",renderer)
     );
 
-    //TextureManager::LoadTexture("../../move/skeleton-move_0t.png",renderer)
+    //LoadTexture("../../move/skeleton-move_0t.png",renderer)
 
     assetManager.AddTexture(
         "grass",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile024.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile024.png",renderer)
     );
 
     assetManager.AddTexture(
         "dirt",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile050.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile050.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top-curve-right",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile004.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile004.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top-curve-left",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile003.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile003.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom-curve-right",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile027.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile027.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom-curve-left",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile026.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile026.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-right",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile023.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile023.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-left",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile025.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile025.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top-corner-right",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile046.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile046.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile047.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile047.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile001.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile001.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom-corner-right",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile002.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile002.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-bottom-corner-left",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile299.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile299.png",renderer)
     );
 
     assetManager.AddTexture(
         "grass-top-corner-left",
-        TextureManager::LoadTexture("../assets/tiles/Default size/towerDefense_tile048.png",renderer)
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile048.png",renderer)
     );
 
     // Dimension d'une cellule (On pourra peut être créer des maps plus petites)
@@ -262,10 +264,12 @@ void Game::UpdateGraphics()
 
         // Affiche la grille map
         map.DrawGrid(renderer);
-    }
+        int w;
+        int h;
+        TTF_SizeText(font, "FPS", &w, &h);
+        apply_text(renderer,50,50,w,h,"FPS",font);
 
-    //Dessine les lignes du chemin
-    if (showgrid){
+        //Dessine les lignes du chemin
         if (found_testing_path){
             DrawPath(testingpath,orange);
         }
@@ -318,7 +322,6 @@ void Game::UpdateGame(){
             }
             if((enemy.i >= enemy.maxcell)){
                 DeleteEnemy(i);
-                std::cout << "dégât encaissé" << std::endl;
                 current_HP -= enemy.GetDamage();
             }
             // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
@@ -341,7 +344,7 @@ void Game::DrawCursor(){
 // Dessine les ennemis sur l'écran
 void Game::DrawEnemies(){
     for (auto enemy : enemies) {
-        TextureManager::BlitSprite(
+        BlitSprite(
             enemy.GetSprite(),
             renderer
         );
@@ -379,15 +382,15 @@ void Game::DrawBaseHealthBar(){
         SDL_SetRenderDrawColor(renderer, lime.r, lime.g, lime.b, lime.a);
         SDL_RenderFillRect(renderer, &vie);
     }else{
-        //TextureManager::BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
+        //BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
     }
 
-    //TextureManager::BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
+    //BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
 }
 
 void Game::DrawInventory(){
     // Affiche le background du menu
-    TextureManager::BlitTexture(assetManager.GetTexture("cadre"),renderer,0,640);
+    BlitTexture(assetManager.GetTexture("cadre"),renderer,0,640);
 
     // Génère les cellules du menu
     SDL_SetRenderDrawColor(renderer, black.r, black.g, black.b, black.a);
@@ -409,7 +412,7 @@ void Game::DrawTiles()
         for(int y = 0; y < map_y_size; y++){
             switch((*map.GetGridObject(x,y)).type){
                 case '1':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass"),
                         renderer,
                         x * grid_cell_size,
@@ -418,7 +421,7 @@ void Game::DrawTiles()
                     break;
 
                 case '2':
-                TextureManager::BlitTexture(
+                BlitTexture(
                     assetManager.GetTexture("grass-right"),
                     renderer,
                     x * grid_cell_size,
@@ -427,7 +430,7 @@ void Game::DrawTiles()
                 break;
 
                 case '3':
-                TextureManager::BlitTexture(
+                BlitTexture(
                     assetManager.GetTexture("grass-top-curve-right"),
                     renderer,
                     x * grid_cell_size,
@@ -436,7 +439,7 @@ void Game::DrawTiles()
                 break;
 
                 case '4':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-top"),
                         renderer,
                         x * grid_cell_size,
@@ -445,7 +448,7 @@ void Game::DrawTiles()
                     break;
 
                 case '5':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("dirt"),
                         renderer,
                         x * grid_cell_size,
@@ -454,7 +457,7 @@ void Game::DrawTiles()
                     break;
 
                 case '6':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-top-corner-right"),
                         renderer,
                         x * grid_cell_size,
@@ -463,7 +466,7 @@ void Game::DrawTiles()
                     break;
 
                 case '7':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-bottom-curve-right"),
                         renderer,
                         x * grid_cell_size,
@@ -472,7 +475,7 @@ void Game::DrawTiles()
                     break;
                 
                 case '8':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-bottom"),
                         renderer,
                         x * grid_cell_size,
@@ -481,7 +484,7 @@ void Game::DrawTiles()
                     break;
 
                 case '9':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-left"),
                         renderer,
                         x * grid_cell_size,
@@ -490,7 +493,7 @@ void Game::DrawTiles()
                     break;
 
                 case 'A':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-top-curve-left"),
                         renderer,
                         x * grid_cell_size,
@@ -499,7 +502,7 @@ void Game::DrawTiles()
                     break;
 
                 case 'B':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-bottom-corner-right"),
                         renderer,
                         x * grid_cell_size,
@@ -508,7 +511,7 @@ void Game::DrawTiles()
                     break;
 
                 case 'C':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-bottom-curve-left"),
                         renderer,
                         x * grid_cell_size,
@@ -517,7 +520,7 @@ void Game::DrawTiles()
                     break;
 
                 case 'D':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-top-corner-right"),
                         renderer,
                         x * grid_cell_size,
@@ -526,7 +529,7 @@ void Game::DrawTiles()
                     break;
 
                 case 'E':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-top-corner-left"),
                         renderer,
                         x * grid_cell_size,
@@ -535,7 +538,7 @@ void Game::DrawTiles()
                     break;
 
                 case 'F':
-                    TextureManager::BlitTexture(
+                    BlitTexture(
                         assetManager.GetTexture("grass-bottom-corner-left"),
                         renderer,
                         x * grid_cell_size,
@@ -554,7 +557,7 @@ void Game::SpawnEnemy(int choice, vec2<double> position){
     Enemy new_enemy = Enemy(
         position,
         50,
-        500,
+        50,
         assetManager
     );
 

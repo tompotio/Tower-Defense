@@ -5,7 +5,7 @@ Menu::Menu(SDL_Renderer* renderer)
     isRunning = true;
 
     cursor = vec2<double>();
-    widgets.push_back(Widget(300, 400, TextureManager::LoadTexture("../assets/playbutton.png", renderer)));
+    widgets.push_back(Widget(300, 400, LoadTexture("../assets/playbutton.png", renderer)));
 
 }
 

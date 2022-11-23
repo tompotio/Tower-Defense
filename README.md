@@ -15,19 +15,24 @@ Il suffit donc de passer la souris dessus pour afficher une description (marche 
 
 ### Dependencies
 
-* librairie SDL
+
+* cmake
+* SDL2
+* SDL2_image 
+* SDL2_mixer
+* SDL2_ttf
+
 
 ### Installing
 
 * Any modifications needed to be made to files/folders
 
 - Pour lancer le jeu la première fois :
-Créer un dossier build dans le dossier principal (Tower Defense),
-Ouvrir le terminal dans build, 
-Taper les commandes : 
 
 ```
-    cmake ..
+    mkdir build
+    cd build
+    cmake .
     make
 ```
 

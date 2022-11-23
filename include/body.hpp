@@ -13,11 +13,9 @@ class Body{
 
             if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
             {
-                std::cout << "Subsystems Initialised!..." << std::endl;
-
                 window = SDL_CreateWindow(title, xpos, ypos, width, height,flags);
                 if(window){
-                    std::cout << "Window created!" << std::endl;
+                    std::cout << "Fenêtre créée !" << std::endl;
                 }
 
                 renderer = SDL_CreateRenderer(window,-1,0);
@@ -25,14 +23,18 @@ class Body{
                 if(renderer)
                 {
                     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-                    std::cout << "Renderer created!" << std::endl;
+                    std::cout << "Renderer créé !" << std::endl;
                 }
             }
+            if (TTF_Init() == 0)
+		        std::cout << "TTF initialisé !" << std::endl;
+
             SDL_SetWindowTitle(window, "Tower Defense");
         };
 
         void Clean(){
             SDL_DestroyWindow(window);
+            TTF_Quit();
             SDL_Quit();
             std::cout << "Game Cleaned" << std::endl;
         };

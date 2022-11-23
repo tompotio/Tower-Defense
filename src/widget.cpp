@@ -9,11 +9,11 @@ Widget::Widget(int x, int y, SDL_Texture* texture){
 }
 
 void Widget::BlitWidget(SDL_Renderer* renderer) {
-    TextureManager::BlitTextureTransparent(getTexture(), renderer, getRect().x, getRect().y);
+    BlitTextureTransparent(getTexture(), renderer, getRect().x, getRect().y);
 }
 
 void Widget::BlitWidgetTransparent(SDL_Renderer* renderer) {
-    TextureManager::BlitTexture(getTexture(), renderer, getRect().x, getRect().y);
+    BlitTexture(getTexture(), renderer, getRect().x, getRect().y);
 }
 
 bool Widget::isHovering(int x, int y) {
