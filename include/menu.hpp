@@ -14,9 +14,10 @@ class Menu
         void HandleEvents();
         void leftClick();
         //void rightClick(double x, double y);
-        void Update(SDL_Renderer* renderer); 
-        bool running() {return isRunning;};
-        Body* GetBody(){return body;};
+        void Update(SDL_Renderer* renderer);
+        bool running() {return isRunning;}
+        bool inSettings() {return isSetting;}
+        Body* GetBody() {return body;}
         AssetManager GetAssets() {return assets;};
 
         std::vector<Widget> widgets;
@@ -28,6 +29,7 @@ class Menu
         SDL_Rect WindowSize;
         vec2<double> cursor;
         bool isRunning;
+        bool isSetting;
      
         
 };

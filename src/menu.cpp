@@ -3,6 +3,7 @@
 Menu::Menu(Body* body)
 {
     this->isRunning = true;
+    this->isSetting = false;
     this->body = body;
     this->cursor = vec2<double>();
     this->assets = AssetManager();
@@ -11,10 +12,18 @@ Menu::Menu(Body* body)
 
     assets.AddTexture(
         "pb",
-        TextureManager::LoadTexture("../assets/playbutton.png", body->GetRenderer())
+        TextureManager::LoadTexture("../assets/playbutton1.png", body->GetRenderer())
+    );
+
+    assets.AddTexture(
+        "sb",
+        TextureManager::LoadTexture("../assets/PNG/Menu/menu_button/settings1.png", body->GetRenderer())
     );
     
-    widgets.push_back(Widget(assets.GetTexture("pb"), WindowSize));
+    widgets.push_back(Widget("m-pb", assets.GetTexture("pb"), WindowSize));
+    widgets.push_back(Widget("m-sb", (WindowSize.w-160), 10,  assets.GetTexture("sb")));
+    
+    
 
 }
 
@@ -48,22 +57,44 @@ void Menu::Update(SDL_Renderer* renderer)
 {   
     SDL_RenderCopy(renderer, TextureManager::LoadTexture("../assets/PNG/Menu/bg1.jpg", renderer), NULL, NULL);
     for(Widget widget : widgets) {
-        widget.BlitWidget(renderer);
-        /* if (widget.isHovering(cursor.x, cursor.y)){
+        if (isSetting) {
+            if (widget.getId()[0] == 's') {
+                widget.BlitWidget(renderer);
+            }
+            
+        }
+        else if (widget.getId()[0] == 'm') {
             widget.BlitWidget(renderer);
-        }else{
-            widget.BlitWidgetTransparent(renderer);
-        } */
+            std::cout << isSetting << widget.getId() << std::endl;
+            /* if (widget.isHovering(cursor.x, cursor.y)){
+                widget.BlitWidget(renderer);
+            }else{
+                widget.BlitWidgetTransparent(renderer);
+            } */
+        }
+        
     }
    
 }
 
+
+
 void Menu::leftClick() {
+
+
+    
 
     for(Widget widget : widgets) {
         
         if (widget.isHovering(cursor.x, cursor.y)) {
-            isRunning = false;
+
+            if (widget.getId() == "m-pb") {
+                isRunning = false;  
+            }
+            if (widget.getId() == "m-sb") {
+                isSetting = true;  
+            }
+           
         }
         
     }

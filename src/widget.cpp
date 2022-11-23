@@ -1,7 +1,8 @@
 #include "../include/widget.hpp"
 
-Widget::Widget(int x, int y, SDL_Texture* texture){
+Widget::Widget(std::string id, int x, int y, SDL_Texture* texture){
     
+    this->id = id;
     this->rect = TextureManager::GetTextureSize(texture);
     this->rect.x = x;
     this->rect.y = y;
@@ -10,8 +11,10 @@ Widget::Widget(int x, int y, SDL_Texture* texture){
 }
 
 // Widget Center
-Widget::Widget(SDL_Texture* texture, SDL_Rect WindowSize){
+Widget::Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize) {
     
+
+    this->id = id;
     this->rect = TextureManager::GetTextureSize(texture);
 
     this->rect.x = (WindowSize.w-rect.w)/2;
