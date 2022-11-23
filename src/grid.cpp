@@ -55,6 +55,9 @@ Cell* Grid::GetGridObject(int x, int y){
  * @param renderer renderer de SDL.
 */
 void Grid::DrawGrid(SDL_Renderer* renderer){
+    // Applique la couleur des lignes (Lire la doc de la fonction pour comprendre le fonctionnement)
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
     // Dessine les lignes de la grille verticalement à chaque position x
     for(int x = 0; x < GetWidth() + 1; x++){
         SDL_RenderDrawLine(

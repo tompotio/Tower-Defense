@@ -34,9 +34,11 @@ class Game
 
         void DrawGrid(Grid grid);
 
+        void DrawCursor();
+
         void DrawInstances();
 
-        void DrawMenu();
+        void DrawInventory();
 
         void SpawnEnemy(int choice, vec2<double> position);
 
@@ -74,6 +76,12 @@ class Game
         int toppath_size;
         int map_x_size;
         int map_y_size;
+
+        int inventory_grid_cells;
+        int inventory_grid_cells_size;
+        int inventory_grid_offset;
+        int inventory_pos_x;
+        int inventory_pos_y;
 
         double wave_cout_s = 0;
 

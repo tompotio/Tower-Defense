@@ -146,6 +146,13 @@ Game::Game(Body* body)
     wave_nb += 1;
     wave_ongoing = true; // Je bougerai cette valeur plus tard qui se mettra true après une petite fenêtre de dialogue dans le jeu avant de débuter la partie ! 
     isRunning = true;
+
+    // Provisoire
+    inventory_grid_cells = 5;
+    inventory_grid_cells_size = 64;
+    inventory_grid_offset = 10;
+    inventory_pos_x = 300;
+    inventory_pos_y = 735;
 }
 
 void Game::InitCellTypes(){
@@ -243,29 +250,16 @@ void Game::HandleEvents()
 // Met à jour l'affichage graphique du jeu.
 void Game::UpdateGraphics()
 {   
-    DrawMenu();
-
     // Affiche les tiles sur la grille
     DrawTiles();
 
-    if (showgrid){
-        // Dessine le grid cursor (Si on souhaite afficher où on clique)
-        //SDL_SetRenderDrawColor(renderer, grid_cursor_color.r, grid_cursor_color.g, grid_cursor_color.b, grid_cursor_color.a);
-
-        //
-        //SDL_RenderFillRect(renderer, &grid_cursor);
-
-        // Dessine le grid ghost cursor
-        SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r, grid_cursor_ghost_color.g, grid_cursor_ghost_color.b, grid_cursor_ghost_color.a);
-
-        //
-        SDL_RenderFillRect(renderer, &grid_cursor_ghost);
-    }
-
-    // Applique la couleur des lignes (Lire la doc de la fonction pour comprendre le fonctionnement)
-    SDL_SetRenderDrawColor(renderer, grid_line_color.r, grid_line_color.g, grid_line_color.b, grid_line_color.a);
+    // Affiche les ennemis
+    DrawEnemies();
 
     if (showgrid){
+        //Affiche le curseur de la grille
+        DrawCursor();
+
         // Affiche la grille map
         map.DrawGrid(renderer);
     }
@@ -278,41 +272,14 @@ void Game::UpdateGraphics()
         DrawPath(bottompath,yellow_green);
     }
 
-    // Affiche les ennemis
-    DrawEnemies();
-
+    // Affiche l'inventaire
+    DrawInventory();
+    
+    // Affiche la barre de vie
     DrawBaseHealthBar();
 
     //(couleur de fond de base du jeu)
     SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
-}
-
-void Game::SpawnEnemy(int choice, vec2<double> position){
-    Enemy new_enemy = Enemy(
-        position,
-        50,
-        500,
-        assetManager
-    );
-
-    vec2<double> nextcellpos;
-    if (choice == 1){
-        nextcellpos = vec2<double>(bottompath[1].x * grid_cell_size,bottompath[1].y * grid_cell_size);
-        new_enemy.maxcell = bottompath_size;
-        new_enemy.path = &bottompath;
-    }else{
-        nextcellpos = vec2<double>(toppath[1].x * grid_cell_size,toppath[1].y * grid_cell_size);
-        new_enemy.maxcell = toppath_size;
-        new_enemy.path = &toppath;
-    }
-
-    new_enemy.SetDirection(
-        (nextcellpos - new_enemy.GetPosition()).normalize()
-    );
-
-    AddEnemy(
-        new_enemy
-    );
 }
 
 // Met à jour les unités du jeu.
@@ -357,6 +324,17 @@ void Game::UpdateGame(){
             // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
             enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
         }
+    }
+}
+
+void Game::DrawCursor(){
+    // Dessine le curseur uniquement s'il est dans la grille
+    if ((mouse_X >= 0) &&
+    (mouse_X < (map.GetWidth() * grid_cell_size)) && 
+    (mouse_Y >= 0 && mouse_Y < (map.GetHeight() * grid_cell_size))
+    ){
+        SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r, grid_cursor_ghost_color.g, grid_cursor_ghost_color.b, grid_cursor_ghost_color.a);
+        SDL_RenderFillRect(renderer, &grid_cursor_ghost);
     }
 }
 
@@ -407,18 +385,21 @@ void Game::DrawBaseHealthBar(){
     //TextureManager::BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
 }
 
-void Game::DrawMenu(){
-    /*
-    
-    SDL_SetRenderDrawColor(renderer, saddlebrown.r, saddlebrown.g, saddlebrown.b, saddlebrown.a);
-
-    Declaring the surface. 
-    SDL_Rect rect = {0,641,1409, 262};
-
-    // Render rect
-    SDL_RenderFillRect(renderer, &rect);
-    */
+void Game::DrawInventory(){
+    // Affiche le background du menu
     TextureManager::BlitTexture(assetManager.GetTexture("cadre"),renderer,0,640);
+
+    // Génère les cellules du menu
+    SDL_SetRenderDrawColor(renderer, black.r, black.g, black.b, black.a);
+    for(int i = 0; i < inventory_grid_cells; i++){
+        SDL_Rect rect = {
+            (i * (inventory_grid_cells_size + inventory_grid_offset)) + inventory_pos_x,
+            inventory_pos_y,
+            inventory_grid_cells_size,
+            inventory_grid_cells_size
+        };
+        SDL_RenderFillRect(renderer, &rect);
+    }
 }
 
 // Dessine les tiles
@@ -567,6 +548,34 @@ void Game::DrawTiles()
             }
         }
     }
+}
+
+void Game::SpawnEnemy(int choice, vec2<double> position){
+    Enemy new_enemy = Enemy(
+        position,
+        50,
+        500,
+        assetManager
+    );
+
+    vec2<double> nextcellpos;
+    if (choice == 1){
+        nextcellpos = vec2<double>(bottompath[1].x * grid_cell_size,bottompath[1].y * grid_cell_size);
+        new_enemy.maxcell = bottompath_size;
+        new_enemy.path = &bottompath;
+    }else{
+        nextcellpos = vec2<double>(toppath[1].x * grid_cell_size,toppath[1].y * grid_cell_size);
+        new_enemy.maxcell = toppath_size;
+        new_enemy.path = &toppath;
+    }
+
+    new_enemy.SetDirection(
+        (nextcellpos - new_enemy.GetPosition()).normalize()
+    );
+
+    AddEnemy(
+        new_enemy
+    );
 }
 
 /**
