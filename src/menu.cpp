@@ -10,18 +10,30 @@ Menu::Menu(Body* body)
     
     SDL_GetWindowSize(body->GetWindow(), &WindowSize.w, &WindowSize.h);
 
+    
     assets.AddTexture(
-        "pb",
-        TextureManager::LoadTexture("../assets/playbutton1.png", body->GetRenderer())
+        "sb",
+        TextureManager::LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", body->GetRenderer())
     );
 
     assets.AddTexture(
-        "sb",
-        TextureManager::LoadTexture("../assets/PNG/Menu/menu_button/settings1.png", body->GetRenderer())
+        "sb2",
+        TextureManager::LoadTexture("../assets/PNG/Menu/settings/sbutton_bg1.png", body->GetRenderer())
+    );
+
+    assets.AddTexture(
+        "mt",
+        TextureManager::LoadTexture("../assets/PNG/Menu/settings/menu_tile1.png", body->GetRenderer())
+    );
+
+    assets.AddTexture(
+        "mb",
+        TextureManager::LoadTexture("../assets/PNG/Menu/settings/menu_button1.png", body->GetRenderer())
     );
     
-    widgets.push_back(Widget("m-pb", assets.GetTexture("pb"), WindowSize));
-    widgets.push_back(Widget("m-sb", (WindowSize.w-160), 10,  assets.GetTexture("sb")));
+    widgets.push_back(Widget("m-pb", assets.GetTexture("mb"), WindowSize));
+    widgets.push_back(Widget("m-sb", (WindowSize.w-160), 10, assets.GetTexture("sb")));
+    widgets.push_back(Widget("s-sbg", assets.GetTexture("mt"), WindowSize));
     
     
 
@@ -63,14 +75,20 @@ void Menu::Update(SDL_Renderer* renderer)
             }
             
         }
-        else if (widget.getId()[0] == 'm') {
-            widget.BlitWidget(renderer);
-            std::cout << isSetting << widget.getId() << std::endl;
-            /* if (widget.isHovering(cursor.x, cursor.y)){
+        else {
+            if (widget.getId()[0] == 'm') {
                 widget.BlitWidget(renderer);
-            }else{
-                widget.BlitWidgetTransparent(renderer);
-            } */
+                if (widget.getId() == "m-sb") {
+                    if (widget.isHovering(cursor.x, cursor.y)){
+                        widget.setTexture(assets.GetTexture("sb2"));
+                        std::cout << "HAAA" << std::endl;
+                    }else{
+                        
+                        widget.setTexture(assets.GetTexture("sb"));
+                    }
+                }
+                
+            }
         }
         
     }

@@ -14,6 +14,7 @@ class Widget
         SDL_Rect& getRect() {return rect;}
         SDL_Texture* getTexture() {return texture;}
         std::string getId() {return id;}
+        void setTexture(SDL_Texture* texture) {texture = texture;}
         bool isHovering(int x, int y);
         void BlitWidgetTransparent(SDL_Renderer* renderer);
         //void onClick();

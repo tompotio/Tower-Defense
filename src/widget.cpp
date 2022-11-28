@@ -30,6 +30,7 @@ void Widget::BlitWidget(SDL_Renderer* renderer) {
 
 
 
+
 /* void Widget::BlitWidgetTransparent(SDL_Renderer* renderer) {
     
 } */
