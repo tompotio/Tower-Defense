@@ -32,7 +32,7 @@ Il suffit donc de passer la souris dessus pour afficher une description (marche 
 ```
     mkdir build
     cd build
-    cmake .
+    cmake ..
     make
 ```
 

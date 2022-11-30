@@ -10,10 +10,10 @@
 
 int main(int argc, char *args[])
 {   
-    const Uint32 frameDelay = 1000.0f / FPS;
+    const double frameDelay = (1000.0f / FPS)/1000;
 
-    Uint32 frameStart;
-    Uint32 frameTime;
+    double frameStart;
+    double frameTime;
 
     static Body* body = new Body(
         "GameWindow", 
@@ -44,11 +44,15 @@ int main(int argc, char *args[])
 
         body->RenderPresent();
 
-        frameTime = (clock()/1000) - frameStart;
-        game->deltatime = (frameTime / 1000.0f);
+        frameTime = (clock() - frameStart);
+        game->deltatime = (frameTime / 1000000.0f); // des micro secondes
         
-        game->fps = (1000 / (frameTime - frameStart));
-        std::cout << game->fps << std::endl;
+        //game->fps = (100000 / ((frameTime)));
+        //std::cout << game->fps << std::endl;
+        /*if(frameDelay > frameTime)
+        {
+            sleep(0.016);
+        }*/
     }
 
     game->~Game();

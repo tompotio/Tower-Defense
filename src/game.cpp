@@ -18,7 +18,8 @@ Game::Game(Body* body)
     // Champ de déclaration des assets du jeu 
     assetManager = AssetManager();
 
-    font = load_font( "../assets/Roboto-ThinItalic.ttf", 14);
+    font = load_font( "../assets/arial.ttf", 14);
+    if (font == nullptr) std::cout << "ptdr null" << std::endl;
 
     assetManager.AddTexture(
         "zombie",
@@ -323,9 +324,10 @@ void Game::UpdateGame(){
             if((enemy.i >= enemy.maxcell)){
                 DeleteEnemy(i);
                 current_HP -= enemy.GetDamage();
+            }else{
+                // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
+                enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
             }
-            // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
-            enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
         }
     }
 }

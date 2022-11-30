@@ -113,7 +113,7 @@ SDL_Texture* AssetManager::GetTexture(std::string id)
 */
 void init_ttf(){
     if(TTF_Init()==-1) {
-        printf("TTF_Init: %s\n", TTF_GetError());
+        std::cout << "TTF_Init: " << TTF_GetError() << std::endl;
     }
 }
 

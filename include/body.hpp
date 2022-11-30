@@ -26,8 +26,7 @@ class Body{
                     std::cout << "Renderer créé !" << std::endl;
                 }
             }
-            if (TTF_Init() == 0)
-		        std::cout << "TTF initialisé !" << std::endl;
+            init_ttf();
 
             SDL_SetWindowTitle(window, "Tower Defense");
         };
