@@ -12,7 +12,6 @@ Widget::Widget(std::string id, int x, int y, SDL_Texture* texture){
 
 // Widget Center
 Widget::Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize) {
-    
 
     this->id = id;
     this->rect = TextureManager::GetTextureSize(texture);
@@ -27,7 +26,6 @@ Widget::Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize) {
 void Widget::BlitWidget(SDL_Renderer* renderer) {
     TextureManager::BlitTexture(getTexture(), renderer, getRect().x, getRect().y);
 }
-
 
 
 

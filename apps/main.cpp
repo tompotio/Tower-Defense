@@ -3,8 +3,8 @@
 #include "../include/vector2.hpp"
 #include <unistd.h>
 
-#define RESOLUTION_X 1920
-#define RESOLUTION_Y 1080
+#define RESOLUTION_X 1440
+#define RESOLUTION_Y 720
 #define FPS 60
 
 int main(int argc, char *args[])
