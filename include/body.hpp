@@ -38,6 +38,8 @@ class Body {
             SDL_SetWindowTitle(window, "SDL tiles on grid test");
         };
 
+        void HandleEvents();
+
         void Clean(){
             SDL_DestroyWindow(window);
             SDL_Quit();
@@ -48,13 +50,13 @@ class Body {
         void RenderClear()
         {
             SDL_RenderClear(renderer);
-        }
+        };
 
         // Rajoute un nouveau rendu à afficher.
         void RenderPresent()
         {
             SDL_RenderPresent(renderer);
-        }
+        };
 
         // Renvoie si le jeu est en coursmake
 

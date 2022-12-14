@@ -7,7 +7,9 @@ class Widget
 {
     public:
         Widget() = default;
+        // Constructeur normal
         Widget(std::string id, int x, int y, SDL_Texture* texture);
+        // Constructeur center widget
         Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize);
         
         void BlitWidget(SDL_Renderer* renderer);
@@ -23,6 +25,7 @@ class Widget
         std::string id;
         SDL_Rect rect;
         SDL_Texture* texture;
+        bool active;
 };
 /* 
 class Widget 

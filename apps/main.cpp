@@ -27,23 +27,24 @@ int main(int argc, char *args[])
 
     // Game n'est plus static pour permettre la désallocation lorsque recrée une partie. (Voir plus tard dans le projet)
     Game* game = new Game(body);
+    Menu* menu = new Menu(body);
 
     std::cout << "Game créé" << std::endl;
 
-    static Menu* menu = new Menu(body);
 
-    while(game->running())
+    while(body->running())
     {
         frameStart = SDL_GetTicks();
 
         body->RenderClear();
-
+        body->HandleEvents();
+        
         if (menu->running()) {
-            game->DrawTiles();
+            // game->DrawTiles();
             menu->HandleEvents();
             menu->Update(body->GetRenderer());
         }
-        else {
+        else if (game->running()) {
             game->HandleEvents();
             game->Update();
         }

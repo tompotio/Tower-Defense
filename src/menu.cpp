@@ -6,7 +6,8 @@ Menu::Menu(Body* body)
     this->isSetting = false;
     this->volume_selected = false;
     this->leftMouseButtonDown = false;
-    volume_rect = {500, 250, 50, 10};
+    volume_bar = {700, 250, 300, 50};
+    vol_drag_button = {(volume_bar.x + volume_bar.w - 15), volume_bar.y, 15, volume_bar.h};
     this->body = body;
 
     this->assets = AssetManager();
@@ -39,10 +40,10 @@ Menu::Menu(Body* body)
         TextureManager::LoadTexture("../assets/PNG/Menu/settings/cross1.png", body->GetRenderer())
     );
     
-    widgets.push_back(Widget("m-pb", assets.GetTexture("mb"), WindowSize));
-    widgets.push_back(Widget("m-sb", (WindowSize.w-160), 10, assets.GetTexture("sb")));
-    widgets.push_back(Widget("s-sbg", assets.GetTexture("mt"), WindowSize));
-    widgets.push_back(Widget("s-cross", (WindowSize.w-160), 10, assets.GetTexture("cross")));
+    widgetsM.push_back(Widget("playb", assets.GetTexture("mb"), WindowSize));
+    widgetsM.push_back(Widget("s-i", (WindowSize.w-160), 10, assets.GetTexture("sb")));
+    widgetsS.push_back(Widget("s-bg", assets.GetTexture("mt"), WindowSize));
+    widgetsS.push_back(Widget("s-cross", (WindowSize.w-160), 10, assets.GetTexture("cross")));
     
 
 }
@@ -53,17 +54,19 @@ void Menu::HandleEvents()
     SDL_PollEvent(&event);
     switch(event.type){
         
+
+        
         case SDL_MOUSEBUTTONDOWN:
             leftMouseButtonDown = true;
-            if(SDL_PointInRect(&cursor, &volume_rect)) {
+            if(SDL_PointInRect(&cursor, &vol_drag_button)) {
                 volume_selected = true;
             }
             if (event.button.button == SDL_BUTTON_LEFT){
                 leftClick();
                 
-            }else if (event.button.button == SDL_BUTTON_RIGHT){
-                //rightClick(event.motion.x, event.motion.y);
-            }
+            }/* else if (event.button.button == SDL_BUTTON_RIGHT){
+                //rightClick();
+            } */
             break;
         case SDL_MOUSEBUTTONUP:
             if (leftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT) {
@@ -75,18 +78,13 @@ void Menu::HandleEvents()
         case SDL_MOUSEMOTION:
             cursor = {event.motion.x, event.motion.y};
             
-            if (leftMouseButtonDown && volume_selected) {
-                
-                volume_rect.x = cursor.x;
-                //volume_rect->y = mousePos.y - clickOffset.y;
+            if (leftMouseButtonDown && volume_selected && cursor.x > volume_bar.x && cursor.x < (volume_bar.x + volume_bar.w - vol_drag_button.w)) {
+
+                vol_drag_button.x = cursor.x;
+                //volume_bar->y = mousePos.y - clickOffset.y;
 
             }
-
-            break;
-
-        case SDL_QUIT:
-            isRunning = false;
-            break;
+            break;        
 
         default:
             break;
@@ -96,32 +94,28 @@ void Menu::HandleEvents()
 void Menu::Update(SDL_Renderer* renderer)
 {   
     SDL_RenderCopy(renderer, TextureManager::LoadTexture("../assets/PNG/Menu/bg1.jpg", renderer), NULL, NULL);
-    for(Widget &widget : widgets) {
-        if (isSetting) {
-            if (widget.getId()[0] == 's') {
-                widget.BlitWidget(renderer);
-                
-            }
-            
-            DrawVolumeBar();
+    
+    if (isSetting) {
+        for(Widget &widget : widgetsS) {
+            widget.BlitWidget(renderer);
             
         }
-        else {
-            if (widget.getId()[0] == 'm') {
-                widget.BlitWidget(renderer);
-                if (widget.getId() == "m-sb") {
-                    if (widget.isHovering(cursor.x, cursor.y)){
-                        widget.setTexture(assets.GetTexture("sb2"));
-
-                    }else{
-                        widget.setTexture(assets.GetTexture("sb"));
-                    }
-                }
-            }
+        DrawVolumeBar();
             
-        }
-        
     }
+    else // Menu
+    {
+        for(Widget &widget : widgetsM) {
+            widget.BlitWidget(renderer);
+            /* if (widget.getId() == "s-i" && widget.isHovering(cursor.x, cursor.y)){
+                widget.setTexture(assets.GetTexture("sb2"));
+
+            }else if (widget.getId() == "s-i"){
+                widget.setTexture(assets.GetTexture("sb"));
+            } */
+        }
+    }
+    
    
 }
 
@@ -129,29 +123,43 @@ void Menu::Update(SDL_Renderer* renderer)
 
 void Menu::leftClick() {
 
-    for(Widget &widget : widgets) {
+    if (isSetting) {
+        for(Widget &widget : widgetsS) {
         
-        if (widget.isHovering(cursor.x, cursor.y)) {
+            if (widget.isHovering(cursor.x, cursor.y)) {
 
-            if (widget.getId() == "m-pb") {
-                isRunning = false;  
+                if (widget.getId() == "s-cross") {
+                    isSetting = false;
+                }
+            
             }
-            if (widget.getId() == "s-cross") {
-                isSetting = false;
-            }
-            if (widget.getId() == "m-sb") {
-                isSetting = true;
-                std::cout << "test" << std::endl;
-                break;
-
-            }
-
-           
         }
-
-        
-        
+            
     }
+    else // Menu
+    {
+        for(Widget &widget : widgetsM) {
+        
+            if (widget.isHovering(cursor.x, cursor.y)) {
+
+                if (widget.getId() == "playb") {
+                    isRunning = false;  
+                }
+                if (widget.getId() == "s-i") {
+                    isSetting = true;
+                    std::cout << "test" << std::endl;
+                    break;
+
+                }
+
+            
+            } 
+        }
+    }
+    
+
+    
+   
     
 }
 
@@ -160,11 +168,11 @@ void Menu::leftClick() {
 
 void Menu::DrawVolumeBar(){
     SDL_SetRenderDrawColor(body->GetRenderer(), 0,0,0,255);
-    SDL_RenderFillRect(body->GetRenderer(), &volume_rect);
+    SDL_RenderFillRect(body->GetRenderer(), &volume_bar);
 
-    SDL_Rect drag_button = {950, 750, 10, 50};
+    
     SDL_SetRenderDrawColor(body->GetRenderer(), 255,255,255,255);
-    SDL_RenderFillRect(body->GetRenderer(), &drag_button);
+    SDL_RenderFillRect(body->GetRenderer(), &vol_drag_button);
 
     
 

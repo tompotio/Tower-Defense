@@ -227,10 +227,6 @@ void Game::HandleEvents()
                 pressing_key_k = false;
             }
             break;
-        //Fermeture du jeu
-        case SDL_QUIT:
-            isRunning = false;
-            break;
 
         default:
             break;

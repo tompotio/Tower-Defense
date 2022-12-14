@@ -21,8 +21,10 @@ class Menu
         Body* GetBody() {return body;}
         AssetManager GetAssets() {return assets;};
 
-        std::vector<Widget> widgets;
-        SDL_Rect volume_rect;
+        std::vector<Widget> widgetsM;
+        std::vector<Widget> widgetsS;
+        SDL_Rect volume_bar;
+        SDL_Rect vol_drag_button;
         Sprite sprite;
         SDL_Rect rect;
     private:
