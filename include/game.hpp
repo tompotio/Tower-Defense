@@ -42,7 +42,7 @@ class Game
 
         void PosEnemy(Enemy& enemy, int choice);
 
-        void SpawnEnemy(int choice, Entity_t type, vec2<double> position);
+        void SpawnEnemy(int choice, Entity_t type);
 
         //Enemy Management
         void AddEnemy(Enemy enemy);

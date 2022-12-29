@@ -37,7 +37,6 @@ class Enemy : public Entity
         int GetSpeed(){return this->speed;};
         int GetDamage(){return this->dmg;};
         Entity_t GetType(){return this->type;};
-        void Reset(){};
 
         // Modifie la direction de l'ennemi
         void SetDirection(vec2<double>  direction);
@@ -53,11 +52,11 @@ class Enemy : public Entity
         int maxcell = 0;
         int i = 0;
         bool dead;
+        int Max_HP;
+        int Current_HP;
         std::vector<Cell>* path;
 
     protected:
-        int Max_HP;
-        int Current_HP;
         int dmg;
         float speed;
         Entity_t type;

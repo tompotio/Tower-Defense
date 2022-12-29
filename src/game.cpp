@@ -296,18 +296,8 @@ void Game::UpdateGame(){
         // Crée un ennemi toutes les environ 5 secondes * temps lié à la difficulté (je coderai ça plus tard)
         if(((int)wave_cout_s + 1) % 2 == 0){
             wave_cout_s += 1;
-            int path = rand() % 2 +1; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
-            switch (path)
-            {
-            case 1:
-                SpawnEnemy(path, GOBLIN, vec2<double>(-32,512));
-                break;
-            case 2:
-                SpawnEnemy(path, GOBLIN, vec2<double>(320,-32));
-                break;
-            default:
-                break;
-            }
+            int path = rand() % 2 +1; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin                
+            SpawnEnemy(path, GOBLIN);
         }
 
         // Fait avancer chaque ennemi
@@ -566,10 +556,12 @@ void Game::DrawTiles()
 void Game::PosEnemy(Enemy& enemy, int choice){
     vec2<double> nextcellpos;
     if (choice == 1){
+        enemy.SetPosition(vec2<double>(-32,512));
         nextcellpos = vec2<double>(bottompath[1].x * grid_cell_size,bottompath[1].y * grid_cell_size);
         enemy.maxcell = bottompath_size;
         enemy.path = &bottompath;
     }else{
+        enemy.SetPosition(vec2<double>(320,-32));
         nextcellpos = vec2<double>(toppath[1].x * grid_cell_size,toppath[1].y * grid_cell_size);
         enemy.maxcell = toppath_size;
         enemy.path = &toppath;
@@ -580,23 +572,23 @@ void Game::PosEnemy(Enemy& enemy, int choice){
     );
 }
 
-void Game::SpawnEnemy(int choice, Entity_t type, vec2<double> position){
+void Game::SpawnEnemy(int choice, Entity_t type){
     // On parcourt la liste des ennemis et on vérifie si un ennemi est déjà inactif en fonction de son type
     for (Enemy& enemy : enemies){
         if (enemy.dead){
             if(enemy.GetType() == type){
-                switch (type){
-                case GOBLIN:
-                    enemy.Reset();
-                    PosEnemy(enemy, choice);
-                }
+                enemy.Current_HP = enemy.Max_HP;
+                enemy.i = 0;
+                enemy.dead = false;
+                std::cout << enemy.dead << std::endl;
+                PosEnemy(enemy, choice);
                 return; // On sort de la fonction
             }
         }
     }
     switch (type){
     case GOBLIN: 
-        Enemy new_enemy = Goblin(position, assetManager);
+        Enemy new_enemy = Goblin(vec2<double>(0,0), assetManager);
         PosEnemy(new_enemy, choice);
         AddEnemy(
             new_enemy
