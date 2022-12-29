@@ -40,7 +40,9 @@ class Game
 
         void DrawInventory();
 
-        void SpawnEnemy(int choice, vec2<double> position);
+        void PosEnemy(Enemy& enemy, int choice);
+
+        void SpawnEnemy(int choice, Entity_t type, vec2<double> position);
 
         //Enemy Management
         void AddEnemy(Enemy enemy);

@@ -1,17 +1,18 @@
 #include "../include/instances.hpp"
 
-Enemy::Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& assetmanager){
-    this->Max_HP = Max_HP;
-    this->Current_HP = Max_HP;
-    this->speed = Speed;
+Goblin::Goblin(vec2<double> spawnPosition, AssetManager& assetmanager){
+    this->Max_HP = 50;
+    this->Current_HP = 50;
+    this->speed = 350;
 
     SDL_Texture* texture = assetmanager.GetTexture("zombie");
     int w;
     int h;
     this->dmg = 5;
+    this->type = GOBLIN;
+    this->active = true;
 
     SetPosition(spawnPosition);
-    
     SDL_QueryTexture(texture,NULL,NULL,&w,&h);
 
     this->sprite = Sprite(
@@ -23,6 +24,12 @@ Enemy::Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& as
         },
         texture
     );
+}
+
+void Goblin::Reset(){
+    this->Current_HP = 50;
+    this->speed = 50;
+    this->i = 0;
 }
 
 // Récupère la position de l'ennemi

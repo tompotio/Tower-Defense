@@ -10,12 +10,17 @@
         Je pense que c'est plus propre de définir les fonctions dans le header et de les rédiger uniquement dans le .cpp.
 */
 
+enum Entity_t 
+{   
+    GOBLIN,
+    ARCHER,
+};
+
 class Entity
 {
     public: 
         // Renvoie le sprite de l'ennemi
         Sprite& GetSprite(){return sprite;};
-
         vec2<double> GetDirection(){return this->direction;};
 
     protected:
@@ -28,10 +33,15 @@ class Entity
 class Enemy : public Entity
 {
     public: 
-        Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& assetmanager);
         // Renvoie la vitesse de l'ennemi
         int GetSpeed(){return this->speed;};
         int GetDamage(){return this->dmg;};
+        // Vérifie si l'ennemi est actif ou non
+        bool GetStatus(){return this->active;};
+        // Modifie le statut actif ou non actif de l'ennemi
+        void SetStatus(bool status){this->active = status;};
+        Entity_t GetType(){return this->type;};
+        void Reset(){};
 
         // Modifie la direction de l'ennemi
         void SetDirection(vec2<double>  direction);
@@ -48,24 +58,25 @@ class Enemy : public Entity
         int i = 0;
         std::vector<Cell>* path;
 
-    private:
+    protected:
         int Max_HP;
         int Current_HP;
         int dmg;
         float speed;
+        bool active;
+        Entity_t type;
 };
 
-enum Towers_t 
-{   
-    ARCHER,
+class Goblin : public Enemy{
+    public: 
+        Goblin(vec2<double> spawnPosition, AssetManager& assetmanager); 
+        void Reset();
 };
 
 class Tower : public Entity
 {
     public: 
-        Tower(Towers_t type);
-
-        Enemy GetEnemy();
+        Tower(Entity_t type);
         void AttackEnemy();
         void RotateSprite(); //Modifie l'angle de rotation du sprite        
 
