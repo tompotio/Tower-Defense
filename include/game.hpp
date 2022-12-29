@@ -11,7 +11,7 @@ class Audiomanager;
 class Game 
 {
     public:
-        Game(Body* body);
+        Game(Body** body);
         ~Game() = default;
 
         void HandleEvents();
@@ -26,7 +26,7 @@ class Game
 
         void DrawInstances();
         
-        Body* GetBody(){return body;};
+        Body** GetBody(){return body;};
 
         // Renvoie si le jeu est en cours
         bool running() {return isRunning; };
@@ -34,7 +34,7 @@ class Game
         Uint32 FPS;
 
     private:
-        Body* body;
+        Body** body;
 
         int cnt;
         int playerMonney;

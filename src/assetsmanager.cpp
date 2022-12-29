@@ -116,3 +116,28 @@ SDL_Texture* AssetManager::GetTexture(std::string id)
 {
 	return textures[id];
 }
+
+/**
+ * Ajoute une music dans assetManager.
+ * @param id identifiant de la music.
+ * @param path chemin de la music.
+*/
+
+void AssetManager::AddMusic(std::string id, std::string path) {
+
+    char* p = &path[0];
+    music.emplace(id, Mix_LoadMUS(p));
+    
+}
+
+void AssetManager::AddSFX(std::string id, std::string path) {
+    char* p = &path[0];
+    sfx.emplace(id, Mix_LoadWAV(p));
+}
+
+Mix_Music* AssetManager::GetMusic(std::string id) {
+    return music[id];
+}
+Mix_Chunk* AssetManager::GetSFX(std::string id) {
+    return sfx[id];
+}

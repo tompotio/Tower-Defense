@@ -22,7 +22,6 @@ Widget::Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize) {
     this->texture = texture;
     this->active = true;
 
-    //std::cout << "size = " << rect.x << "  " << rect.y << "  " << rect.w << "  " << rect.h << std::endl;
 
 }
 

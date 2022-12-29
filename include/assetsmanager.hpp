@@ -71,6 +71,8 @@ class AssetManager
 		void AddSFX(std::string id, std::string path); 
 		Mix_Music* GetMusic(std::string id);
 		Mix_Chunk* GetSFX(std::string id);
+		std::map<std::string, Mix_Chunk*> GetAllSFX() {return sfx;};
+		
 
 	private:
 		std::map<std::string, SDL_Texture*> textures;

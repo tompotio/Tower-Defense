@@ -1,6 +1,7 @@
 #pragma once
 
 #include "assetsmanager.hpp"
+#include "audiomanager.hpp"
 #include "widget.hpp"
 #include "grid.hpp"
 #include "body.hpp"
@@ -8,7 +9,7 @@
 class Menu
 {
     public:
-        Menu(Body* body);
+        Menu(Body** body);
         ~Menu() = default;
 
         void HandleEvents();
@@ -17,23 +18,27 @@ class Menu
         void Update(SDL_Renderer* renderer);
         bool running() {return isRunning;}
         bool inSettings() {return isSetting;}
-        void DrawVolumeBar();
-        Body* GetBody() {return body;}
+        void UpdateSound();
+
+        Widget* GetWidget(std::string id);
+
+        Body** GetBody() {return body;}
         AssetManager GetAssets() {return assets;};
 
         std::vector<Widget> widgetsM;
         std::vector<Widget> widgetsS;
-        SDL_Rect volume_bar;
-        SDL_Rect vol_drag_button;
         Sprite sprite;
         SDL_Rect rect;
     private:
         AssetManager assets;
-        Body* body;
+        AudioManager audio;
+        Body** body;
         SDL_Rect WindowSize;
         SDL_Point cursor;
-        int sound_volume;
-        bool volume_selected;
+        int music_volume;
+        int sfx_volume;
+        bool music_volume_selected;
+        bool sfx_volume_selected;
         bool isRunning;
         bool isSetting;
         bool leftMouseButtonDown;

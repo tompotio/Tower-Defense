@@ -1,6 +1,6 @@
 
 #include "../include/body.hpp"
-
+/* 
 void Body::HandleEvents() {
             
     SDL_Event event;
@@ -17,4 +17,4 @@ void Body::HandleEvents() {
         default:
             break;
     }
-}
+} */

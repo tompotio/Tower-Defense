@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include <iostream>
+#include <SDL2/SDL_mixer.h>
 
 class Body {
     public:
@@ -28,7 +29,7 @@ class Body {
                     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
                     std::cout << "Renderer created!" << std::endl;
                 }
-
+                
                 isRunning = true;
             }
             else {
@@ -60,8 +61,8 @@ class Body {
 
         // Renvoie si le jeu est en coursmake
 
-        bool running() {return isRunning; };
-        
+        bool running() {return isRunning;};
+        void setRunning(bool state) {isRunning = state;}
         SDL_Renderer* GetRenderer(){return renderer;};
         SDL_Window* GetWindow(){return window;};
 

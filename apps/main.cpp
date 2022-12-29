@@ -3,6 +3,8 @@
 #include "../include/vector2.hpp"
 #include <unistd.h>
 
+/* #define RESOLUTION_X 1920
+#define RESOLUTION_Y 1080 */
 #define RESOLUTION_X 1440
 #define RESOLUTION_Y 720
 #define FPS 60
@@ -26,10 +28,12 @@ int main(int argc, char *args[])
     std::cout << "Body créé" << std::endl;
 
     // Game n'est plus static pour permettre la désallocation lorsque recrée une partie. (Voir plus tard dans le projet)
-    Game* game = new Game(body);
-    Menu* menu = new Menu(body);
+    Game* game = new Game(&body);
+    Menu* menu = new Menu(&body);
 
+	
     std::cout << "Game créé" << std::endl;
+
 
 
     while(body->running())
@@ -37,16 +41,17 @@ int main(int argc, char *args[])
         frameStart = SDL_GetTicks();
 
         body->RenderClear();
-        body->HandleEvents();
+
         
         if (menu->running()) {
-            // game->DrawTiles();
+            
             menu->HandleEvents();
             menu->Update(body->GetRenderer());
         }
-        else if (game->running()) {
+        //else if (game->running()) {
+        else {
             game->HandleEvents();
-            game->Update();
+            // game->Update();
         }
         
         body->RenderPresent();
