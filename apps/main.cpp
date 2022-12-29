@@ -47,9 +47,7 @@ int main(int argc, char *args[])
         frameTime = (clock() - frameStart);
         game->deltatime = (frameTime / 1000000.0f); // des micro secondes
         
-        game->fps = (100000 / ((frameTime)));
-        //std::cout << game->fps << std::endl;
-        
+        game->fps = int(100000 / ((frameTime)));      
         if(frameDelay > frameTime)
         {
             sleep(frameDelay - frameTime);

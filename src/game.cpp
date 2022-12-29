@@ -193,6 +193,7 @@ void Game::HandleEvents()
     switch(event.type){
         // Clic de la souris
         case SDL_MOUSEBUTTONDOWN:
+            mouse_pressed = true;
             // Clic gauche
             if (event.button.button == SDL_BUTTON_LEFT){
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
@@ -200,7 +201,7 @@ void Game::HandleEvents()
                 std::cout << "Position souris : {X = " << grid_cursor.x / grid_cell_size << "; Y = " << grid_cursor.y / grid_cell_size << " } " << std::endl;
                 // Lettre K enfoncée
                 if (pressing_key_k){
-                    mouse_X = grid_cursor.x;  
+                    mouse_X = grid_cursor.x;
                     mouse_Y = grid_cursor.y;
                 }else{
                     if (mouse_X >= 0 && mouse_X < (map.GetWidth() * grid_cell_size) && mouse_Y >= 0 && mouse_Y < (map.GetHeight() * grid_cell_size)&&
@@ -234,6 +235,8 @@ void Game::HandleEvents()
                 isRunning = false;
             }
             break;
+        case SDL_MOUSEBUTTONUP: 
+            mouse_pressed = false;
         // Lache une touche du clavier
         case SDL_KEYUP:
             if (event.key.keysym.sym == SDLK_k){
@@ -269,6 +272,12 @@ void Game::UpdateGraphics()
         int h;
         TTF_SizeText(font, "FPS", &w, &h);
         apply_text(renderer,50,50,w,h,"FPS",font);
+
+        char current_fps[100];
+        sprintf(current_fps,"%d",fps);
+
+        TTF_SizeText(font,current_fps, &w, &h);
+        apply_text(renderer,100,50,w,h,current_fps,font);
 
         //Dessine les lignes du chemin
         if (found_testing_path){
@@ -318,7 +327,10 @@ void Game::UpdateGame(){
                     enemy.dead = true;
                     // Inflige des dégâts à la base
                     current_HP -= enemy.GetDamage();
-                }else{
+                }else if((enemy.Current_HP <= 0)){
+                    enemy.dead = true;
+                }
+                else{
                     // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
                     enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
                 }

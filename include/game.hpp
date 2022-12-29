@@ -62,7 +62,7 @@ class Game
         bool running() {return isRunning; };
 
         double deltatime;
-        double fps = 60;
+        int fps = 60;
 
     private:
         Body* body;
@@ -95,6 +95,7 @@ class Game
         bool showgrid = false;
         bool pressing_key_k = false;
         bool wave_ongoing = false;
+        bool mouse_pressed = false;
 
         // Utilitaries classes
         AssetManager assetManager;

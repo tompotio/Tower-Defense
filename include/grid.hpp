@@ -11,7 +11,6 @@
 
 enum Cell_type_t 
 {   
-    TOWER,
     DIRT = '5',
     MISC,
 };
