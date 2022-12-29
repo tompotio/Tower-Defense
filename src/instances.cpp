@@ -10,7 +10,7 @@ Goblin::Goblin(vec2<double> spawnPosition, AssetManager& assetmanager){
     int h;
     this->dmg = 5;
     this->type = GOBLIN;
-    this->active = true;
+    this->dead = false;
 
     SetPosition(spawnPosition);
     SDL_QueryTexture(texture,NULL,NULL,&w,&h);
@@ -28,8 +28,8 @@ Goblin::Goblin(vec2<double> spawnPosition, AssetManager& assetmanager){
 
 void Goblin::Reset(){
     this->Current_HP = 50;
-    this->speed = 50;
     this->i = 0;
+    this->dead = false;
 }
 
 // Récupère la position de l'ennemi

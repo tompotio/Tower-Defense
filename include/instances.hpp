@@ -36,10 +36,6 @@ class Enemy : public Entity
         // Renvoie la vitesse de l'ennemi
         int GetSpeed(){return this->speed;};
         int GetDamage(){return this->dmg;};
-        // Vérifie si l'ennemi est actif ou non
-        bool GetStatus(){return this->active;};
-        // Modifie le statut actif ou non actif de l'ennemi
-        void SetStatus(bool status){this->active = status;};
         Entity_t GetType(){return this->type;};
         void Reset(){};
 
@@ -56,6 +52,7 @@ class Enemy : public Entity
 
         int maxcell = 0;
         int i = 0;
+        bool dead;
         std::vector<Cell>* path;
 
     protected:
@@ -63,7 +60,6 @@ class Enemy : public Entity
         int Current_HP;
         int dmg;
         float speed;
-        bool active;
         Entity_t type;
 };
 

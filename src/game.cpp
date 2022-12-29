@@ -296,14 +296,14 @@ void Game::UpdateGame(){
         // Crée un ennemi toutes les environ 5 secondes * temps lié à la difficulté (je coderai ça plus tard)
         if(((int)wave_cout_s + 1) % 2 == 0){
             wave_cout_s += 1;
-            int random = rand() % 2 +1; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
-            switch (random)
+            int path = rand() % 2 +1; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
+            switch (path)
             {
             case 1:
-                SpawnEnemy(random, GOBLIN, vec2<double>(-32,512));
+                SpawnEnemy(path, GOBLIN, vec2<double>(-32,512));
                 break;
             case 2:
-                SpawnEnemy(random, GOBLIN, vec2<double>(320,-32));
+                SpawnEnemy(path, GOBLIN, vec2<double>(320,-32));
                 break;
             default:
                 break;
@@ -313,22 +313,25 @@ void Game::UpdateGame(){
         // Fait avancer chaque ennemi
         for (int i = 0; i < enemies.size(); i++){
             Enemy& enemy = enemies[i];
-            vec2<double> cellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
-            if((enemy.GetPosition() - cellpos).length() <= 10 && (enemy.i < enemy.maxcell)){
-                enemy.i += 1;
-                if(enemy.i < enemy.maxcell){
-                    vec2<double> nextcellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
-                    enemy.SetDirection((nextcellpos - (enemy.GetPosition())).normalize());
+            // Si l'ennemi n'est pas mort
+            if(!(enemy.dead)){
+                vec2<double> cellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
+                if((enemy.GetPosition() - cellpos).length() <= 10 && (enemy.i < enemy.maxcell)){
+                    enemy.i += 1;
+                    if(enemy.i < enemy.maxcell){
+                        vec2<double> nextcellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
+                        enemy.SetDirection((nextcellpos - (enemy.GetPosition())).normalize());
+                    }
                 }
-            }
-            // Tue l'ennemi
-            if((enemy.i >= enemy.maxcell)){
-                // Tue l'ennemi
-                enemy.SetStatus(false);
-                current_HP -= enemy.GetDamage();
-            }else{
-                // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
-                enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
+                if((enemy.i >= enemy.maxcell)){
+                    // Tue l'ennemi
+                    enemy.dead = true;
+                    // Inflige des dégâts à la base
+                    current_HP -= enemy.GetDamage();
+                }else{
+                    // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
+                    enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
+                }
             }
         }
     }
@@ -347,8 +350,8 @@ void Game::DrawCursor(){
 
 // Dessine les ennemis sur l'écran
 void Game::DrawEnemies(){
-    for (auto enemy : enemies) {
-        if(enemy.GetStatus()){
+    for (Enemy& enemy : enemies) {
+        if(!enemy.dead){
             BlitSprite(
                 enemy.GetSprite(),
                 renderer
@@ -578,33 +581,27 @@ void Game::PosEnemy(Enemy& enemy, int choice){
 }
 
 void Game::SpawnEnemy(int choice, Entity_t type, vec2<double> position){
-    bool found = false;
     // On parcourt la liste des ennemis et on vérifie si un ennemi est déjà inactif en fonction de son type
-    for (auto& enemy : enemies){
-        if (!enemy.GetStatus()){
+    for (Enemy& enemy : enemies){
+        if (enemy.dead){
             if(enemy.GetType() == type){
                 switch (type){
-                case GOBLIN: 
-                    enemy.SetStatus(true);
+                case GOBLIN:
                     enemy.Reset();
                     PosEnemy(enemy, choice);
                 }
-                found = !found;
-                break; // On sort de la boucle puisqu'on a trouvé un ennemi inactif
+                return; // On sort de la fonction
             }
         }
     }
-
-    if(!found){
-        switch (type){
-        case GOBLIN: 
-            Enemy new_enemy = Goblin(position, assetManager);
-            PosEnemy(new_enemy, choice);
-            AddEnemy(
-                new_enemy
-            );
-        }
-    }   
+    switch (type){
+    case GOBLIN: 
+        Enemy new_enemy = Goblin(position, assetManager);
+        PosEnemy(new_enemy, choice);
+        AddEnemy(
+            new_enemy
+        );
+    }
 }
 
 /**
