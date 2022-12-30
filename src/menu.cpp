@@ -1,7 +1,7 @@
 #include "../include/menu.hpp"
 
-Menu::Menu(Body** body)
-{
+Menu::Menu(Body** body) {
+    
     this->isRunning = true;
     this->isSetting = false;
     this->music_volume_selected = false;
@@ -37,7 +37,7 @@ Menu::Menu(Body** body)
 
     assets.AddTexture(
         "mb",
-        LoadTexture("../assets/PNG/Menu/settings/menu_button1.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/menu_button3.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
@@ -76,13 +76,13 @@ Menu::Menu(Body** body)
         LoadTexture("../assets/PNG/Menu/settings/sfx.png", (*body)->GetRenderer())
     );
 
-    assets.AddTexture(
+    /* assets.AddTexture(
         "play",
         LoadTexture("../assets/PNG/Menu/settings/play.png", (*body)->GetRenderer())
-    );
+    ); */
 
     widgetsM.push_back(Widget("playb", assets.GetTexture("mb"), WindowSize));
-    widgetsM.push_back(Widget("text_play", (WindowSize.w-GetTextureSize(assets.GetTexture("play")).w)/2, (WindowSize.h-GetTextureSize(assets.GetTexture("play")).h)/2 - 7, assets.GetTexture("play")));
+    //widgetsM.push_back(Widget("text_play", (WindowSize.w-GetTextureSize(assets.GetTexture("play")).w)/2, (WindowSize.h-GetTextureSize(assets.GetTexture("play")).h)/2 - 7, assets.GetTexture("play")));
     widgetsM.push_back(Widget("s-i", (WindowSize.w-185), 10, assets.GetTexture("sb")));
 
 
@@ -119,7 +119,7 @@ void Menu::HandleEvents()
 
                 if(SDL_PointInRect(&cursor, &(*GetWidget("s-music_bar")).getRect())) {
                     (*GetWidget("s-music_drag_button")).setX(cursor.x - ((*GetWidget("s-music_drag_button")).getRect().w/2));
-                    audio.music_volume(music_volume);
+                    
                 }
 
                 if(SDL_PointInRect(&cursor, &(*GetWidget("s-sfx_drag_button")).getRect())) {
@@ -128,7 +128,6 @@ void Menu::HandleEvents()
 
                 if(SDL_PointInRect(&cursor, &(*GetWidget("s-sfx_bar")).getRect())) {
                     (*GetWidget("s-sfx_drag_button")).setX(cursor.x - ((*GetWidget("s-sfx_drag_button")).getRect().w/2));
-                    audio.sfx_volume(&assets, sfx_volume);
                 }
                 leftMouseButtonDown = true;
                 leftClick();
@@ -156,14 +155,12 @@ void Menu::HandleEvents()
             if (leftMouseButtonDown && music_volume_selected && cursor.x > (*GetWidget("s-music_bar")).getRect().x && cursor.x < ((*GetWidget("s-music_bar")).getRect().x + (*GetWidget("s-music_bar")).getRect().w - (*GetWidget("s-music_drag_button")).getRect().w)) {
 
                 (*GetWidget("s-music_drag_button")).setX(cursor.x);
-                audio.music_volume(music_volume);
 
             }
 
             if (leftMouseButtonDown && sfx_volume_selected && cursor.x > (*GetWidget("s-sfx_bar")).getRect().x && cursor.x < ((*GetWidget("s-sfx_bar")).getRect().x + (*GetWidget("s-sfx_bar")).getRect().w - (*GetWidget("s-sfx_drag_button")).getRect().w)) {
 
                 (*GetWidget("s-sfx_drag_button")).setX(cursor.x);
-                audio.sfx_volume(&assets, sfx_volume);
 
             }
             break;
@@ -233,6 +230,7 @@ void Menu::leftClick() {
 
                 if (widget.getId() == "s-cross") {
                     isSetting = false;
+                    break;
                 }
             
             }
@@ -247,7 +245,8 @@ void Menu::leftClick() {
 
                 if (widget.getId() == "playb") {
 
-                    isRunning = false;  
+                    isRunning = false;
+                    break;
                 }
                 if (widget.getId() == "s-i") {
                     isSetting = true;
@@ -273,6 +272,10 @@ void Menu::UpdateSound() {
 
     music_volume = ( ((*GetWidget("s-music_drag_button")).getRect().x - (*GetWidget("s-music_bar")).getRect().x) * 100 / (*GetWidget("s-music_bar")).getRect().w ) * MIX_MAX_VOLUME / 100;
     sfx_volume = ( ((*GetWidget("s-sfx_drag_button")).getRect().x - (*GetWidget("s-sfx_bar")).getRect().x) * 100 / (*GetWidget("s-sfx_bar")).getRect().w ) * MIX_MAX_VOLUME / 100;
+    audio.music_volume(music_volume);
+    audio.sfx_volume(&assets, sfx_volume);
+
+
 }
 
 

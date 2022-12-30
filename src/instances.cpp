@@ -52,3 +52,21 @@ void Enemy::SetPosition(vec2<double>  pos){
 void Enemy::Move(vec2<double>  step){
     SetPosition(step + position);
 }
+
+Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
+
+    switch (type) {
+        case FIRE:
+            this->texture = assets.GetTexture("t1");
+            this->rect = GetTextureSize(texture);
+            break;
+        case ICE:
+            break;
+        default:
+            break;
+
+    }
+
+    this->rect.x = x;
+    this->rect.y = y;
+}

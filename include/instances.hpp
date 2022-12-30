@@ -16,6 +16,12 @@ enum Entity_t
     ARCHER,
 };
 
+enum Tower_t 
+{   
+    FIRE,
+    ICE,
+};
+
 class Entity
 {
     public: 
@@ -68,21 +74,16 @@ class Goblin : public Enemy{
         void Reset();
 };
 
-class Tower : public Entity
-{
+class Tower {
     public: 
-        Tower(Entity_t type);
+        Tower(Tower_t type, int x, int y, AssetManager assets);
         void AttackEnemy();
         void RotateSprite(); //Modifie l'angle de rotation du sprite        
 
     private:
-        Enemy& target;
-        vec2<double>  dir;
-        vec2<double>  position;
-        Sprite sprite;
+        SDL_Rect rect;
+        SDL_Texture* texture;
 
-        //Si la tour est activée ou pas (genre un ennemi qui désactive les tours)
-        bool status; 
 };
 
 // A coder beaucoup plus tard

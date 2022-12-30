@@ -3,6 +3,7 @@
 #include "assetsmanager.hpp"
 #include "audiomanager.hpp"
 #include "instances.hpp"
+#include "menu.hpp"
 #include "grid.hpp"
 #include "body.hpp"
 
@@ -11,7 +12,7 @@ class Audiomanager;
 class Game 
 {
     public:
-        Game(Body** body);
+        Game(Body** body, Menu** menu);
         ~Game() = default;
 
         void InitCellTypes();
@@ -58,6 +59,8 @@ class Game
         
         Body** GetBody(){return body;};
 
+        Widget* GetWidget(std::string id);
+
         // Renvoie si le jeu est en cours
         bool running() {return isRunning; };
 
@@ -66,6 +69,8 @@ class Game
 
     private:
         Body** body;
+        Menu** menu;
+        SDL_Rect WindowSize;
 
         // Values
         int playerMonney;
@@ -96,6 +101,9 @@ class Game
         bool pressing_key_k = false;
         bool wave_ongoing = false;
 
+        bool leftMouseButtonDown;
+        bool tower1Selected;
+
         // Utilitaries classes
         AssetManager assetManager;
 
@@ -111,7 +119,10 @@ class Game
         std::vector<Enemy> enemies;
         std::vector<Tower> towers;
 
+        std::vector<Widget> widgets;
+
         // Cursor
+        SDL_Point cursor;
         SDL_Rect grid_cursor;
         SDL_Rect grid_cursor_ghost;
 

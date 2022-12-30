@@ -6,14 +6,14 @@
 
 /* #define RESOLUTION_X 1920
 #define RESOLUTION_Y 1080 */
-#define RESOLUTION_X 1440
-#define RESOLUTION_Y 720
+#define RESOLUTION_X 1410
+#define RESOLUTION_Y 900
 
 #define FPS 60
 
 int main(int argc, char *args[])
 {   
-    const double frameDelay = (1000.0f / FPS)/1000;
+    const double frameDelay = (1000.0f / FPS) / 1000;
 
     double frameStart;
     double frameTime;
@@ -28,8 +28,8 @@ int main(int argc, char *args[])
     );
 
     // Game n'est plus static pour permettre la désallocation lorsque recrée une partie. (Voir plus tard dans le projet)
-    Game* game = new Game(&body);
     Menu* menu = new Menu(&body);
+    Game* game = new Game(&body, &menu);
 
 	
     std::cout << "Game créé" << std::endl;
@@ -38,15 +38,15 @@ int main(int argc, char *args[])
 
     while(body->running())
     {
-        frameStart = clock(); //SDL_GetTicks();
+        // frameStart = SDL_GetTicks();
 
         body->RenderClear();
 
         
         if (menu->running()) {
-            
             menu->HandleEvents();
             menu->Update(body->GetRenderer());
+            
         }
         //else if (game->running()) {
         else {
@@ -64,9 +64,10 @@ int main(int argc, char *args[])
         
 
         body->RenderPresent();
+        //game->deltatime = (frameTime / 1000000.0f); // des micro secondes
 
-        frameTime = (clock() - frameStart);
-        game->deltatime = (frameTime / 1000000.0f); // des micro secondes
+        /* frameTime = (clock() - frameStart);
+        
         
         game->fps = (100000 / ((frameTime)));
         //std::cout << game->fps << std::endl;
@@ -74,7 +75,11 @@ int main(int argc, char *args[])
         if(frameDelay > frameTime)
         {
             sleep(frameDelay - frameTime);
-        }
+        } */
+
+
+        //frameTime = SDL_GetTicks() - frameStart;
+        SDL_Delay(1);
     }
 
     game->~Game();

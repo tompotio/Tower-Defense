@@ -10,17 +10,31 @@
  * @param height Hauteur de la fenêtre.
  * @param fullscreen FullScreen ou non.
 */
-Game::Game(Body** body)
+Game::Game(Body** body, Menu** menu)
 {   
     this->body = body;
+    this->menu = menu;
     // this->isRunning = true;
     renderer = (*body)->GetRenderer();
+
+    SDL_GetWindowSize((*body)->GetWindow(), &WindowSize.w, &WindowSize.h);
 
     // Champ de déclaration des assets du jeu 
     assetManager = AssetManager();
 
     font = load_font( "../assets/arial.ttf", 14);
     if (font == nullptr) std::cout << "ptdr null" << std::endl;
+
+
+    assetManager.AddTexture(
+        "sb",
+        LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
+    );
+
+    assetManager.AddTexture(
+        "sb2",
+        LoadTexture("../assets/PNG/Menu/settings/sbutton_bg.png", (*body)->GetRenderer())
+    );
 
     assetManager.AddTexture(
         "soldier",
@@ -71,6 +85,7 @@ Game::Game(Body** body)
         "grass-bottom-curve-left",
         LoadTexture("../assets/tiles/Default size/towerDefense_tile026.png",renderer)
     );
+    
 
     assetManager.AddTexture(
         "grass-right",
@@ -111,6 +126,14 @@ Game::Game(Body** body)
         "grass-top-corner-left",
         LoadTexture("../assets/tiles/Default size/towerDefense_tile048.png",renderer)
     );
+
+    assetManager.AddTexture(
+        "t1",
+        LoadTexture("../assets/PNG/Menu/settings/tower.png", renderer)
+    );
+
+    widgets.push_back(Widget("s-i", (WindowSize.w-185), 10, assetManager.GetTexture("sb")));
+    widgets.push_back(Widget("tower1", (WindowSize.w/2), WindowSize.h/2, assetManager.GetTexture("t1")));
 
     // Dimension d'une cellule (On pourra peut être créer des maps plus petites)
     grid_cell_size = 64;
@@ -199,10 +222,14 @@ void Game::HandleEvents()
         case SDL_MOUSEBUTTONDOWN:
             // Clic gauche
             if (event.button.button == SDL_BUTTON_LEFT){
+                leftMouseButtonDown = true;
+
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
                 grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
                 std::cout << "Position souris : {X = " << grid_cursor.x / grid_cell_size << "; Y = " << grid_cursor.y / grid_cell_size << " } " << std::endl;
                 // Lettre K enfoncée
+
+                
                 if (pressing_key_k){
                     mouse_X = grid_cursor.x;  
                     mouse_Y = grid_cursor.y;
@@ -219,12 +246,33 @@ void Game::HandleEvents()
                         found_testing_path = true;
                     }
                 }
+                for(Widget &widget : widgets) {
+                    if (widget.isHovering(cursor.x, cursor.y)) {
+
+                        if (widget.getId() == "s-i") {
+                            (*menu)->isRunning = true;
+                            (*menu)->isSetting = true;
+                            break;
+
+                        }
+                    } 
+                }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
                 showgrid = !showgrid;
             }
             break;
         // Position de la souris
+        case SDL_MOUSEBUTTONUP:
+            if (event.button.button == SDL_BUTTON_LEFT && leftMouseButtonDown){
+                if (tower1Selected) {
+                    tower1Selected = false;
+                }
+                leftMouseButtonDown = false;
+            }
+
+
         case SDL_MOUSEMOTION:
+            cursor = {event.motion.x, event.motion.y};
             grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
             grid_cursor_ghost.y = (event.motion.y / grid_cell_size) * grid_cell_size;
             break;
@@ -281,7 +329,7 @@ void Game::UpdateGraphics()
         }
         DrawPath(bottompath,yellow_green);
     }
-
+    
     // Affiche l'inventaire
     DrawInventory();
     
@@ -290,10 +338,50 @@ void Game::UpdateGraphics()
 
     //(couleur de fond de base du jeu)
     SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
+
+    for(Widget &widget : widgets) {
+        if (widget.isHovering(cursor.x, cursor.y)) {
+
+            if (widget.getId() == "s-i"){
+                widget.setTexture(assetManager.GetTexture("sb2"));
+
+            }
+
+        }
+        else {
+            if (widget.getId() == "s-i"){
+                widget.setTexture(assetManager.GetTexture("sb"));
+            }
+        
+        }
+        widget.BlitWidget(renderer);
+        
+    }
+    
+
+    
 }
 
 // Met à jour les unités du jeu.
 void Game::UpdateGame(){
+    
+    for(int i = 0; i < inventory_grid_cells; i++) {
+        SDL_Rect rect = {
+            (i * (inventory_grid_cells_size + inventory_grid_offset)) + inventory_pos_x,
+            inventory_pos_y,
+            inventory_grid_cells_size,
+            inventory_grid_cells_size
+        };
+        if(SDL_PointInRect(&cursor, &rect) && leftMouseButtonDown) {
+            tower1Selected = true;
+        }
+        
+    }
+
+    if (tower1Selected) {
+        GetWidget("tower1")->setX(cursor.x);
+        GetWidget("tower1")->setY(cursor.y);
+    }
     if ((wave_ongoing)){
         // On met à jour le temps que la partie a duré
         wave_cout_s += deltatime;
@@ -329,6 +417,9 @@ void Game::UpdateGame(){
                 }
             }
         }
+
+        
+        
     }
 }
 
@@ -405,7 +496,13 @@ void Game::DrawInventory(){
             inventory_grid_cells_size,
             inventory_grid_cells_size
         };
-        SDL_RenderFillRect(renderer, &rect);
+        if (i==0) {
+            SDL_RenderCopy(renderer, assetManager.GetTexture("t1"), NULL, &rect);
+        }
+        else {
+            SDL_RenderFillRect(renderer, &rect);
+
+        }
     }
 }
 
@@ -625,6 +722,14 @@ Enemy& Game::GetEnemy(int id){
     return enemies[id];
 }
 
+Widget* Game::GetWidget(std::string id) {
+    for(Widget &widget : widgets) {
+        if (widget.getId() == id) {return &widget;}
+    }
+    
+    return NULL;
+}
+
 /**
  * Rajoute une tour dans la liste des tours (vector).
  * @param indexe de la tour.
@@ -638,3 +743,4 @@ void Game::AddTower(Tower tower){
  * Récupère une tour dans la liste (vector) via son indexe.
  * @param id l'ennemi à rajouter.
 */
+
