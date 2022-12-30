@@ -1,9 +1,11 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-#include <iostream>
 
-class Body{
+#include <iostream>
+#include <SDL2/SDL_mixer.h>
+
+class Body {
     public:
         Body(const char *title, int xpos, int ypos, int width, int height, bool fullscreen){
             int flags = 0;
@@ -25,11 +27,18 @@ class Body{
                     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
                     std::cout << "Renderer créé !" << std::endl;
                 }
+                
+                isRunning = true;
+            }
+            else {
+                isRunning = false;
             }
             init_ttf();
 
             SDL_SetWindowTitle(window, "Tower Defense");
         };
+
+        void HandleEvents();
 
         void Clean(){
             SDL_DestroyWindow(window);
@@ -42,18 +51,23 @@ class Body{
         void RenderClear()
         {
             SDL_RenderClear(renderer);
-        }
+        };
 
         // Rajoute un nouveau rendu à afficher.
         void RenderPresent()
         {
             SDL_RenderPresent(renderer);
-        }
-        
+        };
+
+        // Renvoie si le jeu est en coursmake
+
+        bool running() {return isRunning;};
+        void setRunning(bool state) {isRunning = state;}
         SDL_Renderer* GetRenderer(){return renderer;};
         SDL_Window* GetWindow(){return window;};
 
     private:
         SDL_Renderer* renderer;
         SDL_Window *window;
+        bool isRunning;
 };

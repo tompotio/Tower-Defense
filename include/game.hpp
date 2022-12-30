@@ -11,7 +11,7 @@ class Audiomanager;
 class Game 
 {
     public:
-        Game(Body* body);
+        Game(Body** body);
         ~Game() = default;
 
         void InitCellTypes();
@@ -56,7 +56,7 @@ class Game
 
         Tower GetTower(int id);
         
-        Body* GetBody(){return body;};
+        Body** GetBody(){return body;};
 
         // Renvoie si le jeu est en cours
         bool running() {return isRunning; };
@@ -65,7 +65,7 @@ class Game
         int fps = 60;
 
     private:
-        Body* body;
+        Body** body;
 
         // Values
         int playerMonney;
@@ -95,7 +95,6 @@ class Game
         bool showgrid = false;
         bool pressing_key_k = false;
         bool wave_ongoing = false;
-        bool mouse_pressed = false;
 
         // Utilitaries classes
         AssetManager assetManager;

@@ -10,10 +10,11 @@
  * @param height Hauteur de la fenêtre.
  * @param fullscreen FullScreen ou non.
 */
-Game::Game(Body* body)
+Game::Game(Body** body)
 {   
     this->body = body;
-    renderer = body->GetRenderer();
+    // this->isRunning = true;
+    renderer = (*body)->GetRenderer();
 
     // Champ de déclaration des assets du jeu 
     assetManager = AssetManager();
@@ -21,6 +22,10 @@ Game::Game(Body* body)
     font = load_font( "../assets/arial.ttf", 14);
     if (font == nullptr) std::cout << "ptdr null" << std::endl;
 
+    assetManager.AddTexture(
+        "soldier",
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile245.png",renderer)
+    );
     assetManager.AddTexture(
         "zombie",
         LoadTexture("../assets/tiles/zombie_000.png",renderer)
@@ -36,7 +41,6 @@ Game::Game(Body* body)
         LoadTexture("../assets/beur.png",renderer)
     );
 
-    //LoadTexture("../../move/skeleton-move_0t.png",renderer)
 
     assetManager.AddTexture(
         "grass",
@@ -193,7 +197,6 @@ void Game::HandleEvents()
     switch(event.type){
         // Clic de la souris
         case SDL_MOUSEBUTTONDOWN:
-            mouse_pressed = true;
             // Clic gauche
             if (event.button.button == SDL_BUTTON_LEFT){
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
@@ -201,7 +204,7 @@ void Game::HandleEvents()
                 std::cout << "Position souris : {X = " << grid_cursor.x / grid_cell_size << "; Y = " << grid_cursor.y / grid_cell_size << " } " << std::endl;
                 // Lettre K enfoncée
                 if (pressing_key_k){
-                    mouse_X = grid_cursor.x;
+                    mouse_X = grid_cursor.x;  
                     mouse_Y = grid_cursor.y;
                 }else{
                     if (mouse_X >= 0 && mouse_X < (map.GetWidth() * grid_cell_size) && mouse_Y >= 0 && mouse_Y < (map.GetHeight() * grid_cell_size)&&
@@ -235,16 +238,15 @@ void Game::HandleEvents()
                 isRunning = false;
             }
             break;
-        case SDL_MOUSEBUTTONUP: 
-            mouse_pressed = false;
         // Lache une touche du clavier
         case SDL_KEYUP:
             if (event.key.keysym.sym == SDLK_k){
                 pressing_key_k = false;
             }
             break;
-        //Fermeture du jeu
+
         case SDL_QUIT:
+            (*body)->setRunning(false);
             isRunning = false;
             break;
 
@@ -327,10 +329,7 @@ void Game::UpdateGame(){
                     enemy.dead = true;
                     // Inflige des dégâts à la base
                     current_HP -= enemy.GetDamage();
-                }else if((enemy.Current_HP <= 0)){
-                    enemy.dead = true;
-                }
-                else{
+                }else{
                     // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
                     enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
                 }

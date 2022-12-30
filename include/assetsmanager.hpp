@@ -35,6 +35,21 @@ class Sprite
 		double angle;
 };
 
+
+namespace TextureManager
+{
+	SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
+
+
+	void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
+
+	void BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
+
+	void DestroyTexture(SDL_Texture* texture);
+
+	void BlitSprite(Sprite sprite, SDL_Renderer* renderer);
+};
+
 class AssetManager
 {
 	public:
@@ -55,6 +70,8 @@ class AssetManager
 		void AddSFX(std::string id, std::string path); 
 		Mix_Music* GetMusic(std::string id);
 		Mix_Chunk* GetSFX(std::string id);
+		std::map<std::string, Mix_Chunk*> GetAllSFX() {return sfx;};
+		
 
 	private:
 		std::map<std::string, SDL_Texture*> textures;
@@ -78,6 +95,8 @@ class Map
 // Relatif aux textures
 
 SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
+
+SDL_Rect GetTextureSize(SDL_Texture* texture);
 
 void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
 

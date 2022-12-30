@@ -27,6 +27,14 @@ SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer)
 	return texture;
 }
 
+SDL_Rect GetTextureSize(SDL_Texture* texture){
+    SDL_Rect dstcrect; 
+    
+    SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
+    
+    return dstcrect;
+}
+
 //! DestroyTexture
 /**
  * Détruit la texture en question.
@@ -37,6 +45,7 @@ void DestroyTexture(SDL_Texture* texture)
     // Libérer une texture
     SDL_DestroyTexture(texture);
 }
+
 
 void BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x , int y){
     SDL_Rect dstcrect; 
@@ -63,7 +72,7 @@ void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x , int y)
     SDL_Rect dstcrect; 
     dstcrect.x = x;
     dstcrect.y = y;
-    SDL_SetTextureAlphaMod(texture, 255);
+    // SDL_SetTextureAlphaMod(texture, 255);
     // Récupère les informations de la texture (width et height)
     SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
 
@@ -109,8 +118,30 @@ SDL_Texture* AssetManager::GetTexture(std::string id)
 }
 
 /**
- * \brief La fonction initialise l'environnement TTF
+ * Ajoute une music dans assetManager.
+ * @param id identifiant de la music.
+ * @param path chemin de la music.
 */
+
+void AssetManager::AddMusic(std::string id, std::string path) {
+
+    char* p = &path[0];
+    music.emplace(id, Mix_LoadMUS(p));
+    
+}
+
+void AssetManager::AddSFX(std::string id, std::string path) {
+    char* p = &path[0];
+    sfx.emplace(id, Mix_LoadWAV(p));
+}
+
+Mix_Music* AssetManager::GetMusic(std::string id) {
+    return music[id];
+}
+Mix_Chunk* AssetManager::GetSFX(std::string id) {
+    return sfx[id];
+}
+
 void init_ttf(){
     if(TTF_Init()==-1) {
         std::cout << "TTF_Init: " << TTF_GetError() << std::endl;

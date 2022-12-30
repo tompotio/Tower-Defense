@@ -77,8 +77,8 @@ class Tower : public Entity
 
     private:
         Enemy& target;
-        vec2<double> dir;
-        vec2<double> position;
+        vec2<double>  dir;
+        vec2<double>  position;
         Sprite sprite;
 
         //Si la tour est activée ou pas (genre un ennemi qui désactive les tours)
