@@ -12,7 +12,7 @@
 enum Cell_type_t 
 {   
     TOWER,
-    DIRT,
+    DIRT = '5',
     MISC,
 };
 
@@ -22,7 +22,7 @@ class Cell{
 
         void CalculateFCost(){this->fCost = this->gCost + this->hCost;};
         
-        Cell_type_t type;
+        char type;
         Cell* cameFromCell;
 
         int gCost;
@@ -55,9 +55,9 @@ class Grid
 
         std::vector<Cell> FindPath(int startX, int startY, int endX, int endY);
 
-    private:
         Cell* GetGridObject(int x, int y);
 
+    private:
         Cell* GetLowestFCostCell();
 
         int GetPositionInList(Cell* cell, std::vector<Cell*> list);
@@ -67,7 +67,7 @@ class Grid
         bool Find(Cell* cell, std::vector<Cell*> list);
 
         int MOVE_STRAIGHT_COST = 10;
-        int MOVE_DIAGONAL_COST = 21;
+        int MOVE_DIAGONAL_COST = 14;
         int width;
         int height;
         int cellsize;

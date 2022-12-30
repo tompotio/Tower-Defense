@@ -38,18 +38,7 @@ Grid::Grid(int width,int height,int cellsize, int offsetx, int offsety, SDL_Rend
  * @param c choix pour le type de la cellule (TOWER, DIRT ou MISC).
 */
 void Grid::AffectTypeToCell(int x, int y, char c){
-    switch(c){
-        case 'T':
-            cells[x][y].type = TOWER;
-            break;
-        break;
-        case '5':
-            cells[x][y].type = DIRT;
-            break;
-        default:
-            cells[x][y].type = MISC;
-            break;
-    }
+    cells[x][y].type = c;
 }
 
 /**
@@ -66,6 +55,9 @@ Cell* Grid::GetGridObject(int x, int y){
  * @param renderer renderer de SDL.
 */
 void Grid::DrawGrid(SDL_Renderer* renderer){
+    // Applique la couleur des lignes (Lire la doc de la fonction pour comprendre le fonctionnement)
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
     // Dessine les lignes de la grille verticalement à chaque position x
     for(int x = 0; x < GetWidth() + 1; x++){
         SDL_RenderDrawLine(

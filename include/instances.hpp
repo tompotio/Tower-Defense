@@ -2,6 +2,7 @@
 
 #include "vector2.hpp"
 #include "assetsmanager.hpp"
+#include "grid.hpp"
 
 /*
     Notes : 
@@ -9,21 +10,33 @@
         Je pense que c'est plus propre de définir les fonctions dans le header et de les rédiger uniquement dans le .cpp.
 */
 
-class Enemy
+enum Entity_t 
+{   
+    GOBLIN,
+    ARCHER,
+};
+
+class Entity
 {
     public: 
-        Enemy() = default;
-        Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& assetmanager);
-
-        ~Enemy() = default;
-
-        vec2<double> GetDirection(){return this->direction;};
-
         // Renvoie le sprite de l'ennemi
         Sprite& GetSprite(){return sprite;};
+        vec2<double> GetDirection(){return this->direction;};
 
+    protected:
+        vec2<double>  direction;
+        vec2<double>  position;
+        Sprite sprite;
+
+};
+
+class Enemy : public Entity
+{
+    public: 
         // Renvoie la vitesse de l'ennemi
         int GetSpeed(){return this->speed;};
+        int GetDamage(){return this->dmg;};
+        Entity_t GetType(){return this->type;};
 
         // Modifie la direction de l'ennemi
         void SetDirection(vec2<double>  direction);
@@ -38,35 +51,32 @@ class Enemy
 
         int maxcell = 0;
         int i = 0;
-
-    private:
-        vec2<double>  direction;
-        vec2<double>  position = vec2<double>();
-        Sprite sprite;
-
+        bool dead;
         int Max_HP;
         int Current_HP;
-        int speed;
+        std::vector<Cell>* path;
+
+    protected:
+        int dmg;
+        float speed;
+        Entity_t type;
 };
 
-enum Towers_t 
-{   
-    ARCHER,
+class Goblin : public Enemy{
+    public: 
+        Goblin(vec2<double> spawnPosition, AssetManager& assetmanager); 
+        void Reset();
 };
 
-class Tower
+class Tower : public Entity
 {
     public: 
-        Tower();
-        Tower(Towers_t type);
-        ~Tower() = default;
-
-        Enemy GetEnemy();
+        Tower(Entity_t type);
         void AttackEnemy();
         void RotateSprite(); //Modifie l'angle de rotation du sprite        
 
     private:
-        Enemy target;
+        Enemy& target;
         vec2<double>  dir;
         vec2<double>  position;
         Sprite sprite;
@@ -81,24 +91,4 @@ class Allies
     public: 
         Allies(/* args */);
         ~Allies();
-};
-
-class Instance
-{
-    public:
-        Instance();
-        ~Instance() = default;
-
-        //Enemy Management
-        void AddEnemy(const Enemy& enemy);
-        Enemy& GetEnemy(int id);
-        std::vector<Enemy>& GetEnemies();
-
-        //Tower Management
-        void AddTower(std::string id, Tower tower);
-        Tower GetTower(std::int16_t id);
-
-    private:
-        std::vector<Enemy> enemies;
-        std::vector<Tower> towers;
 };

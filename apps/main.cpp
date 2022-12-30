@@ -2,19 +2,21 @@
 #include "../include/menu.hpp"
 #include "../include/vector2.hpp"
 #include <unistd.h>
+#include <time.h> 
 
 /* #define RESOLUTION_X 1920
 #define RESOLUTION_Y 1080 */
 #define RESOLUTION_X 1440
 #define RESOLUTION_Y 720
+
 #define FPS 60
 
 int main(int argc, char *args[])
 {   
-    const Uint32 frameDelay = 1000.0f / FPS;
+    const double frameDelay = (1000.0f / FPS)/1000;
 
-    Uint32 frameStart;
-    Uint32 frameTime;
+    double frameStart;
+    double frameTime;
 
     static Body* body = new Body(
         "GameWindow", 
@@ -24,8 +26,6 @@ int main(int argc, char *args[])
         RESOLUTION_Y,
         false
     );
-
-    std::cout << "Body créé" << std::endl;
 
     // Game n'est plus static pour permettre la désallocation lorsque recrée une partie. (Voir plus tard dans le projet)
     Game* game = new Game(&body);
@@ -38,7 +38,7 @@ int main(int argc, char *args[])
 
     while(body->running())
     {
-        frameStart = SDL_GetTicks();
+        frameStart = clock(); //SDL_GetTicks();
 
         body->RenderClear();
 
@@ -50,32 +50,34 @@ int main(int argc, char *args[])
         }
         //else if (game->running()) {
         else {
+            
+            // Affichage
+            game->UpdateGraphics();
+
+            // Input du joueur d'abord
             game->HandleEvents();
-            // game->Update();
+
+            // Déroulement de la partie
+            game->UpdateGame();
         }
         
+        
+
         body->RenderPresent();
 
-        frameTime = SDL_GetTicks() - frameStart;
-
-        // Ajoute un délai lorsque l'ordinateur tourne trop rapidement pour rester à 60 fps
-        // NB : Pour je ne sais quelle raison, SDL_Delay ralenti énormément le déplacement de grid shadow tout en ayant 60 fps constant.
-
-        /* 
+        frameTime = (clock() - frameStart);
+        game->deltatime = (frameTime / 1000000.0f); // des micro secondes
+        
+        game->fps = (100000 / ((frameTime)));
+        //std::cout << game->fps << std::endl;
+        
         if(frameDelay > frameTime)
         {
-            SDL_Delay(frameDelay - frameTime);
+            sleep(frameDelay - frameTime);
         }
-        */
-
-       // En attendant qu'un jour le bug soit réglé, j'ai mis un mini délai de 1 qui semble ne pas trop troubler le jeu.
-       SDL_Delay(1);
-
-        // Affiche les FPS sur le terminal pour les tests
-        //std::cout << 1000 / (SDL_GetTicks() - frameStart) << std::endl;
     }
-    
-    body->Clean();
 
+    game->~Game();
+    body->Clean();
     return 0;
 }

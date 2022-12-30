@@ -13,7 +13,9 @@ class Widget
         Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize);
         
         void BlitWidget(SDL_Renderer* renderer);
+
         SDL_Rect& getRect() {return rect;}
+
         SDL_Texture* getTexture() {return texture;}
         std::string getId() {return id;}
         void setTexture(SDL_Texture* texture2) {this->texture = texture2;};
@@ -24,7 +26,6 @@ class Widget
 
 
         void BlitWidgetTransparent(SDL_Renderer* renderer);
-        //void onClick();
         
     private:
         std::string id;

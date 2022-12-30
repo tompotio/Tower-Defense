@@ -1,16 +1,16 @@
 #include "../include/instances.hpp"
 
-Enemy::Enemy(vec2<double> spawnPosition, int Max_HP, int Speed, AssetManager& assetmanager){
-    this->Max_HP = Max_HP;
-    this->Current_HP = Max_HP;
-    this->speed = Speed;
+Goblin::Goblin(vec2<double> spawnPosition, AssetManager& assetmanager){
+    this->Max_HP = 50;
+    this->Current_HP = 50;
+    this->speed = 350;
 
-    SDL_Texture* texture = assetmanager.GetTexture("soldier");
+    SDL_Texture* texture = assetmanager.GetTexture("zombie");
     int w;
     int h;
-
-    SetPosition(spawnPosition);
-    
+    this->dmg = 5;
+    this->type = GOBLIN;
+    this->dead = false;
     SDL_QueryTexture(texture,NULL,NULL,&w,&h);
 
     this->sprite = Sprite(
@@ -51,49 +51,4 @@ void Enemy::SetPosition(vec2<double>  pos){
 // Déplace l'ennemi via un vecteur
 void Enemy::Move(vec2<double>  step){
     SetPosition(step + position);
-}
-
-Tower::Tower(){
-    Tower(ARCHER);
-}
-
-Tower::Tower(Towers_t type){
-    
-}
-
-Enemy Tower::GetEnemy(){
-    return Enemy();
-}
-
-void Tower::AttackEnemy(){
-
-}
-
-void Tower::RotateSprite(){
-    
-}
-
-Instance::Instance(){
-
-}
-
-void Instance::AddEnemy(const Enemy& enemy){
-    enemies.push_back(enemy);
-}
-
-
-Enemy& Instance::GetEnemy(int id){
-    return enemies[id];
-}
-
-std::vector<Enemy>& Instance::GetEnemies(){
-    return enemies;
-}
-
-void Instance::AddTower(std::string id, Tower tower){
-
-}
-
-Tower Instance::GetTower(std::int16_t id){
-    return Tower();
 }

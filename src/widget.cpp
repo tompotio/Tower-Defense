@@ -3,7 +3,7 @@
 Widget::Widget(std::string id, int x, int y, SDL_Texture* texture){
     
     this->id = id;
-    this->rect = TextureManager::GetTextureSize(texture);
+    this->rect = GetTextureSize(texture);
     this->rect.x = x;
     this->rect.y = y;
     this->texture = texture;
@@ -15,7 +15,7 @@ Widget::Widget(std::string id, int x, int y, SDL_Texture* texture){
 Widget::Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize) {
 
     this->id = id;
-    this->rect = TextureManager::GetTextureSize(texture);
+    this->rect = GetTextureSize(texture);
 
     this->rect.x = (WindowSize.w-rect.w)/2;
     this->rect.y = (WindowSize.h-rect.h)/2;
@@ -27,7 +27,7 @@ Widget::Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize) {
 
 void Widget::BlitWidget(SDL_Renderer* renderer) {
     if (this->active) {
-        TextureManager::BlitTexture(getTexture(), renderer, getRect().x, getRect().y);
+        BlitTexture(getTexture(), renderer, getRect().x, getRect().y);
 
     }
 }

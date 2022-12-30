@@ -22,81 +22,81 @@ Menu::Menu(Body** body)
     
     assets.AddTexture(
         "sb",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "sb2",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/sbutton_bg.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/sbutton_bg.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "mt",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/menu_tile1.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/menu_tile1.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "mb",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/menu_button1.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/menu_button1.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "mb2",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/menu_button2.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/menu_button2.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "cross",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/cross1.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/cross1.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "drag_button",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/drag_button.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/drag_button.png", (*body)->GetRenderer())
     );
     
     assets.AddTexture(
         "bar",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/bar.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/bar.png", (*body)->GetRenderer())
     );
 
 
     assets.AddTexture(
         "music",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/music.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/music.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "sounds",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/sounds.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/sounds.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "effect",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/sfx.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/sfx.png", (*body)->GetRenderer())
     );
 
     assets.AddTexture(
         "play",
-        TextureManager::LoadTexture("../assets/PNG/Menu/settings/play.png", (*body)->GetRenderer())
+        LoadTexture("../assets/PNG/Menu/settings/play.png", (*body)->GetRenderer())
     );
 
     widgetsM.push_back(Widget("playb", assets.GetTexture("mb"), WindowSize));
-    widgetsM.push_back(Widget("text_play", (WindowSize.w-TextureManager::GetTextureSize(assets.GetTexture("play")).w)/2, (WindowSize.h-TextureManager::GetTextureSize(assets.GetTexture("play")).h)/2 - 7, assets.GetTexture("play")));
+    widgetsM.push_back(Widget("text_play", (WindowSize.w-GetTextureSize(assets.GetTexture("play")).w)/2, (WindowSize.h-GetTextureSize(assets.GetTexture("play")).h)/2 - 7, assets.GetTexture("play")));
     widgetsM.push_back(Widget("s-i", (WindowSize.w-185), 10, assets.GetTexture("sb")));
 
 
     widgetsS.push_back(Widget("s-bg", assets.GetTexture("mt"), WindowSize));
     widgetsS.push_back(Widget("s-cross", (WindowSize.w-185), 10, assets.GetTexture("cross")));
 
-    widgetsS.push_back(Widget("s-music_bar", ((WindowSize.w-TextureManager::GetTextureSize(assets.GetTexture("bar")).w)/2), (WindowSize.h/2), assets.GetTexture("bar")));
-    widgetsS.push_back(Widget("s-sfx_bar", ((WindowSize.w-TextureManager::GetTextureSize(assets.GetTexture("bar")).w)/2), (WindowSize.h/2 + 200), assets.GetTexture("bar")));
-    widgetsS.push_back(Widget("s-music_drag_button", ((WindowSize.w+TextureManager::GetTextureSize(assets.GetTexture("bar")).w)/2 - TextureManager::GetTextureSize(assets.GetTexture("drag_button")).w), (WindowSize.h /2 - 10), assets.GetTexture("drag_button")));
-    widgetsS.push_back(Widget("s-sfx_drag_button", ((WindowSize.w+TextureManager::GetTextureSize(assets.GetTexture("bar")).w)/2 - TextureManager::GetTextureSize(assets.GetTexture("drag_button")).w), (WindowSize.h /2 + 190), assets.GetTexture("drag_button")));
+    widgetsS.push_back(Widget("s-music_bar", ((WindowSize.w-GetTextureSize(assets.GetTexture("bar")).w)/2), (WindowSize.h/2), assets.GetTexture("bar")));
+    widgetsS.push_back(Widget("s-sfx_bar", ((WindowSize.w-GetTextureSize(assets.GetTexture("bar")).w)/2), (WindowSize.h/2 + 200), assets.GetTexture("bar")));
+    widgetsS.push_back(Widget("s-music_drag_button", ((WindowSize.w+GetTextureSize(assets.GetTexture("bar")).w)/2 - GetTextureSize(assets.GetTexture("drag_button")).w), (WindowSize.h /2 - 10), assets.GetTexture("drag_button")));
+    widgetsS.push_back(Widget("s-sfx_drag_button", ((WindowSize.w+GetTextureSize(assets.GetTexture("bar")).w)/2 - GetTextureSize(assets.GetTexture("drag_button")).w), (WindowSize.h /2 + 190), assets.GetTexture("drag_button")));
     
     widgetsS.push_back(Widget("s-text_music", (*GetWidget("s-music_bar")).getRect().x - 150, (WindowSize.h/2 - 70), assets.GetTexture("music")));
     widgetsS.push_back(Widget("s-text_sfx", (*GetWidget("s-sfx_bar")).getRect().x - 150, (WindowSize.h/2 + 130), assets.GetTexture("effect")));
-    widgetsS.push_back(Widget("s-text_sounds", ((WindowSize.w-TextureManager::GetTextureSize(assets.GetTexture("sounds")).w)/2), 80, assets.GetTexture("sounds")));
+    widgetsS.push_back(Widget("s-text_sounds", ((WindowSize.w-GetTextureSize(assets.GetTexture("sounds")).w)/2), 80, assets.GetTexture("sounds")));
 
 }
 
@@ -180,7 +180,7 @@ void Menu::HandleEvents()
 
 void Menu::Update(SDL_Renderer* renderer)
 {   
-    // SDL_RenderCopy(renderer, TextureManager::LoadTexture("../assets/PNG/Menu/bg1.jpg", renderer), NULL, NULL);
+    // SDL_RenderCopy(renderer, LoadTexture("../assets/PNG/Menu/bg1.jpg", renderer), NULL, NULL);
 
     
     if (isSetting) {

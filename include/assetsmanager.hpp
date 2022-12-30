@@ -40,7 +40,6 @@ namespace TextureManager
 {
 	SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
 
-	SDL_Rect GetTextureSize(SDL_Texture* texture);
 
 	void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
 
@@ -92,3 +91,27 @@ class Map
 	private: 
 		const int Taille = 16;
 };
+
+// Relatif aux textures
+
+SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
+
+SDL_Rect GetTextureSize(SDL_Texture* texture);
+
+void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
+
+void BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
+
+void DestroyTexture(SDL_Texture* texture);
+
+void BlitSprite(Sprite sprite, SDL_Renderer* renderer);
+
+// Relatif aux fonts
+
+void init_ttf();
+
+TTF_Font * load_font(const char* path, int font_size);
+
+void apply_text(SDL_Renderer *renderer,int x, int y, int w, int h, const char* ext, TTF_Font *font);
+
+void clean_font(TTF_Font * font);
