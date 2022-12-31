@@ -7,8 +7,9 @@ class Widget
 {
     public:
         Widget() = default;
+        
         // Constructeur normal
-        Widget(std::string id, int x, int y, SDL_Texture* texture);
+        Widget(std::string id, int x, int y, SDL_Texture* texture, bool active = true);
         // Constructeur center widget
         Widget(std::string id, SDL_Texture* texture, SDL_Rect WindowSize);
         
@@ -22,6 +23,8 @@ class Widget
         void setRect(SDL_Rect rect) {this->rect = rect;};
         void setX(int x) {this->rect.x = x;};
         void setY(int y) {this->rect.y = y;};
+        void setActive(bool a) {this->active = a;};
+        bool getActive() {return this->active;};
         bool isHovering(int x, int y);
 
 

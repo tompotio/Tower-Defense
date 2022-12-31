@@ -53,8 +53,7 @@ class Game
         Enemy& GetEnemy(int id);
 
         //Tower Management
-        void AddTower(Tower tower);
-
+        void AddTower(Tower_t t, AssetManager assetmanager);
         Tower GetTower(int id);
         
         Body** GetBody(){return body;};
@@ -73,7 +72,7 @@ class Game
         SDL_Rect WindowSize;
 
         // Values
-        int playerMonney;
+        int playerMoney;
         int base_HP;
         int current_HP;
         int grid_cell_size;
@@ -103,6 +102,8 @@ class Game
 
         bool leftMouseButtonDown;
         bool tower1Selected;
+        bool tower2Selected;
+        bool tower3Selected;
 
         // Utilitaries classes
         AssetManager assetManager;

@@ -1,8 +1,9 @@
 #include "../include/grid.hpp"
 
-Cell::Cell(int x, int y){
+Cell::Cell(int x, int y, bool tower_on){
     this->x = x;
     this->y = y;
+    this->tower_on = tower_on;
 }
 
 //! Constructor

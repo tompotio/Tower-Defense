@@ -216,3 +216,22 @@ AFFICHER SPRITE
     SDL_Texture* t = TextureManager::LoadTexture("../assets/enemyBlack1.png",renderer);
     //SDL_QueryTexture(t,NULL, NULL,&r.w, &r.h);
     spt = Sprite(r,t);
+
+
+
+
+affichage argent
+tête chercheuse
+
+
+
+
+1- Ennemis spawn/FPS et respawn ----   50000h ??
+2- Tour pouvoir -> dégat Ennemis  ----   5h / 2
+3- game over back menu       ----       30min
+4- autre ennemis / vague ennemis / update asset / ajout sons ---- 20h
+5- mise en place / affichage argent pour tours   ----   30 sec
+
+
+cadence tir tour   (segmentation THUNDER)         Tower Fire()
+enemy assets explosion (reset explode to false et timer)     game.cpp 545 

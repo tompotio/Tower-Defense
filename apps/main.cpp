@@ -17,7 +17,7 @@ int main(int argc, char *args[])
 
     double frameStart;
     double frameTime;
-
+    int CD= 0;
     static Body* body = new Body(
         "GameWindow", 
         SDL_WINDOWPOS_CENTERED, 
@@ -61,25 +61,16 @@ int main(int argc, char *args[])
             game->UpdateGame();
         }
         
-        
-
-        body->RenderPresent();
-        //game->deltatime = (frameTime / 1000000.0f); // des micro secondes
-
-        /* frameTime = (clock() - frameStart);
-        
-        
-        game->fps = (100000 / ((frameTime)));
-        //std::cout << game->fps << std::endl;
-        
-        if(frameDelay > frameTime)
-        {
-            sleep(frameDelay - frameTime);
-        } */
-
-
-        //frameTime = SDL_GetTicks() - frameStart;
         SDL_Delay(1);
+        
+        /* frameTime = (SDL_GetTicks() - frameStart);
+        game->deltatime = frameTime/1000.0f;
+        CD+=1;
+        if(CD == 150){
+            CD = 0;
+            game->fps = int(1000.0f/frameTime);
+        } */
+        body->RenderPresent();
     }
 
     game->~Game();

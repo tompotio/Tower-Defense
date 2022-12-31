@@ -14,6 +14,10 @@ Game::Game(Body** body, Menu** menu)
 {   
     this->body = body;
     this->menu = menu;
+    this->leftMouseButtonDown = false;
+    this->tower1Selected = false;
+    this->tower2Selected = false;
+    this->tower3Selected = false;
     // this->isRunning = true;
     renderer = (*body)->GetRenderer();
 
@@ -128,12 +132,29 @@ Game::Game(Body** body, Menu** menu)
     );
 
     assetManager.AddTexture(
-        "t1",
-        LoadTexture("../assets/PNG/Menu/settings/tower.png", renderer)
+        "enemy_explosion",
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile296.png", renderer)
     );
 
+    assetManager.AddTexture(
+        "t1",
+        LoadTexture("../assets/PNG/Menu/settings/tower1.png", renderer)
+    );
+    assetManager.AddTexture(
+        "t2",
+        LoadTexture("../assets/PNG/Menu/settings/tower2.png", renderer)
+    );
+    assetManager.AddTexture(
+        "t3",
+        LoadTexture("../assets/PNG/Menu/settings/tower3.png", renderer)
+    );
+
+    
+
     widgets.push_back(Widget("s-i", (WindowSize.w-185), 10, assetManager.GetTexture("sb")));
-    widgets.push_back(Widget("tower1", (WindowSize.w/2), WindowSize.h/2, assetManager.GetTexture("t1")));
+    widgets.push_back(Widget("tower1", 0, 0, assetManager.GetTexture("t1"), false));
+    widgets.push_back(Widget("tower2", 0, 0, assetManager.GetTexture("t3"), false));
+    widgets.push_back(Widget("tower3", 0, 0, assetManager.GetTexture("t2"), false));
 
     // Dimension d'une cellule (On pourra peut être créer des maps plus petites)
     grid_cell_size = 64;
@@ -183,6 +204,11 @@ Game::Game(Body** body, Menu** menu)
     inventory_grid_offset = 10;
     inventory_pos_x = 300;
     inventory_pos_y = 735;
+
+
+    Enemy new_enemy = Goblin(vec2<double>(0,0), assetManager);
+    new_enemy.SetPosition(vec2<double>(WindowSize.w/2,WindowSize.h/2));
+    enemies.push_back(new_enemy);
 }
 
 void Game::InitCellTypes(){
@@ -230,6 +256,7 @@ void Game::HandleEvents()
                 // Lettre K enfoncée
 
                 
+
                 if (pressing_key_k){
                     mouse_X = grid_cursor.x;  
                     mouse_Y = grid_cursor.y;
@@ -246,6 +273,7 @@ void Game::HandleEvents()
                         found_testing_path = true;
                     }
                 }
+                
                 for(Widget &widget : widgets) {
                     if (widget.isHovering(cursor.x, cursor.y)) {
 
@@ -257,6 +285,29 @@ void Game::HandleEvents()
                         }
                     } 
                 }
+
+                Cell* c = map.GetGridObject(cursor.x/grid_cell_size, cursor.y/grid_cell_size);
+
+                if (c->tower_on) {
+                    
+                    for(Tower &tower : towers) {
+                        int tower_case_x;
+                        int tower_case_y;
+                        tower.GetGridCase(&tower_case_x, &tower_case_y, grid_cell_size);
+                        if (c->x == tower_case_x && c->y == tower_case_y) {
+
+                            if (tower.GetShowRange()) {
+                                tower.SetShowRange(false);
+
+                            }
+                            else {
+                                tower.SetShowRange(true);
+
+                            }
+                        }
+                        
+                    }
+                }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
                 showgrid = !showgrid;
             }
@@ -265,7 +316,19 @@ void Game::HandleEvents()
         case SDL_MOUSEBUTTONUP:
             if (event.button.button == SDL_BUTTON_LEFT && leftMouseButtonDown){
                 if (tower1Selected) {
+                    AddTower(FIRE, assetManager);
                     tower1Selected = false;
+                    GetWidget("tower1")->setActive(false);
+                }
+                if (tower2Selected) {
+                    AddTower(ICE, assetManager);
+                    tower2Selected = false;
+                    GetWidget("tower2")->setActive(false);
+                }
+                if (tower3Selected) {
+                    AddTower(THUNDER, assetManager);
+                    tower3Selected = false;
+                    GetWidget("tower3")->setActive(false);
                 }
                 leftMouseButtonDown = false;
             }
@@ -329,7 +392,7 @@ void Game::UpdateGraphics()
         }
         DrawPath(bottompath,yellow_green);
     }
-    
+
     // Affiche l'inventaire
     DrawInventory();
     
@@ -357,6 +420,14 @@ void Game::UpdateGraphics()
         widget.BlitWidget(renderer);
         
     }
+
+    for(Tower &tower : towers) {
+        
+        tower.BlitTower(renderer);
+        tower.DrawRange(renderer, grid_cell_size);
+        tower.Fire(enemies);
+        
+    }
     
 
     
@@ -364,25 +435,54 @@ void Game::UpdateGraphics()
 
 // Met à jour les unités du jeu.
 void Game::UpdateGame(){
-    
+
     for(int i = 0; i < inventory_grid_cells; i++) {
+        
         SDL_Rect rect = {
             (i * (inventory_grid_cells_size + inventory_grid_offset)) + inventory_pos_x,
             inventory_pos_y,
             inventory_grid_cells_size,
             inventory_grid_cells_size
         };
-        if(SDL_PointInRect(&cursor, &rect) && leftMouseButtonDown) {
-            tower1Selected = true;
+
+        if (SDL_PointInRect(&cursor, &rect) && leftMouseButtonDown) {
+
+            if(i==0 && tower2Selected == false && tower3Selected == false) {
+                tower1Selected = true;
+                GetWidget("tower1")->setActive(true);
+
+            }
+            if(i==1 && tower1Selected == false && tower3Selected == false) {
+                tower2Selected = true;
+                GetWidget("tower2")->setActive(true);
+
+            }
+            if(i==2 && tower1Selected == false && tower2Selected == false) {
+                tower3Selected = true;
+                GetWidget("tower3")->setActive(true);
+
+            }
         }
+        
         
     }
 
+    
+
     if (tower1Selected) {
-        GetWidget("tower1")->setX(cursor.x);
-        GetWidget("tower1")->setY(cursor.y);
+        GetWidget("tower1")->setX(cursor.x - GetWidget("tower1")->getRect().w/2);
+        GetWidget("tower1")->setY(cursor.y - GetWidget("tower1")->getRect().h/2);
     }
-    if ((wave_ongoing)){
+
+    if (tower2Selected) {
+        GetWidget("tower2")->setX(cursor.x - GetWidget("tower2")->getRect().w/2);
+        GetWidget("tower2")->setY(cursor.y - GetWidget("tower2")->getRect().h/2);
+    }
+    if (tower3Selected) {
+        GetWidget("tower3")->setX(cursor.x - GetWidget("tower3")->getRect().w/2);
+        GetWidget("tower3")->setY(cursor.y - GetWidget("tower3")->getRect().h/2);
+    }
+    /* if ((wave_ongoing)){
         // On met à jour le temps que la partie a duré
         wave_cout_s += deltatime;
 
@@ -417,10 +517,9 @@ void Game::UpdateGame(){
                 }
             }
         }
-
         
         
-    }
+    } */
 }
 
 void Game::DrawCursor(){
@@ -442,7 +541,11 @@ void Game::DrawEnemies(){
                 enemy.GetSprite(),
                 renderer
             );
-        } 
+            if (enemy.explode) {
+                enemy.BlitExplosion(renderer);
+
+            }
+        }
     }
 }
 
@@ -496,13 +599,17 @@ void Game::DrawInventory(){
             inventory_grid_cells_size,
             inventory_grid_cells_size
         };
+        SDL_RenderFillRect(renderer, &rect);
         if (i==0) {
             SDL_RenderCopy(renderer, assetManager.GetTexture("t1"), NULL, &rect);
         }
-        else {
-            SDL_RenderFillRect(renderer, &rect);
-
+        if (i==1) {
+            SDL_RenderCopy(renderer, assetManager.GetTexture("t3"), NULL, &rect);
         }
+        if (i==2) {
+            SDL_RenderCopy(renderer, assetManager.GetTexture("t2"), NULL, &rect);
+        }
+
     }
 }
 
@@ -511,7 +618,10 @@ void Game::DrawTiles()
 {
     for(int x = 0; x < map_x_size; x++){
         for(int y = 0; y < map_y_size; y++){
-            switch((*map.GetGridObject(x,y)).type){
+
+            Cell* c = map.GetGridObject(x,y);
+          
+            switch(c->type){
                 case '1':
                     BlitTexture(
                         assetManager.GetTexture("grass"),
@@ -522,13 +632,13 @@ void Game::DrawTiles()
                     break;
 
                 case '2':
-                BlitTexture(
-                    assetManager.GetTexture("grass-right"),
-                    renderer,
-                    x * grid_cell_size,
-                    y * grid_cell_size
-                );
-                break;
+                    BlitTexture(
+                        assetManager.GetTexture("grass-right"),
+                        renderer,
+                        x * grid_cell_size,
+                        y * grid_cell_size
+                    );
+                    break;
 
                 case '3':
                 BlitTexture(
@@ -735,8 +845,24 @@ Widget* Game::GetWidget(std::string id) {
  * @param indexe de la tour.
  * @param tower tour à ajouter.
 */
-void Game::AddTower(Tower tower){
+void Game::AddTower(Tower_t type, AssetManager assetmanager){
+    if ((mouse_X >= 0) &&
+    (mouse_X < (map.GetWidth() * grid_cell_size)) && 
+    (mouse_Y >= 0 && mouse_Y < (map.GetHeight() * grid_cell_size))) {
+        
+        Cell* c = map.GetGridObject(cursor.x/grid_cell_size, cursor.y/grid_cell_size);
+        if (c->type == '1' && c->tower_on == false) {
+            Tower new_tower = Tower(type,
+            cursor.x/grid_cell_size * grid_cell_size + (grid_cell_size / 2),
+            cursor.y/grid_cell_size * grid_cell_size + (grid_cell_size / 2), assetmanager);
 
+            towers.push_back(new_tower);
+            c->tower_on = true;
+        } 
+
+    }
+
+  
 }
 
 /**

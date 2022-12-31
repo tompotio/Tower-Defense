@@ -1,7 +1,7 @@
 #include "../include/menu.hpp"
 
 Menu::Menu(Body** body) {
-    
+
     this->isRunning = true;
     this->isSetting = false;
     this->music_volume_selected = false;
@@ -17,7 +17,7 @@ Menu::Menu(Body** body) {
     audio = AudioManager();
     assets.AddMusic("boss", "../assets/Sound/Boss_Music.mp3");
     assets.AddSFX("sucess", "../assets/Sound/success.wav");
-    audio.PlayMusic("boss", &assets, 1);
+    // audio.PlayMusic("boss", &assets, 1);
     // audio.PlaySFX("sucess", &assets, 5);
     
     assets.AddTexture(
@@ -112,22 +112,24 @@ void Menu::HandleEvents()
             
             if (event.button.button == SDL_BUTTON_LEFT){
                
+                if (isSetting) {
+                    if(SDL_PointInRect(&cursor, &(*GetWidget("s-music_drag_button")).getRect())) {
+                        music_volume_selected = true;
+                    }
 
-                if(SDL_PointInRect(&cursor, &(*GetWidget("s-music_drag_button")).getRect())) {
-                    music_volume_selected = true;
-                }
+                    if(SDL_PointInRect(&cursor, &(*GetWidget("s-music_bar")).getRect())) {
+                        (*GetWidget("s-music_drag_button")).setX(cursor.x - ((*GetWidget("s-music_drag_button")).getRect().w/2));
+                        
+                    }
 
-                if(SDL_PointInRect(&cursor, &(*GetWidget("s-music_bar")).getRect())) {
-                    (*GetWidget("s-music_drag_button")).setX(cursor.x - ((*GetWidget("s-music_drag_button")).getRect().w/2));
-                    
-                }
+                    if(SDL_PointInRect(&cursor, &(*GetWidget("s-sfx_drag_button")).getRect())) {
+                        sfx_volume_selected = true;
+                    }
 
-                if(SDL_PointInRect(&cursor, &(*GetWidget("s-sfx_drag_button")).getRect())) {
-                    sfx_volume_selected = true;
-                }
+                    if(SDL_PointInRect(&cursor, &(*GetWidget("s-sfx_bar")).getRect())) {
+                        (*GetWidget("s-sfx_drag_button")).setX(cursor.x - ((*GetWidget("s-sfx_drag_button")).getRect().w/2));
+                    }
 
-                if(SDL_PointInRect(&cursor, &(*GetWidget("s-sfx_bar")).getRect())) {
-                    (*GetWidget("s-sfx_drag_button")).setX(cursor.x - ((*GetWidget("s-sfx_drag_button")).getRect().w/2));
                 }
                 leftMouseButtonDown = true;
                 leftClick();
