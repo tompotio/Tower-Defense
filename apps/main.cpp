@@ -15,9 +15,7 @@ int main(int argc, char *args[])
 {   
     const double frameDelay = (1000.0f / FPS) / 1000;
 
-    double frameStart;
-    double frameTime;
-    int CD= 0;
+
     static Body* body = new Body(
         "GameWindow", 
         SDL_WINDOWPOS_CENTERED, 

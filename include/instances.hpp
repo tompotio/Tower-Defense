@@ -32,11 +32,6 @@ enum Entity_t
     ORC
 };
 
-enum Tower_t
-{
-
-};
-
 enum Tower_t 
 {   
     FIRE,
@@ -134,8 +129,6 @@ class Tower {
 
 
 
-// A coder beaucoup plus tard
-class Allies
 class Elf : public Enemy
 {
     public: 

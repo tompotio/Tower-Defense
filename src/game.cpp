@@ -224,9 +224,9 @@ Game::Game(Body** body, Menu** menu)
     inventory_pos_y = 735;
 
 
-    Enemy new_enemy = Goblin(vec2<double>(0,0), assetManager);
+   /*  Enemy new_enemy = Goblin(vec2<double>(0,0), assetManager);
     new_enemy.SetPosition(vec2<double>(WindowSize.w/2,WindowSize.h/2));
-    enemies.push_back(new_enemy);
+    enemies.push_back(new_enemy); */
 }
 
 void Game::InitCellTypes(){
@@ -449,7 +449,7 @@ void Game::UpdateGraphics()
         
         tower.BlitTower(renderer);
         tower.DrawRange(renderer, grid_cell_size);
-        tower.Fire(enemies);
+        //tower.Fire(enemies);
         
     }
     

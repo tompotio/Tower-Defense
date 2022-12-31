@@ -150,6 +150,7 @@ class Game
 
         // Les entités du jeu
         std::vector<Enemy> enemies;
+        std::vector<Tower> towers;
 
         std::vector<Widget> widgets;
 
