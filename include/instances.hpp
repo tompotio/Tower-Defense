@@ -5,11 +5,11 @@
 #include "grid.hpp"
 
 // Stats
-#define GOBLIN_SPEED 150
-#define GOLEM_SPEED 150
-#define ELF_SPEED 150
-#define KNIGHT_SPEED 150
-#define ORC_SPEED 150
+#define GOBLIN_SPEED 18
+#define GOLEM_SPEED 12
+#define ELF_SPEED 25
+#define KNIGHT_SPEED 50
+#define ORC_SPEED 32
 
 #define GOBLIN_HP 50
 #define GOLEM_HP 500

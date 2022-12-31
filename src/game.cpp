@@ -392,6 +392,8 @@ void Game::WaveManager(){
 void Game::ResetValuesForWave(){
     bool endwave = true;
 
+    if((golem_nb + knight_nb + orc_nb + goblin_nb + elf_nb) == 0) endwave = false;
+
     // On vérifie si tous les énnemis sont morts, sinon on met endwave à falses
     for(auto enemy: enemies){
         if(!(enemy.dead)){
@@ -425,9 +427,6 @@ void Game::ResetValuesForWave(){
         // Valeurs dépendantes du numéro de waves
         switch (wave_nb)
         {
-        case 1:
-            goblin_max_nb = 5;
-            break;
         case 2:
             goblin_max_nb = 7;
             elf_max_nb = 2;
