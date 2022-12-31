@@ -31,16 +31,19 @@ int main(int argc, char *args[])
     Menu* menu = new Menu(&body);
     Game* game = new Game(&body, &menu);
 
-	
+	Uint32 frameStart;
+    Uint32 frameTime;
+    Uint32 CD = 0;
     std::cout << "Game créé" << std::endl;
+
+
 
 
 
     while(body->running())
     {
-        // frameStart = SDL_GetTicks();
-
         body->RenderClear();
+        frameStart = SDL_GetTicks();
 
         
         if (menu->running()) {
@@ -60,16 +63,14 @@ int main(int argc, char *args[])
             // Déroulement de la partie
             game->UpdateGame();
         }
-        
         SDL_Delay(1);
-        
-        /* frameTime = (SDL_GetTicks() - frameStart);
+        frameTime = (SDL_GetTicks() - frameStart);
         game->deltatime = frameTime/1000.0f;
         CD+=1;
-        if(CD == 150){
+        if((CD - 150) == 0){
             CD = 0;
             game->fps = int(1000.0f/frameTime);
-        } */
+        }
         body->RenderPresent();
     }
 
