@@ -1,5 +1,19 @@
 #include "../include/game.hpp"
 
+/**
+     * vague 1 : 5 goblins
+     * vague 2 : 7 goblins et 2 elfes
+     * vague 3 : 10 goblins et 4 elfs
+     * vague 4 : 8 elfs
+     * vague 5 : 20 goblins
+     * vague 6 : 1 golem
+     * vague 7 : 2 golems, 8 goblins et 4 elfs
+     * vague 8 : 3 golems, 10 goblins et 6 elfs
+     * vague 9 : 1 knights, 1 golem, 1 goblin et 1 elf
+     * vague 10 : orc
+     * vague 11 : 3 knights, 2 golems, 10 goblins, 5 elfs
+     * vague 12 : 6 knights, 4 golems, 15 goblins, 10 elfs
+*/
 
 /**
  * Constructeur de la classe game. Initialise les éléments du jeu.
@@ -26,6 +40,7 @@ Game::Game(Body** body)
         "soldier",
         LoadTexture("../assets/tiles/Default size/towerDefense_tile245.png",renderer)
     );
+
     assetManager.AddTexture(
         "zombie",
         LoadTexture("../assets/tiles/zombie_000.png",renderer)
@@ -150,7 +165,6 @@ Game::Game(Body** body)
     );
     toppath_size = toppath.size();
     bottompath_size = bottompath.size();
-    wave_nb += 1;
     wave_ongoing = true; // Je bougerai cette valeur plus tard qui se mettra true après une petite fenêtre de dialogue dans le jeu avant de débuter la partie ! 
     isRunning = true;
 
@@ -300,39 +314,214 @@ void Game::UpdateGraphics()
 
 // Met à jour les unités du jeu.
 void Game::UpdateGame(){
-    if ((wave_ongoing)){
-        // On met à jour le temps que la partie a duré
-        wave_cout_s += deltatime;
+    UpdateTime();
 
-        // Crée un ennemi toutes les environ 5 secondes * temps lié à la difficulté (je coderai ça plus tard)
-        if(((int)wave_cout_s + 1) % 2 == 0){
-            wave_cout_s += 1;
-            int path = rand() % 2 +1; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin                
-            SpawnEnemy(path, GOBLIN);
+    if((wave_ongoing)){
+        WaveManager();
+
+        // For each sur les tours 
+
+        MoveEnemies();
+        ResetValuesForWave();
+    }
+    else{
+        UpdateIntermit();
+    }
+}
+
+/**
+ * Fonction où l'on hard-code chaque wave
+ * @param
+**/
+void Game::WaveManager(){
+    Entity_t type;
+    int path = rand() % 2 +1; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
+
+    // Crée un goblin toutes les 4 secondes
+    if(((seconds % 4) == 0) && (last_seconds_mil == seconds_mil)){
+        // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
+        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+            goblin_nb +=1;
         }
+    }
+    // Crée un elfe toutes les 8 secondes
+    if(((seconds % 8) == 0) && (last_seconds_mil == seconds_mil)){
+        // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
+        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+            elf_nb +=1;
+        }
+    }
+    // Crée un golem toutes les 13 secondes
+    if(((seconds % 13) == 0) && (last_seconds_mil == seconds_mil)){
+        // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
+        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+            golem_nb +=1;
+        }
+    }
+    // Crée un knight toutes les 10 secondes
+    if(((seconds % 10) == 0) && (last_seconds_mil == seconds_mil)){
+        // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
+        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+            knight_nb +=1;
+        }
+    }
+    // Crée un orc toutes les 15 secondes
+    if(((seconds % 15) == 0) && (last_seconds_mil == seconds_mil)){
+        // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
+        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+            orc_nb +=1;
+        }
+    }
 
-        // Fait avancer chaque ennemi
-        for (int i = 0; i < enemies.size(); i++){
-            Enemy& enemy = enemies[i];
-            // Si l'ennemi n'est pas mort
-            if(!(enemy.dead)){
-                vec2<double> cellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
-                if((enemy.GetPosition() - cellpos).length() <= 10 && (enemy.i < enemy.maxcell)){
-                    enemy.i += 1;
-                    if(enemy.i < enemy.maxcell){
-                        vec2<double> nextcellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
-                        enemy.SetDirection((nextcellpos - (enemy.GetPosition())).normalize());
-                    }
+    //Fait spawn l'énnemi
+    SpawnEnemy(path, type);
+}
+
+/**
+ * Reset les valeurs de chaque wave
+ * @param wave_nb numéro de la vague (wave)
+**/
+void Game::ResetValuesForWave(){
+    bool endwave = true;
+    if(goblin_nb == 0)endwave = false;
+
+    for (auto enemy: enemies){
+        if(!enemy.dead){
+            endwave = false;
+            break;
+        }
+    }
+
+    if(endwave){
+        // Valeurs constantes (compteurs)
+        goblin_nb = 0;
+        elf_nb = 0;
+        orc_nb = 0;
+        golem_nb = 0;
+        knight_nb = 0;
+
+        goblin_max_nb = 0;
+        elf_max_nb = 0;
+        golem_max_nb = 0;
+        knight_max_nb = 0;
+        orc_max_nb = 0;
+
+        wave_ongoing = false;
+        wave_nb += 1;
+        delta_s = 0;
+        seconds_mil = 0;
+        last_seconds_mil = 0;
+        seconds = 0;
+        cpt_intermit = -1; 
+
+        // Valeurs dépendantes du numéro de waves
+        switch (wave_nb - 1)
+        {
+        case 1: // La wave actuelle prépare la wave suivante, donc ce sont les valeurs pour la wave 2
+            goblin_max_nb = 7;
+            elf_max_nb = 2;
+            break;
+        case 2:
+            goblin_max_nb = 10;
+            elf_max_nb = 4;
+            break;
+        case 3:
+            elf_max_nb = 8;
+            break;
+        case 4:
+            goblin_max_nb = 20;
+            break;
+        case 5:
+            golem_max_nb = 1;
+            break;
+        case 6:
+            golem_max_nb = 2;
+            goblin_max_nb = 8;
+            elf_max_nb = 4;
+            break;
+        case 7:
+            golem_max_nb = 3;
+            goblin_max_nb = 10;
+            elf_max_nb = 6;
+            break;
+        case 8:
+            knight_max_nb = 1;
+            golem_max_nb = 1;
+            goblin_max_nb = 1;
+            elf_max_nb = 1;
+            break;
+        case 9:
+            orc_max_nb = 1;
+            break;
+        case 10:
+            knight_max_nb = 3;
+            golem_max_nb = 2;
+            goblin_max_nb = 10;
+            elf_max_nb = 5;
+            break;
+        case 11:
+            knight_max_nb = 6;
+            golem_max_nb = 4;
+            goblin_max_nb = 15;
+            elf_max_nb = 10;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void Game::UpdateIntermit(){
+    if(seconds <= 5){
+        // UpdateGraphics s'occupe d'afficher la fenêtre d'intermitence 
+        intermit_screen = true;
+    }else{
+        intermit_screen = false;
+        intermit_count = true;
+        if(cpt_intermit == -1){
+            cpt_intermit = INTERMITENCE_TIME;
+        }else if(cpt_intermit == 0){
+            intermit_count = false;
+            wave_ongoing = true;
+        }else{
+            cpt_intermit -= 1;
+        }
+    }
+}
+
+void Game::UpdateTime(){
+    // On met à jour le temps écoulé en milisecondes
+    seconds_mil += deltatime;
+
+    // Si une seconde vient de s'écouler seconds +=1
+    if(int(seconds_mil) > seconds){
+        seconds +=1;
+        last_seconds_mil = seconds_mil;
+    }
+}
+
+// Déplace les énnemis 
+void Game::MoveEnemies(){
+    for (int i = 0; i < enemies.size(); i++){
+        Enemy& enemy = enemies[i];
+        // Si l'ennemi n'est pas mort
+        if(!(enemy.dead)){
+            vec2<double> cellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
+            if((enemy.GetPosition() - cellpos).length() <= 10 && (enemy.i < enemy.maxcell)){
+                enemy.i += 1;
+                if(enemy.i < enemy.maxcell){
+                    vec2<double> nextcellpos = vec2<double>((*enemy.path)[enemy.i].x * grid_cell_size,(*enemy.path)[enemy.i].y * grid_cell_size);
+                    enemy.SetDirection((nextcellpos - (enemy.GetPosition())).normalize());
                 }
-                if((enemy.i >= enemy.maxcell)){
-                    // Tue l'ennemi
-                    enemy.dead = true;
-                    // Inflige des dégâts à la base
-                    current_HP -= enemy.GetDamage();
-                }else{
-                    // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
-                    enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
-                }
+            }
+            if((enemy.i >= enemy.maxcell)){
+                // Tue l'ennemi
+                enemy.dead = true;
+                // Inflige des dégâts à la base
+                current_HP -= enemy.GetDamage();
+            }else{
+                // Le calcul entre parenthèse pour bien comprendre même si c'est commutatif
+                enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
             }
         }
     }
@@ -591,19 +780,42 @@ void Game::SpawnEnemy(int choice, Entity_t type){
                 enemy.Current_HP = enemy.Max_HP;
                 enemy.i = 0;
                 enemy.dead = false;
-                std::cout << enemy.dead << std::endl;
                 PosEnemy(enemy, choice);
                 return; // On sort de la fonction
             }
         }
     }
-    switch (type){
-    case GOBLIN: 
-        Enemy new_enemy = Goblin(vec2<double>(0,0), assetManager);
-        PosEnemy(new_enemy, choice);
+
+    if(type == GOBLIN){
+        Enemy goblin = Goblin(vec2<double>(0,0), assetManager);
+        PosEnemy(goblin, choice);
         AddEnemy(
-            new_enemy
+            goblin
         );
+    }else if(type == GOLEM){
+        Enemy golem = Golem(vec2<double>(0,0), assetManager);
+        PosEnemy(golem, choice);
+        AddEnemy(
+            golem
+        );
+    }else if(type == ELF){
+        Enemy elf = Elf(vec2<double>(0,0), assetManager);
+        PosEnemy(elf, choice);
+        AddEnemy(
+            elf
+        );
+    }else if(type == KNIGHT){
+        Enemy knight = Knight(vec2<double>(0,0), assetManager);
+        PosEnemy(knight, choice);
+        AddEnemy(
+            knight
+        );
+    }else if(type == ORC){
+        Enemy orc = Orc(vec2<double>(0,0), assetManager);
+            PosEnemy(orc, choice);
+            AddEnemy(
+                orc
+            );
     }
 }
 
@@ -630,17 +842,3 @@ void Game::DeleteEnemy(int id){
 Enemy& Game::GetEnemy(int id){
     return enemies[id];
 }
-
-/**
- * Rajoute une tour dans la liste des tours (vector).
- * @param indexe de la tour.
- * @param tower tour à ajouter.
-*/
-void Game::AddTower(Tower tower){
-
-}
-
-/**
- * Récupère une tour dans la liste (vector) via son indexe.
- * @param id l'ennemi à rajouter.
-*/

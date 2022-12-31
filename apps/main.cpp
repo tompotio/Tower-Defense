@@ -8,7 +8,6 @@
 #define RESOLUTION_Y 1080 */
 #define RESOLUTION_X 1410
 #define RESOLUTION_Y 900
-
 #define FPS 60
 
 int main(int argc, char *args[])
@@ -40,7 +39,6 @@ int main(int argc, char *args[])
             menu->HandleEvents();
             menu->Update(body->GetRenderer());
         }
-        //else if (game->running()) {
         else {
             // Affichage
             game->UpdateGraphics();

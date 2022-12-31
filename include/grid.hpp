@@ -28,7 +28,8 @@ class Cell{
         int gCost;
         int hCost;
         int fCost;
-
+        
+        // Emplacement dans la grille
         int x;
         int y;
 };

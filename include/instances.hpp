@@ -4,6 +4,19 @@
 #include "assetsmanager.hpp"
 #include "grid.hpp"
 
+// Stats
+#define GOBLIN_SPEED 18
+#define GOLEM_SPEED 12
+#define ELF_SPEED 25
+#define KNIGHT_SPEED 50
+#define ORC_SPEED 32
+
+#define GOBLIN_HP 50
+#define GOLEM_HP 500
+#define ELF_HP 100
+#define KNIGHT_HP 250
+#define ORC_HP 1250
+
 /*
     Notes : 
         Transférer toutes les fonctions rédigées ici dans le .cpp : 
@@ -13,7 +26,15 @@
 enum Entity_t 
 {   
     GOBLIN,
-    ARCHER,
+    KNIGHT,
+    GOLEM,
+    ELF,
+    ORC
+};
+
+enum Tower_t
+{
+
 };
 
 class Entity
@@ -27,7 +48,6 @@ class Entity
         vec2<double>  direction;
         vec2<double>  position;
         Sprite sprite;
-
 };
 
 class Enemy : public Entity
@@ -62,33 +82,32 @@ class Enemy : public Entity
         Entity_t type;
 };
 
-class Goblin : public Enemy{
+class Goblin : public Enemy
+{
     public: 
         Goblin(vec2<double> spawnPosition, AssetManager& assetmanager); 
-        void Reset();
 };
 
-class Tower : public Entity
+class Elf : public Enemy
 {
     public: 
-        Tower(Entity_t type);
-        void AttackEnemy();
-        void RotateSprite(); //Modifie l'angle de rotation du sprite        
-
-    private:
-        Enemy& target;
-        vec2<double>  dir;
-        vec2<double>  position;
-        Sprite sprite;
-
-        //Si la tour est activée ou pas (genre un ennemi qui désactive les tours)
-        bool status; 
+        Elf(vec2<double> spawnPosition, AssetManager& assetmanager);
 };
 
-// A coder beaucoup plus tard
-class Allies
+class Golem : public Enemy
+{
+    public:
+        Golem(vec2<double> spawnPosition, AssetManager& assetmanager);
+};
+
+class Knight : public Enemy
 {
     public: 
-        Allies(/* args */);
-        ~Allies();
+        Knight(vec2<double> spawnPosition, AssetManager& assetmanager);
+};
+
+class Orc : public Enemy
+{
+    public: 
+        Orc(vec2<double> spawnPosition, AssetManager& assetmanager);
 };
