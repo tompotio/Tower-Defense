@@ -99,13 +99,13 @@ class Game
         int golem_nb = 0;
         int knight_nb = 0;
 
-        int goblin_max_nb = 5;
-        int elf_max_nb = 2;
+        int goblin_max_nb = 0;
+        int elf_max_nb = 0;
         int golem_max_nb = 0;
         int knight_max_nb = 0;
         int orc_max_nb = 0;
 
-        int wave_nb = 1;
+        int wave_nb = 0;
 
         double delta_s = 0; // temps en millisecondes de chaque frame
         double seconds_mil = 0; // Temps précis en secondes et millisecondes

@@ -318,7 +318,6 @@ void Game::UpdateGame(){
 
     if((wave_ongoing)){
         WaveManager();
-
         // For each sur les tours 
 
         MoveEnemies();
@@ -334,59 +333,68 @@ void Game::UpdateGame(){
  * @param
 **/
 void Game::WaveManager(){
-    Entity_t type;
-    int path = rand() % 2 +1; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
+    Entity_t type; // type d'énnemis
+    int path; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
 
     // Crée un goblin toutes les 4 secondes
     if(((seconds % 4) == 0) && (last_seconds_mil == seconds_mil)){
         // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
         if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
             goblin_nb +=1;
+            type = GOBLIN;
+            path = rand() % 2 +1;
+            SpawnEnemy(path, type);
         }
     }
     // Crée un elfe toutes les 8 secondes
     if(((seconds % 8) == 0) && (last_seconds_mil == seconds_mil)){
         // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
-        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+        if((elf_nb < elf_max_nb) && (elf_max_nb > 0)){
             elf_nb +=1;
+            type = ELF;
+            path = rand() % 2 +1;
+            SpawnEnemy(path, type);
         }
     }
     // Crée un golem toutes les 13 secondes
     if(((seconds % 13) == 0) && (last_seconds_mil == seconds_mil)){
         // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
-        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+        if((golem_nb < golem_max_nb) && (golem_max_nb > 0)){
             golem_nb +=1;
+            type = GOLEM;
+            path = rand() % 2 +1;
+            SpawnEnemy(path, type);
         }
     }
     // Crée un knight toutes les 10 secondes
     if(((seconds % 10) == 0) && (last_seconds_mil == seconds_mil)){
         // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
-        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+        if((knight_nb < goblin_max_nb) && (knight_max_nb > 0)){
             knight_nb +=1;
+            type = KNIGHT;
+            path = rand() % 2 +1;
+            SpawnEnemy(path, type);
         }
     }
     // Crée un orc toutes les 15 secondes
     if(((seconds % 15) == 0) && (last_seconds_mil == seconds_mil)){
         // Je me sers de goblin_max_nb pour savoir si je dois faire spawn un ennemi (si le max est à 0, aucun ennemi de ce type spawnera à cette manche)
-        if((goblin_nb < goblin_max_nb) && (goblin_max_nb > 0)){
+        if((orc_nb < orc_max_nb) && (orc_max_nb > 0)){
             orc_nb +=1;
+            type = ORC;
+            path = rand() % 2 +1;
+            SpawnEnemy(path, type);
         }
     }
-
-    //Fait spawn l'énnemi
-    SpawnEnemy(path, type);
 }
 
-/**
- * Reset les valeurs de chaque wave
- * @param wave_nb numéro de la vague (wave)
-**/
+//Reset les valeurs de chaque wave
 void Game::ResetValuesForWave(){
     bool endwave = true;
-    if(goblin_nb == 0)endwave = false;
 
-    for (auto enemy: enemies){
-        if(!enemy.dead){
+    // On vérifie si tous les énnemis sont morts, sinon on met endwave à falses
+    for(auto enemy: enemies){
+        if(!(enemy.dead)){
             endwave = false;
             break;
         }
@@ -405,9 +413,9 @@ void Game::ResetValuesForWave(){
         golem_max_nb = 0;
         knight_max_nb = 0;
         orc_max_nb = 0;
+        wave_nb += 1;
 
         wave_ongoing = false;
-        wave_nb += 1;
         delta_s = 0;
         seconds_mil = 0;
         last_seconds_mil = 0;
@@ -415,51 +423,54 @@ void Game::ResetValuesForWave(){
         cpt_intermit = -1; 
 
         // Valeurs dépendantes du numéro de waves
-        switch (wave_nb - 1)
+        switch (wave_nb)
         {
-        case 1: // La wave actuelle prépare la wave suivante, donc ce sont les valeurs pour la wave 2
+        case 1:
+            goblin_max_nb = 5;
+            break;
+        case 2:
             goblin_max_nb = 7;
             elf_max_nb = 2;
             break;
-        case 2:
+        case 3:
             goblin_max_nb = 10;
             elf_max_nb = 4;
             break;
-        case 3:
+        case 4:
             elf_max_nb = 8;
             break;
-        case 4:
+        case 5:
             goblin_max_nb = 20;
             break;
-        case 5:
+        case 6:
             golem_max_nb = 1;
             break;
-        case 6:
+        case 7:
             golem_max_nb = 2;
             goblin_max_nb = 8;
             elf_max_nb = 4;
             break;
-        case 7:
+        case 8:
             golem_max_nb = 3;
             goblin_max_nb = 10;
             elf_max_nb = 6;
             break;
-        case 8:
+        case 9:
             knight_max_nb = 1;
             golem_max_nb = 1;
             goblin_max_nb = 1;
             elf_max_nb = 1;
             break;
-        case 9:
+        case 10:
             orc_max_nb = 1;
             break;
-        case 10:
+        case 11:
             knight_max_nb = 3;
             golem_max_nb = 2;
             goblin_max_nb = 10;
             elf_max_nb = 5;
             break;
-        case 11:
+        case 12:
             knight_max_nb = 6;
             golem_max_nb = 4;
             goblin_max_nb = 15;
@@ -812,10 +823,10 @@ void Game::SpawnEnemy(int choice, Entity_t type){
         );
     }else if(type == ORC){
         Enemy orc = Orc(vec2<double>(0,0), assetManager);
-            PosEnemy(orc, choice);
-            AddEnemy(
-                orc
-            );
+        PosEnemy(orc, choice);
+        AddEnemy(
+            orc
+        );
     }
 }
 
