@@ -123,16 +123,16 @@ Orc::Orc(vec2<double> spawnPosition, AssetManager& assetmanager){
 }
 
 // Récupère la position de l'ennemi
-vec2<double>& Enemy::GetPosition(){
+vec2<double>& Entity::GetPosition(){
     return position;
 }
 
-void Enemy::SetDirection(vec2<double>  direction){
+void Entity::SetDirection(vec2<double> direction){
     this->direction = direction;
 }
 
 // Change la position de l'ennemi et met à jour sprite (à cause du rect)
-void Enemy::SetPosition(vec2<double>  pos){
+void Entity::SetPosition(vec2<double> pos){
     this->position = pos;
 
     // Met à jour le rect 
@@ -147,7 +147,7 @@ void Enemy::SetPosition(vec2<double>  pos){
 }
 
 // Déplace l'ennemi via un vecteur
-void Enemy::Move(vec2<double>  step){
+void Entity::Move(vec2<double>  step){
     SetPosition(step + position);
 }
 
@@ -156,12 +156,11 @@ void Enemy::BlitExplosion(SDL_Renderer* renderer) {
 }
 
 Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
-
     switch (type) {
         case FIRE:
             this->texture = assets.GetTexture("t1");
             this->range = 300;
-            this->cadence = 10; // tte les 3sec
+            this->cadence = 5; // toutes les 5 secondes
             this->degat = 100;
 
             break;
@@ -205,7 +204,6 @@ void Tower::GetGridCase(int* x, int* y, int grid_cell_size) {
     *x = rect.x/grid_cell_size + 1;
     *y = rect.y/grid_cell_size + 1;
 }
-
 
 void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
 {
@@ -260,69 +258,18 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
 }
 
 void Tower::Fire(std::vector<Enemy> enemies) {
-    switch (type) {
-        case FIRE:
-            
-            break;
 
-        case ICE:
-            // if (cadence = time) {}
-            /* for (Enemy& enemy : enemies) {
+}
 
-                if(!enemy.dead){
-                    int a = rect.x + rect.w/2;
-                    int b = rect.y + rect.h/2;
-                    double c = enemy.GetPosition().x;
-                    double d = enemy.GetPosition().y;
+HomingProjectile::HomingProjectile(vec2<double> pos, AssetManager& assetmanager, Enemy * target){
+    this->speed = 50;
+    this->target = target;
+    this->texture = assetmanager.GetTexture("fire_proj");
+    this->dmg = 100;
+    this->active = true;
+    this->position = pos;
+}
 
-                    //std::cout << "range " << pow(pow(c-a, 2) + pow(d-b, 2), 0.5) << " " << range << std::endl;
-
-                    if ( pow(pow(c-a, 2) + pow(d-b, 2), 0.5) <= (range/2)) {
-                        enemy.Current_HP = 5;
-                        //std::cout << "HIT" << enemy.Current_HP << std::endl;
-                        
-                        
-                    } 
-                    
-
-                } 
-            } */
-            
-            break;
-        
-        case THUNDER:
-            {
-            /* if (cadence = time) {}
-            int closest = range/2;
-            Enemy* closest_enemy;
-            for (Enemy& enemy : enemies) {
-
-                if(!enemy.dead){
-                    int a = rect.x + rect.w/2;
-                    int b = rect.y + rect.h/2;
-                    double c = enemy.GetPosition().x;
-                    double d = enemy.GetPosition().y;
-
-                    int dist = pow(pow(c-a, 2) + pow(d-b, 2), 0.5);
-                    if ( dist <= closest) {
-                        closest = dist;
-                        closest_enemy = &enemy;
-                        
-                    } 
-                    
-
-                } 
-            }
-            closest_enemy->Current_HP -= this->degat;
-            closest_enemy->SetExplode(true); */
-
-
-            break;
-            }
-
-        default:
-            break;
-
-    }
-
+void HomingProjectile::UpdateDirection(vec2<double> direction){
+    this->direction = direction.normalize();
 }

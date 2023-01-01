@@ -42,9 +42,17 @@ enum Tower_t
 class Entity
 {
     public: 
-        // Renvoie le sprite de l'ennemi
+        // Renvoie le sprite de l'entité
         Sprite& GetSprite(){return sprite;};
         vec2<double> GetDirection(){return this->direction;};
+
+        // Modifie la direction de l'entité
+        void SetDirection(vec2<double>  direction);
+        vec2<double>& GetPosition();
+        // Modifie la position de l'entité
+        void SetPosition(vec2<double> pos);
+        // Déplace l'entité
+        void Move(vec2<double>  step);
 
     protected:
         vec2<double>  direction;
@@ -59,18 +67,6 @@ class Enemy : public Entity
         int GetSpeed(){return this->speed;};
         int GetDamage(){return this->dmg;};
         Entity_t GetType(){return this->type;};
-
-        // Modifie la direction de l'ennemi
-        void SetDirection(vec2<double>  direction);
-
-        vec2<double>& GetPosition();
-
-        // Modifie la position de l'ennemi via un vecteur
-        void SetPosition(vec2<double> pos);
-
-        // Déplace l'ennemi via un vecteur (exemple avance de 10 en x et 0 en y)
-        void Move(vec2<double>  step);
-
         void SetExplode(bool a) {explode = a;};
         void BlitExplosion(SDL_Renderer* renderer);
 
@@ -108,16 +104,16 @@ class Tower {
         bool GetShowRange() {return showrange;}
         /* void AttackEnemy();
         void RotateSprite(); //Modifie l'angle de rotation du sprite      */   
+        Tower_t type;
+        double CD;
+        int range; // euclidian distance
+        SDL_Rect rect;
+        int cadence;
 
     private:
-        Tower_t type;
-        SDL_Rect rect;
         SDL_Texture* texture;
-        int range; // euclidian distance
         bool showrange;
-        int cadence;
         int degat;
-
         // Fire
         Enemy* target;
 
@@ -127,7 +123,24 @@ class Tower {
 
 };
 
+class HomingProjectile
+{
+    public: 
+        HomingProjectile(vec2<double> pos, AssetManager& assetmanager, Enemy * target);
+        void UpdateDirection(vec2<double> direction);
 
+        Enemy* target;
+        SDL_Texture* texture;
+        // Cooldown animation
+        double CD;
+        int speed;
+        int dmg;
+        int animationstep = 0;
+        vec2<double> position;
+        vec2<double> direction;
+
+        bool active;
+};
 
 class Elf : public Enemy
 {

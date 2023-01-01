@@ -26,6 +26,8 @@ class Sprite
 
 		SDL_Texture* GetTexture(){return texture;};
 
+		void SetTexture(SDL_Texture * texture){this->texture = texture;};
+
     private:
         SDL_Rect rect;
 
@@ -33,21 +35,6 @@ class Sprite
         SDL_Texture* texture;
 
 		double angle;
-};
-
-
-namespace TextureManager
-{
-	SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
-
-
-	void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
-
-	void BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
-
-	void DestroyTexture(SDL_Texture* texture);
-
-	void BlitSprite(Sprite sprite, SDL_Renderer* renderer);
 };
 
 class AssetManager

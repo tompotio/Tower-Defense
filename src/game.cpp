@@ -43,6 +43,10 @@ Game::Game(Body** body, Menu** menu)
     font = load_font( "../assets/arial.ttf", 14);
     if (font == nullptr) std::cout << "ptdr null" << std::endl;
 
+    assetManager.AddTexture(
+        "fire_proj",
+        LoadTexture("../assets/fire_proj.png", (*body)->GetRenderer())
+    );
 
     assetManager.AddTexture(
         "sb",
@@ -167,8 +171,6 @@ Game::Game(Body** body, Menu** menu)
         "t3",
         LoadTexture("../assets/PNG/Menu/settings/tower3.png", renderer)
     );
-
-    
 
     widgets.push_back(Widget("s-i", (WindowSize.w-185), 10, assetManager.GetTexture("sb")));
     widgets.push_back(Widget("tower1", 0, 0, assetManager.GetTexture("t1"), false));
@@ -393,6 +395,9 @@ void Game::UpdateGraphics()
     // Affiche les ennemis
     DrawEnemies();
 
+    // Affiche les projectiles
+    DrawProjectiles();
+
     if (showgrid){
         //Affiche le curseur de la grille
         DrawCursor();
@@ -428,40 +433,46 @@ void Game::UpdateGraphics()
 
     for(Widget &widget : widgets) {
         if (widget.isHovering(cursor.x, cursor.y)) {
-
             if (widget.getId() == "s-i"){
                 widget.setTexture(assetManager.GetTexture("sb2"));
-
             }
-
         }
         else {
             if (widget.getId() == "s-i"){
                 widget.setTexture(assetManager.GetTexture("sb"));
             }
-        
         }
         widget.BlitWidget(renderer);
-        
     }
 
     for(Tower &tower : towers) {
-        
         tower.BlitTower(renderer);
         tower.DrawRange(renderer, grid_cell_size);
         //tower.Fire(enemies);
-        
     }
-    
-
-    
 }
 
 // Met à jour les unités du jeu.
 void Game::UpdateGame(){
+    UpdateTime();
+    TowerSelection();
 
+    if((wave_ongoing)){
+        WaveManager();
+        MoveEnemies();
+        MoveProjectiles();
+        TowersAttack();
+        // Si la wave s'est terminée, la fonction va remettre à niveau les valeurs
+        ResetValuesForWave();
+    }
+    else{
+        UpdateIntermit();
+    }
+}
+
+// Fonction qui gère la sélection des tours
+void Game::TowerSelection(){
     for(int i = 0; i < inventory_grid_cells; i++) {
-        
         SDL_Rect rect = {
             (i * (inventory_grid_cells_size + inventory_grid_offset)) + inventory_pos_x,
             inventory_pos_y,
@@ -487,11 +498,7 @@ void Game::UpdateGame(){
 
             }
         }
-        
-        
     }
-
-    
 
     if (tower1Selected) {
         GetWidget("tower1")->setX(cursor.x - GetWidget("tower1")->getRect().w/2);
@@ -506,27 +513,60 @@ void Game::UpdateGame(){
         GetWidget("tower3")->setX(cursor.x - GetWidget("tower3")->getRect().w/2);
         GetWidget("tower3")->setY(cursor.y - GetWidget("tower3")->getRect().h/2);
     }
+}
 
-    UpdateTime();
+/**
+ * En fonction du type de tour on lance un effet différent
+ * @param tower attaque de la tour à lancer
+*/
+void Game::TowerAttackCase(Tower& tower){
+    switch(tower.type){
+        case FIRE:
+            Enemy* closest_enemy = nullptr; // remplacer NULL par tower.FindNearestEnemy();
 
-    if((wave_ongoing)){
-        WaveManager();
-        // For each sur les tours 
+            //Cherche le plus proche ennemi
+            for (Enemy& enemy : enemies) {
+                int closest = tower.range;
+                if(!enemy.dead){
+                    int a = tower.GetRect().x;
+                    int b = tower.GetRect().y;
+                    double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
+                    double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
+                    int dist = int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5));
+                    if (dist <= closest) {
+                        closest = dist;
+                        closest_enemy = &enemy;
+                    }
+                }
+            }
 
-        MoveEnemies();
-        ResetValuesForWave();
+            // Si on a trouvé un ennemi
+            if(!(closest_enemy == nullptr)){
+                // On vérifie le CD de la tour
+                if(tower.CD >= tower.cadence){
+                    tower.CD = 0;
+                    vec2<double> position = vec2<double>(tower.rect.x,tower.rect.y);
+                    SpawnProjectile(position, closest_enemy);
+                }
+            }
+            break;
     }
-    else{
-        UpdateIntermit();
+}
+
+// Fonction qui gère les attaques de chaque tour en les parcourant
+void Game::TowersAttack(){
+    for(Tower& tower : towers){
+        tower.CD += deltatime;
+        TowerAttackCase(tower);
     }
 }
 
 /**
- * Fonction où l'on hard-code chaque wave
+ * Fonction où l'on hard-code chaque wave pour les ennemis
  * @param
 **/
 void Game::WaveManager(){
-    Entity_t type; // type d'énnemis
+    Entity_t type; // type d'ennemis
     int path; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
 
     // Crée un goblin toutes les 4 secondes
@@ -587,7 +627,7 @@ void Game::ResetValuesForWave(){
 
     if((golem_nb + knight_nb + orc_nb + goblin_nb + elf_nb) == 0) endwave = false;
 
-    // On vérifie si tous les énnemis sont morts, sinon on met endwave à falses
+    // On vérifie si tous les ennemis sont morts, sinon on met endwave à falses
     for(auto enemy: enemies){
         if(!(enemy.dead)){
             endwave = false;
@@ -692,6 +732,7 @@ void Game::UpdateIntermit(){
     }
 }
 
+// Met à jour le compteur du temps (secondes)
 void Game::UpdateTime(){
     // On met à jour le temps écoulé en milisecondes
     seconds_mil += deltatime;
@@ -703,7 +744,37 @@ void Game::UpdateTime(){
     }
 }
 
-// Déplace les énnemis 
+// Déplace tous les projectiles (en l'occurence les projectiles à tête chercheuse)
+void Game::MoveProjectiles(){
+    for(HomingProjectile & proj : projectiles){
+        // Si le missile n'a pas été désactivé alors le fait avancer
+        if(proj.active){
+            // On vérifie si le dernier déplacement n'a pas rapprocher suffisamment le missile de l'ennemi
+            vec2<double> vecteur_distance;
+            vec2<double> POS_ENNEMI = vec2<double>(proj.target->GetPosition().x, proj.target->GetPosition().y);
+            vecteur_distance = POS_ENNEMI - proj.position;
+
+            // Si l'ennemi est vivant
+            if(!(proj.target->dead)){
+                proj.UpdateDirection(vecteur_distance);
+            }
+
+            // Le missile est suffisamment proche de l'ennemi pour le percuter, même si l'ennemi est mort
+            if(vecteur_distance.length() <= 32){
+                // Ajouter une animation d'explosion si possible
+                proj.target->Current_HP -= proj.dmg;
+                if(proj.target->Current_HP <= 0){
+                    proj.target->dead = true;
+                }
+                proj.active = false;
+            }else{
+                proj.position = (proj.direction * (deltatime * proj.speed)) + proj.position;
+            }
+        }   
+    }
+}
+
+// Déplace les ennemis 
 void Game::MoveEnemies(){
     for (int i = 0; i < enemies.size(); i++){
         Enemy& enemy = enemies[i];
@@ -727,8 +798,6 @@ void Game::MoveEnemies(){
                 enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
             }
         }
-        
-        
     } 
 }
 
@@ -740,6 +809,27 @@ void Game::DrawCursor(){
     ){
         SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r, grid_cursor_ghost_color.g, grid_cursor_ghost_color.b, grid_cursor_ghost_color.a);
         SDL_RenderFillRect(renderer, &grid_cursor_ghost);
+    }
+}
+
+void Game::DrawProjectiles(){
+    for (HomingProjectile& proj : projectiles) {
+        if(proj.active){
+            proj.animationstep = (proj.animationstep + 1) % 2;
+            SDL_Rect srcrect;
+            srcrect.w = 32;
+            srcrect.h = 32;
+            srcrect.x = 32 * proj.animationstep;
+            srcrect.y = 0;
+
+            SDL_Rect dstcrect;
+            dstcrect.w = 32;
+            dstcrect.h = 32;
+            dstcrect.x = proj.position.x + 16;
+            dstcrect.y = proj.position.y;
+        
+            SDL_RenderCopy(renderer, proj.texture, &srcrect, &dstcrect);
+        }
     }
 }
 
@@ -992,6 +1082,20 @@ void Game::PosEnemy(Enemy& enemy, int choice){
     enemy.SetDirection(
         (nextcellpos - enemy.GetPosition()).normalize()
     );
+}
+
+void Game::SpawnProjectile(vec2<double> pos, Enemy* target){
+    // On parcourt la liste des ennemis et on vérifie si un ennemi est déjà inactif en fonction de son type
+    for (HomingProjectile& proj : projectiles){
+        if (!proj.active){
+            proj.position = pos;
+            proj.target = target;
+            proj.active = true;
+            return; // On sort de la fonction
+        }
+    }
+    HomingProjectile newproj = HomingProjectile(pos, assetManager, target);
+    projectiles.push_back(newproj);
 }
 
 void Game::SpawnEnemy(int choice, Entity_t type){

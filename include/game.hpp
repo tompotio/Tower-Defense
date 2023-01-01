@@ -27,6 +27,10 @@ class Game
 
         void WaveManager();
 
+        void MoveProjectiles();
+
+        void TowerSelection();
+
         void MoveEnemies();
 
         void UpdateTime();
@@ -34,6 +38,10 @@ class Game
         void ResetValuesForWave();
 
         void UpdateIntermit();
+
+        void TowersAttack();
+
+        void TowerAttackCase(Tower & tower);
 
         void Draw();
 
@@ -49,11 +57,15 @@ class Game
 
         void DrawCursor();
 
+        void DrawProjectiles();
+
         void DrawInstances();
 
         void DrawInventory();
 
         void PosEnemy(Enemy& enemy, int choice);
+
+        void SpawnProjectile(vec2<double> pos, Enemy* target);
 
         void SpawnEnemy(int choice, Entity_t type);
 
@@ -151,6 +163,8 @@ class Game
         // Les entités du jeu
         std::vector<Enemy> enemies;
         std::vector<Tower> towers;
+            // Pour le moment je n'ai qu'un seul type de projectile. À voir comment on réorganisera les classes après :D
+        std::vector<HomingProjectile> projectiles;
 
         std::vector<Widget> widgets;
 
