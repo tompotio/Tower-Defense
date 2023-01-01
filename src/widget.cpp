@@ -1,13 +1,13 @@
 #include "../include/widget.hpp"
 
-Widget::Widget(std::string id, int x, int y, SDL_Texture* texture){
+Widget::Widget(std::string id, int x, int y, SDL_Texture* texture, bool active){
     
     this->id = id;
     this->rect = GetTextureSize(texture);
     this->rect.x = x;
     this->rect.y = y;
     this->texture = texture;
-    this->active = true;
+    this->active = active;
 
 }
 

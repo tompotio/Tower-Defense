@@ -56,6 +56,7 @@ class AudioManager
 		}
 
 		void music_volume(int volume) {
+
 			Mix_VolumeMusic(volume);
 
 		}

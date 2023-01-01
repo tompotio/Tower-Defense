@@ -29,6 +29,9 @@ class Menu
         std::vector<Widget> widgetsS;
         Sprite sprite;
         SDL_Rect rect;
+        bool isSetting;
+        bool isRunning;
+
     private:
         AssetManager assets;
         AudioManager audio;
@@ -39,8 +42,6 @@ class Menu
         int sfx_volume;
         bool music_volume_selected;
         bool sfx_volume_selected;
-        bool isRunning;
-        bool isSetting;
         bool leftMouseButtonDown;
      
         

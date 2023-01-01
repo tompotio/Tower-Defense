@@ -6,6 +6,7 @@
 #include <cmath>
 #include <functional>
 
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
@@ -18,7 +19,7 @@ enum Cell_type_t
 
 class Cell{
     public:
-        Cell(int x, int y);
+        Cell(int x, int y, bool tower_on = false);
 
         void CalculateFCost(){this->fCost = this->gCost + this->hCost;};
         
@@ -32,6 +33,8 @@ class Cell{
         // Emplacement dans la grille
         int x;
         int y;
+
+        bool tower_on;
 };
 
 class Grid

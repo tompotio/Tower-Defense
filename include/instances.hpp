@@ -32,9 +32,11 @@ enum Entity_t
     ORC
 };
 
-enum Tower_t
-{
-
+enum Tower_t 
+{   
+    FIRE,
+    ICE,
+    THUNDER
 };
 
 class Entity
@@ -69,14 +71,19 @@ class Enemy : public Entity
         // Déplace l'ennemi via un vecteur (exemple avance de 10 en x et 0 en y)
         void Move(vec2<double>  step);
 
+        void SetExplode(bool a) {explode = a;};
+        void BlitExplosion(SDL_Renderer* renderer);
+
         int maxcell = 0;
         int i = 0;
         bool dead;
         int Max_HP;
         int Current_HP;
+        bool explode;
         std::vector<Cell>* path;
 
     protected:
+        SDL_Texture* explosion;
         int dmg;
         float speed;
         Entity_t type;
@@ -87,6 +94,40 @@ class Goblin : public Enemy
     public: 
         Goblin(vec2<double> spawnPosition, AssetManager& assetmanager); 
 };
+
+class Tower {
+    public: 
+        Tower(Tower_t type, int x, int y, AssetManager assetmanager);
+        void BlitTower(SDL_Renderer* renderer);
+        void DrawRange(SDL_Renderer * renderer, int cell_size);
+        void GetGridCase(int* x, int* y, int grid_cell_size);
+        void Fire(std::vector<Enemy> enemies);
+        void SetTarget(Enemy* enemy) {this->target = enemy;};
+        SDL_Rect GetRect() {return rect;}
+        void SetShowRange(bool show) {this->showrange = show;};
+        bool GetShowRange() {return showrange;}
+        /* void AttackEnemy();
+        void RotateSprite(); //Modifie l'angle de rotation du sprite      */   
+
+    private:
+        Tower_t type;
+        SDL_Rect rect;
+        SDL_Texture* texture;
+        int range; // euclidian distance
+        bool showrange;
+        int cadence;
+        int degat;
+
+        // Fire
+        Enemy* target;
+
+        // Ice
+
+        // THUNDER
+
+};
+
+
 
 class Elf : public Enemy
 {
