@@ -49,6 +49,11 @@ Game::Game(Body** body, Menu** menu)
     );
 
     assetManager.AddTexture(
+        "commander",
+        LoadTexture("../assets/commander.png", (*body)->GetRenderer())
+    );
+
+    assetManager.AddTexture(
         "sb",
         LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
     );
@@ -215,7 +220,6 @@ Game::Game(Body** body, Menu** menu)
     );
     toppath_size = toppath.size();
     bottompath_size = bottompath.size();
-    wave_ongoing = true; // Je bougerai cette valeur plus tard qui se mettra true après une petite fenêtre de dialogue dans le jeu avant de débuter la partie ! 
     isRunning = true;
 
     // Provisoire
@@ -224,7 +228,6 @@ Game::Game(Body** body, Menu** menu)
     inventory_grid_offset = 10;
     inventory_pos_x = 300;
     inventory_pos_y = 735;
-
 
    /*  Enemy new_enemy = Goblin(vec2<double>(0,0), assetManager);
     new_enemy.SetPosition(vec2<double>(WindowSize.w/2,WindowSize.h/2));
@@ -273,10 +276,8 @@ void Game::HandleEvents()
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
                 grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
                 std::cout << "Position souris : {X = " << grid_cursor.x / grid_cell_size << "; Y = " << grid_cursor.y / grid_cell_size << " } " << std::endl;
-                // Lettre K enfoncée
-
                 
-
+                // Lettre K enfoncée
                 if (pressing_key_k){
                     mouse_X = grid_cursor.x;  
                     mouse_Y = grid_cursor.y;
@@ -293,43 +294,34 @@ void Game::HandleEvents()
                         found_testing_path = true;
                     }
                 }
-                
                 for(Widget &widget : widgets) {
                     if (widget.isHovering(cursor.x, cursor.y)) {
-
                         if (widget.getId() == "s-i") {
                             (*menu)->isRunning = true;
                             (*menu)->isSetting = true;
                             break;
-
                         }
                     } 
                 }
-
                 Cell* c = map.GetGridObject(cursor.x/grid_cell_size, cursor.y/grid_cell_size);
-
                 if (c->tower_on) {
-                    
                     for(Tower &tower : towers) {
                         int tower_case_x;
                         int tower_case_y;
                         tower.GetGridCase(&tower_case_x, &tower_case_y, grid_cell_size);
                         if (c->x == tower_case_x && c->y == tower_case_y) {
-
                             if (tower.GetShowRange()) {
                                 tower.SetShowRange(false);
-
                             }
                             else {
                                 tower.SetShowRange(true);
-
                             }
                         }
                         
                     }
                 }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
-                showgrid = !showgrid;
+                details = !details;
             }
             break;
         // Position de la souris
@@ -352,8 +344,6 @@ void Game::HandleEvents()
                 }
                 leftMouseButtonDown = false;
             }
-
-
         case SDL_MOUSEMOTION:
             cursor = {event.motion.x, event.motion.y};
             grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
@@ -361,12 +351,21 @@ void Game::HandleEvents()
             break;
         // Appuie une touche du clavier
         case SDL_KEYDOWN:
-            // Touche K
+            // Touche K pour créer un nouveau chemin de test
             if (event.key.keysym.sym == SDLK_k){
                 pressing_key_k = true;
             }
             if (event.key.keysym.sym == SDLK_ESCAPE){
                 isRunning = false;
+            }
+            if (event.key.keysym.sym == SDLK_f){
+                show_fps = !show_fps;
+            }
+            if (event.key.keysym.sym == SDLK_e){
+                show_enemies_range = !show_enemies_range;
+            }
+            if (event.key.keysym.sym == SDLK_g){
+                showgrid = !showgrid;
             }
             break;
         // Lache une touche du clavier
@@ -395,25 +394,19 @@ void Game::UpdateGraphics()
     // Affiche les ennemis
     DrawEnemies();
 
-    // Affiche les projectiles
-    DrawProjectiles();
-
-    if (showgrid){
+    if (details){
         //Affiche le curseur de la grille
         DrawCursor();
 
-        // Affiche la grille map
-        map.DrawGrid(renderer);
-        int w;
-        int h;
-        TTF_SizeText(font, "FPS", &w, &h);
-        apply_text(renderer,50,50,w,h,"FPS",font);
+        if(showgrid){
+            // Affiche la grille map
+            map.DrawGrid(renderer);
+        }
 
-        char current_fps[100];
-        sprintf(current_fps,"%d",fps);
-
-        TTF_SizeText(font,current_fps, &w, &h);
-        apply_text(renderer,100,50,w,h,current_fps,font);
+        if(show_fps){
+            //Affiche les FPS
+            DrawFPS();
+        }
 
         //Dessine les lignes du chemin
         if (found_testing_path){
@@ -421,15 +414,6 @@ void Game::UpdateGraphics()
         }
         DrawPath(bottompath,yellow_green);
     }
-
-    // Affiche l'inventaire
-    DrawInventory();
-    
-    // Affiche la barre de vie
-    DrawBaseHealthBar();
-
-    //(couleur de fond de base du jeu)
-    SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
 
     for(Widget &widget : widgets) {
         if (widget.isHovering(cursor.x, cursor.y)) {
@@ -448,8 +432,28 @@ void Game::UpdateGraphics()
     for(Tower &tower : towers) {
         tower.BlitTower(renderer);
         tower.DrawRange(renderer, grid_cell_size);
-        //tower.Fire(enemies);
     }
+
+    // Affiche les projectiles
+    DrawProjectiles();
+
+    // Affiche une petite fenêtre de dialogue entre chaque wave
+    if(intermit_screen){
+        DrawDialogScreen();
+    }
+
+    if(intermit_count){
+        DrawCount();
+    }
+
+    // Affiche l'inventaire
+    DrawInventory();
+    
+    // Affiche la barre de vie
+    DrawBaseHealthBar();
+
+    //(couleur de fond de base du jeu)
+    SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
 }
 
 // Met à jour les unités du jeu.
@@ -464,10 +468,37 @@ void Game::UpdateGame(){
         TowersAttack();
         // Si la wave s'est terminée, la fonction va remettre à niveau les valeurs
         ResetValuesForWave();
-    }
-    else{
+    }else{
         UpdateIntermit();
     }
+}
+
+void Game::DrawFPS(){
+    int w;
+    int h;
+    TTF_SizeText(font, "FPS", &w, &h);
+    apply_text(renderer,50,50,w,h,"FPS",font);
+
+    char current_fps[100];
+    sprintf(current_fps,"%d",fps);
+
+    TTF_SizeText(font,current_fps, &w, &h);
+    apply_text(renderer,100,50,w,h,current_fps,font);
+}
+
+// Dessine le compteur du temps avant le début de chaque wave à l'écran
+void Game::DrawCount(){
+    int w;
+    int h;
+
+    char current_count[100];
+    sprintf(current_count,"%d",cpt_intermit);
+
+    TTF_SizeText(font, "The wave will start in : ", &w, &h);
+    apply_text(renderer,1100,500,w,h,"The wave will start in : ",font);
+
+    TTF_SizeText(font,current_count, &w, &h);
+    apply_text(renderer,1250,500,w,h,current_count,font);
 }
 
 // Fonction qui gère la sélection des tours
@@ -479,23 +510,18 @@ void Game::TowerSelection(){
             inventory_grid_cells_size,
             inventory_grid_cells_size
         };
-
         if (SDL_PointInRect(&cursor, &rect) && leftMouseButtonDown) {
-
             if(i==0 && tower2Selected == false && tower3Selected == false) {
                 tower1Selected = true;
                 GetWidget("tower1")->setActive(true);
-
             }
             if(i==1 && tower1Selected == false && tower3Selected == false) {
                 tower2Selected = true;
                 GetWidget("tower2")->setActive(true);
-
             }
             if(i==2 && tower1Selected == false && tower2Selected == false) {
                 tower3Selected = true;
                 GetWidget("tower3")->setActive(true);
-
             }
         }
     }
@@ -523,7 +549,6 @@ void Game::TowerAttackCase(Tower& tower){
     switch(tower.type){
         case FIRE:
             Enemy* closest_enemy = nullptr; // remplacer NULL par tower.FindNearestEnemy();
-
             //Cherche le plus proche ennemi
             for (Enemy& enemy : enemies) {
                 int closest = tower.range;
@@ -539,7 +564,6 @@ void Game::TowerAttackCase(Tower& tower){
                     }
                 }
             }
-
             // Si on a trouvé un ennemi
             if(!(closest_enemy == nullptr)){
                 // On vérifie le CD de la tour
@@ -624,7 +648,6 @@ void Game::WaveManager(){
 //Reset les valeurs de chaque wave
 void Game::ResetValuesForWave(){
     bool endwave = true;
-
     if((golem_nb + knight_nb + orc_nb + goblin_nb + elf_nb) == 0) endwave = false;
 
     // On vérifie si tous les ennemis sont morts, sinon on met endwave à falses
@@ -714,22 +737,35 @@ void Game::ResetValuesForWave(){
     }
 }
 
+void Game::DrawDialogScreen(){
+    SDL_Rect fond = {100,490,1380, 150};
+    SDL_SetRenderDrawColor(renderer, black.r, black.g, black.b, 165);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_RenderFillRect(renderer, &fond);
+
+    BlitTexture(
+        assetManager.GetTexture("commander"),
+        renderer,
+        0,
+        440
+    );
+}
+
 void Game::UpdateIntermit(){
-    if(seconds <= 5){
-        // UpdateGraphics s'occupe d'afficher la fenêtre d'intermitence 
+    if(!intermit_count){
         intermit_screen = true;
-    }else{
-        intermit_screen = false;
-        intermit_count = true;
-        if(cpt_intermit == -1){
-            cpt_intermit = INTERMITENCE_TIME;
-        }else if(cpt_intermit == 0){
-            intermit_count = false;
-            wave_ongoing = true;
-        }else{
-            cpt_intermit -= 1;
-        }
+        cpt_intermit = INTERMITENCE_TIME;
     }
+
+    if(cpt_intermit <= 0){
+        intermit_count = false;
+        intermit_screen = false;
+        wave_ongoing = true;
+    }
+    if(last_seconds_mil == seconds_mil){
+        cpt_intermit -= 1;
+    }
+    if(!intermit_count && cpt_intermit == INTERMITENCE_TIME) intermit_count = true;
 }
 
 // Met à jour le compteur du temps (secondes)
@@ -753,14 +789,15 @@ void Game::MoveProjectiles(){
             vec2<double> vecteur_distance;
             vec2<double> POS_ENNEMI = vec2<double>(proj.target->GetPosition().x, proj.target->GetPosition().y);
             vecteur_distance = POS_ENNEMI - proj.position;
+            proj.UpdateDirection(vecteur_distance);
 
             // Si l'ennemi est vivant
-            if(!(proj.target->dead)){
-                proj.UpdateDirection(vecteur_distance);
+            if(proj.target->dead){
+                proj.active = false;
             }
 
             // Le missile est suffisamment proche de l'ennemi pour le percuter, même si l'ennemi est mort
-            if(vecteur_distance.length() <= 32){
+            if(vecteur_distance.length() <= 16){
                 // Ajouter une animation d'explosion si possible
                 proj.target->Current_HP -= proj.dmg;
                 if(proj.target->Current_HP <= 0){
@@ -802,6 +839,7 @@ void Game::MoveEnemies(){
 }
 
 void Game::DrawCursor(){
+    
     // Dessine le curseur uniquement s'il est dans la grille
     if ((mouse_X >= 0) &&
     (mouse_X < (map.GetWidth() * grid_cell_size)) && 
@@ -845,6 +883,48 @@ void Game::DrawEnemies(){
                 enemy.BlitExplosion(renderer);
 
             }
+            if(enemy.selected && show_enemies_range && details){
+                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+                
+                int diameter = (32);
+
+                int x = (16 - 1);
+                int y = 0;
+                int tx = 1;
+                int ty = 1;
+                int error = (tx - diameter);
+
+                vec2<double> pos = enemy.GetPosition();
+                int w = enemy.GetSprite().GetRect().w;
+                int h = enemy.GetSprite().GetRect().h;
+
+                while (x >= y)
+                {
+                    //  Each of the following renders an octant of the circle
+                    SDL_RenderDrawPoint(renderer, pos.x + x + w/2, pos.y - y + h/2);
+                    SDL_RenderDrawPoint(renderer, pos.x + x + w/2, pos.y + y + h/2);
+                    SDL_RenderDrawPoint(renderer, pos.x - x + w/2, pos.y - y + h/2);
+                    SDL_RenderDrawPoint(renderer, pos.x - x + w/2, pos.y + y + h/2);
+                    SDL_RenderDrawPoint(renderer, pos.x + y + w/2, pos.y - x + h/2);
+                    SDL_RenderDrawPoint(renderer, pos.x + y + w/2, pos.y + x + h/2);
+                    SDL_RenderDrawPoint(renderer, pos.x - y + w/2, pos.y - x + h/2);
+                    SDL_RenderDrawPoint(renderer, pos.x - y + w/2, pos.y + x + h/2);
+
+                    if (error <= 0)
+                    {
+                        ++y;
+                        error += ty;
+                        ty += 2;
+                    }
+
+                    if (error > 0)
+                    {
+                        --x;
+                        tx += 2;
+                        error += (tx - diameter);
+                    }
+                }
+            }
         }
     }
 }
@@ -879,11 +959,7 @@ void Game::DrawBaseHealthBar(){
         SDL_Rect vie = {900,750,3 * current_HP, 10};
         SDL_SetRenderDrawColor(renderer, lime.r, lime.g, lime.b, lime.a);
         SDL_RenderFillRect(renderer, &vie);
-    }else{
-        //BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
     }
-
-    //BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
 }
 
 void Game::DrawInventory(){
@@ -1111,7 +1187,6 @@ void Game::SpawnEnemy(int choice, Entity_t type){
             }
         }
     }
-
     if(type == GOBLIN){
         Enemy goblin = Goblin(vec2<double>(0,0), assetManager);
         PosEnemy(goblin, choice);
@@ -1173,7 +1248,6 @@ Widget* Game::GetWidget(std::string id) {
     for(Widget &widget : widgets) {
         if (widget.getId() == id) {return &widget;}
     }
-    
     return NULL;
 }
 
@@ -1186,7 +1260,6 @@ void Game::AddTower(Tower_t type, AssetManager assetmanager){
     if ((mouse_X >= 0) &&
     (mouse_X < (map.GetWidth() * grid_cell_size)) && 
     (mouse_Y >= 0 && mouse_Y < (map.GetHeight() * grid_cell_size))) {
-        
         Cell* c = map.GetGridObject(cursor.x/grid_cell_size, cursor.y/grid_cell_size);
         if (c->type == '1' && c->tower_on == false) {
             Tower new_tower = Tower(type,
@@ -1195,15 +1268,11 @@ void Game::AddTower(Tower_t type, AssetManager assetmanager){
 
             towers.push_back(new_tower);
             c->tower_on = true;
-        } 
-
+        }
     }
-
-  
 }
 
 /**
  * Récupère une tour dans la liste (vector) via son indexe.
  * @param id l'ennemi à rajouter.
 */
-

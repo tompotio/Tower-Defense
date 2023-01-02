@@ -45,8 +45,10 @@ Il suffit donc de passer la souris dessus pour afficher une description (marche 
 
 ## Help
 
-Problèmes communs 
+Comment jouer
 ```
+    Le but du jeu est de défendre sa base contre les ennemis. 
+    Afin de se défendre il faut placer des tours sur la carte. Pour se faire il suffit de cliquer sur une des tours et de la positionner sur la carte en maintenant le clic droit enfoncé.
 
 ```
 

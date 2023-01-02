@@ -140,8 +140,8 @@ void Entity::SetPosition(vec2<double> pos){
 
     rect.w = this->sprite.GetRect().w;
     rect.h = this->sprite.GetRect().h;
-    rect.x = (int) position.x;
-    rect.y = (int) position.y;
+    rect.x = (int)position.x;
+    rect.y = (int)position.y;
 
     sprite.SetRect(rect);
 }
@@ -162,7 +162,6 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
             this->range = 300;
             this->cadence = 5; // toutes les 5 secondes
             this->degat = 100;
-
             break;
 
         case ICE:
@@ -170,8 +169,6 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
             this->range = 100;
             this->cadence = 10; // 1 fois par sec ou 2 / sec
             this->degat = 1;
-
-
             break;
         
         case THUNDER:
@@ -179,13 +176,10 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
             this->range = 200;
             this->cadence = 10; // tte les 2 sec
             this->degat = 50;
-
-
             break;
 
         default:
             break;
-
     }
     this->target = nullptr;
     this->showrange = false;
@@ -212,8 +206,6 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
         Uint8 g;
         Uint8 b;
         Uint8 a;
-        
-
         SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
         SDL_SetRenderDrawColor(renderer, 127, 255, 0, 255);
         
@@ -236,14 +228,12 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
             SDL_RenderDrawPoint(renderer, rect.x + y + rect.w/2, rect.y + x + rect.h/2);
             SDL_RenderDrawPoint(renderer, rect.x - y + rect.w/2, rect.y - x + rect.h/2);
             SDL_RenderDrawPoint(renderer, rect.x - y + rect.w/2, rect.y + x + rect.h/2);
-
             if (error <= 0)
             {
                 ++y;
                 error += ty;
                 ty += 2;
             }
-
             if (error > 0)
             {
                 --x;
@@ -251,9 +241,7 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
                 error += (tx - diameter);
             }
         }
-
         SDL_SetRenderDrawColor(renderer, r, g, b, a);
-
     }
 }
 
@@ -262,7 +250,7 @@ void Tower::Fire(std::vector<Enemy> enemies) {
 }
 
 HomingProjectile::HomingProjectile(vec2<double> pos, AssetManager& assetmanager, Enemy * target){
-    this->speed = 50;
+    this->speed = 150;
     this->target = target;
     this->texture = assetmanager.GetTexture("fire_proj");
     this->dmg = 100;
