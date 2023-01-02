@@ -37,6 +37,19 @@ class Sprite
 		double angle;
 };
 
+
+
+SDL_Texture* LoadTexture(const char* fileName, SDL_Renderer* renderer);
+
+
+void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
+
+void BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
+
+void DestroyTexture(SDL_Texture* texture);
+
+void BlitSprite(Sprite sprite, SDL_Renderer* renderer);
+
 class AssetManager
 {
 	public:

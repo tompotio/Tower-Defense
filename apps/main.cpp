@@ -34,6 +34,7 @@ int main(int argc, char *args[])
     Uint32 CD = 0;
     std::cout << "Game créé" << std::endl;
 
+
     while(body->running())
     {
         body->RenderClear();
@@ -57,8 +58,7 @@ int main(int argc, char *args[])
             // Déroulement de la partie
             game->UpdateGame();
         }
-
-        SDL_Delay(8);
+        SDL_Delay(1);
         frameTime = (SDL_GetTicks() - frameStart);
         game->deltatime = frameTime/1000.0f;
         CD+=1;

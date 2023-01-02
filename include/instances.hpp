@@ -67,8 +67,13 @@ class Enemy : public Entity
         int GetSpeed(){return this->speed;};
         int GetDamage(){return this->dmg;};
         Entity_t GetType(){return this->type;};
-        void SetExplode(bool a) {explode = a;};
+        
         void BlitExplosion(SDL_Renderer* renderer);
+        // Modifie la direction de l'ennemi
+
+        // Déplace l'ennemi via un vecteur (exemple avance de 10 en x et 0 en y)
+        
+
 
         int maxcell = 0;
         int i = 0;
@@ -78,12 +83,19 @@ class Enemy : public Entity
         int Current_HP;
         bool explode;
         std::vector<Cell>* path;
+        SDL_Texture* explosion;
 
     protected:
-        SDL_Texture* explosion;
+        
         int dmg;
         float speed;
         Entity_t type;
+};
+
+class Goblin : public Enemy
+{
+    public: 
+        Goblin(vec2<double> spawnPosition, AssetManager& assetmanager); 
 };
 
 class Tower {
@@ -92,29 +104,31 @@ class Tower {
         void BlitTower(SDL_Renderer* renderer);
         void DrawRange(SDL_Renderer * renderer, int cell_size);
         void GetGridCase(int* x, int* y, int grid_cell_size);
-        void Fire(std::vector<Enemy> enemies);
+        void Fire(std::vector<Enemy> enemies, int seconds, double seconds_mil, double last_seconds_mil);
         void SetTarget(Enemy* enemy) {this->target = enemy;};
         SDL_Rect GetRect() {return rect;}
         void SetShowRange(bool show) {this->showrange = show;};
         bool GetShowRange() {return showrange;}
         /* void AttackEnemy();
-        void RotateSprite(); //Modifie l'angle de rotation du sprite 
-        */
-
+        void RotateSprite(); //Modifie l'angle de rotation du sprite      */   
         Tower_t type;
-        double CD;
         int range; // euclidian distance
-        SDL_Rect rect;
-        int cadence;
+        int cadence;      // attaque par sec
+        int degat;
+        int price;
+        SDL_Texture* effect_texture;
+        double CD;
 
     private:
         SDL_Texture* texture;
+        SDL_Rect rect;
         bool showrange;
-        int degat;
+
         // Fire
         Enemy* target;
 
         // Ice
+
 
         // THUNDER
 
@@ -137,14 +151,6 @@ class HomingProjectile
         vec2<double> direction;
 
         bool active;
-};
-
-// Sous classes des ennemis
-
-class Goblin : public Enemy
-{
-    public: 
-        Goblin(vec2<double> spawnPosition, AssetManager& assetmanager); 
 };
 
 class Elf : public Enemy

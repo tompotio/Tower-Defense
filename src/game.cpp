@@ -1,5 +1,5 @@
 #include "../include/game.hpp"
-
+#include <typeinfo>
 /**
      * vague 1 : 5 goblins
      * vague 2 : 7 goblins et 2 elfes
@@ -44,13 +44,22 @@ Game::Game(Body** body, Menu** menu)
     fantasyfont = load_font( "../assets/fantasyfont.ttf", 25);
 
     assetManager.AddTexture(
-        "fire_proj",
-        LoadTexture("../assets/fire_proj.png", (*body)->GetRenderer())
+        "sb",
+        LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
     );
 
     assetManager.AddTexture(
-        "base",
-        LoadTexture("../assets/base.png", (*body)->GetRenderer())
+        "sb2",
+        LoadTexture("../assets/PNG/Menu/settings/sbutton_bg.png", (*body)->GetRenderer())
+    );
+
+    assetManager.AddTexture(
+        "soldier",
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile245.png",renderer)
+    );
+    assetManager.AddTexture(
+        "fire_proj",
+        LoadTexture("../assets/fire_proj.png", (*body)->GetRenderer())
     );
 
     assetManager.AddTexture(
@@ -182,11 +191,31 @@ Game::Game(Body** body, Menu** menu)
         LoadTexture("../assets/PNG/Menu/settings/tower3.png", renderer)
     );
 
+    assetManager.AddTexture(
+        "ice",
+        LoadTexture("../assets/PNG/Menu/settings/ice2.png", renderer)
+    );
+
+    assetManager.AddTexture(
+        "thunder",
+        LoadTexture("../assets/PNG/Menu/settings/explosion2.png", renderer)
+    );
+
+    assetManager.AddTexture(
+        "life_bar",
+        LoadTexture("../assets/PNG/Menu/settings/life_bar.png", renderer)
+    );
+
+    
+
     widgets.push_back(Widget("s-i", (WindowSize.w-185), 10, assetManager.GetTexture("sb")));
     widgets.push_back(Widget("tower1", 0, 0, assetManager.GetTexture("t1"), false));
     widgets.push_back(Widget("tower2", 0, 0, assetManager.GetTexture("t3"), false));
     widgets.push_back(Widget("tower3", 0, 0, assetManager.GetTexture("t2"), false));
+    widgets.push_back(Widget("life_bar", ((WindowSize.w-GetTextureSize(assetManager.GetTexture("life_bar")).w)/2), (WindowSize.h-100), assetManager.GetTexture("life_bar")));
 
+    InitAnimationImage("coin", "../assets/PNG/Menu/settings/coin/", 8, 1, true);
+    InitAnimationImage("ice", "../assets/PNG/Menu/settings/ice/", 7, 0.7, false);
     // Dimension d'une cellule (On pourra peut être créer des maps plus petites)
     grid_cell_size = 64;
     base_HP = 100;
@@ -209,7 +238,6 @@ Game::Game(Body** body, Menu** menu)
         .h = grid_cell_size,
     };
     grid_cursor_ghost = {grid_cursor.x, grid_cursor.y, grid_cell_size, grid_cell_size};
-
     // Génère les chemins des ennemis en fonction de la map
     bottompath = map.FindPath(
         0,
@@ -226,13 +254,15 @@ Game::Game(Body** body, Menu** menu)
     toppath_size = toppath.size();
     bottompath_size = bottompath.size();
     isRunning = true;
+    playerMoney = 500;
 
     // Provisoire
     inventory_grid_cells = 5;
     inventory_grid_cells_size = 64;
     inventory_grid_offset = 10;
-    inventory_pos_x = 300;
-    inventory_pos_y = 735;
+    inventory_pos_x = 530;
+    inventory_pos_y = 695;
+
 
    /*  Enemy new_enemy = Goblin(vec2<double>(0,0), assetManager);
     new_enemy.SetPosition(vec2<double>(WindowSize.w/2,WindowSize.h/2));
@@ -280,9 +310,12 @@ void Game::HandleEvents()
 
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
                 grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
-                std::cout << "Position souris : {X = " << grid_cursor.x / grid_cell_size << "; Y = " << grid_cursor.y / grid_cell_size << " } " << std::endl;
+                
                 
                 // Lettre K enfoncée
+
+                
+
                 if (pressing_key_k){
                     mouse_X = grid_cursor.x;  
                     mouse_Y = grid_cursor.y;
@@ -299,33 +332,44 @@ void Game::HandleEvents()
                         found_testing_path = true;
                     }
                 }
+                
                 for(Widget &widget : widgets) {
                     if (widget.isHovering(cursor.x, cursor.y)) {
+
                         if (widget.getId() == "s-i") {
                             (*menu)->isRunning = true;
                             (*menu)->isSetting = true;
+                            isRunning = false;
                             break;
+
                         }
                     } 
                 }
+
                 Cell* c = map.GetGridObject(cursor.x/grid_cell_size, cursor.y/grid_cell_size);
+
                 if (c->tower_on) {
+                    
                     for(Tower &tower : towers) {
                         int tower_case_x;
                         int tower_case_y;
                         tower.GetGridCase(&tower_case_x, &tower_case_y, grid_cell_size);
                         if (c->x == tower_case_x && c->y == tower_case_y) {
+
                             if (tower.GetShowRange()) {
                                 tower.SetShowRange(false);
+
                             }
                             else {
                                 tower.SetShowRange(true);
+
                             }
                         }
                         
                     }
                 }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
+                showgrid = !showgrid;
                 details = !details;
             }
             break;
@@ -349,6 +393,8 @@ void Game::HandleEvents()
                 }
                 leftMouseButtonDown = false;
             }
+
+
         case SDL_MOUSEMOTION:
             cursor = {event.motion.x, event.motion.y};
             grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
@@ -395,10 +441,12 @@ void Game::UpdateGraphics()
 {   
     // Affiche les tiles sur la grille
     DrawTiles();
-
+    
     // Affiche les ennemis
     DrawEnemies();
 
+    DrawSFX();
+    
     if (details){
         //Affiche le curseur de la grille
         DrawCursor();
@@ -459,10 +507,56 @@ void Game::UpdateGraphics()
 
     //(couleur de fond de base du jeu)
     SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
+
+    DrawAnimation("coin", 1200, 800);
+    DrawAnimation("ice", 500, 500);
 }
 
 // Met à jour les unités du jeu.
 void Game::UpdateGame(){
+    GameOver();
+    for(int i = 0; i < inventory_grid_cells; i++) {
+        
+        SDL_Rect rect = {
+            (i * (inventory_grid_cells_size + inventory_grid_offset)) + inventory_pos_x,
+            inventory_pos_y,
+            inventory_grid_cells_size,
+            inventory_grid_cells_size
+        };
+
+        if (SDL_PointInRect(&cursor, &rect) && leftMouseButtonDown) {
+
+            if(i==0 && tower2Selected == false && tower3Selected == false) {
+                tower1Selected = true;
+                GetWidget("tower1")->setActive(true);
+
+            }
+            if(i==1 && tower1Selected == false && tower3Selected == false) {
+                tower2Selected = true;
+                GetWidget("tower2")->setActive(true);
+
+            }
+            if(i==2 && tower1Selected == false && tower2Selected == false) {
+                tower3Selected = true;
+                GetWidget("tower3")->setActive(true);
+            }
+        }
+    }
+
+    if (tower1Selected) {
+        GetWidget("tower1")->setX(cursor.x - GetWidget("tower1")->getRect().w/2);
+        GetWidget("tower1")->setY(cursor.y - GetWidget("tower1")->getRect().h/2);
+    }
+
+    if (tower2Selected) {
+        GetWidget("tower2")->setX(cursor.x - GetWidget("tower2")->getRect().w/2);
+        GetWidget("tower2")->setY(cursor.y - GetWidget("tower2")->getRect().h/2);
+    }
+    if (tower3Selected) {
+        GetWidget("tower3")->setX(cursor.x - GetWidget("tower3")->getRect().w/2);
+        GetWidget("tower3")->setY(cursor.y - GetWidget("tower3")->getRect().h/2);
+    }
+
     UpdateTime();
     TowerSelection();
 
@@ -553,10 +647,12 @@ void Game::TowerSelection(){
 void Game::TowerAttackCase(Tower& tower){
     switch(tower.type){
         case FIRE:
+        {
             Enemy* closest_enemy = nullptr; // remplacer NULL par tower.FindNearestEnemy();
             int closest = tower.range;
             //Cherche le plus proche ennemi
             for (Enemy& enemy : enemies) {
+                
                 if(!enemy.dead){
                     int a = tower.GetRect().x;
                     int b = tower.GetRect().y;
@@ -574,10 +670,90 @@ void Game::TowerAttackCase(Tower& tower){
                 // On vérifie le CD de la tour
                 if(tower.CD >= tower.cadence){
                     tower.CD = 0;
-                    vec2<double> position = vec2<double>(tower.rect.x,tower.rect.y);
+                    vec2<double> position = vec2<double>(tower.GetRect().x,tower.GetRect().y);
                     SpawnProjectile(position, closest_enemy);
                 }
             }
+            break;
+        }
+        case ICE:
+        {
+            
+            if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
+                //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
+                std::vector<Enemy*> e;
+                for (Enemy& enemy : enemies) {
+
+                    if(!enemy.dead){
+                        int a = tower.GetRect().x;
+                        int b = tower.GetRect().y;
+                        double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
+                        double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
+
+
+                        if ( int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) <= tower.range) {
+                            e.push_back(&enemy);
+
+                        } 
+                    
+                    } 
+                }
+                std::cout << "ENEMY : NUM : " <<  e.size() << std::endl;
+                if (e.size() > 0) {
+                    LaunchAnimation("ice", tower.GetRect().x, tower.GetRect().y, 1);
+                    for (Enemy* enemy : e) {
+                        //enemy.Current_HP -= tower.degat;
+                        enemy->Current_HP = 0;
+                        
+                    }
+                }
+                
+                
+            }
+            
+            break;
+        }
+
+        case THUNDER:
+        {
+
+            if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
+                int closest = tower.range;
+                Enemy* closest_enemy = NULL;
+                for (Enemy& enemy : enemies) {
+
+                    if(!enemy.dead){
+                        int a = tower.GetRect().x;
+                        int b = tower.GetRect().y;
+                        double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
+                        double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
+
+                        int dist = int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5));
+                        if ( dist <= closest) {
+                            closest = dist;
+                            closest_enemy = &enemy;
+                            
+                        } 
+                        
+                        
+
+                    } 
+                }
+                if (closest_enemy != NULL) {
+                    if(tower.CD >= tower.cadence){
+                        tower.CD = 0;
+                        closest_enemy->Current_HP -= tower.degat;
+                        //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
+                        AddSfx(closest_enemy->explosion, closest_enemy->GetSprite().GetRect().x + closest_enemy->GetSprite().GetRect().w/2, closest_enemy->GetSprite().GetRect().y + closest_enemy->GetSprite().GetRect().h/2);
+                    }
+                    
+
+                }
+
+            }
+            break;
+        }
+        default:
             break;
     }
 }
@@ -816,6 +992,7 @@ void Game::UpdateIntermit(){
 
 // Met à jour le compteur du temps (secondes)
 void Game::UpdateTime(){
+
     // On met à jour le temps écoulé en milisecondes
     seconds_mil += deltatime;
 
@@ -881,6 +1058,8 @@ void Game::MoveEnemies(){
                 enemy.Move(enemy.GetDirection() * (deltatime * enemy.GetSpeed()));
             }
         }
+        
+        
     } 
 }
 
@@ -918,16 +1097,17 @@ void Game::DrawProjectiles(){
 }
 
 // Dessine les ennemis sur l'écran
-void Game::DrawEnemies(){
+void Game::DrawEnemies() {
     for (Enemy& enemy : enemies) {
         if(!enemy.dead){
             BlitSprite(
                 enemy.GetSprite(),
                 renderer
             );
-            if (enemy.explode) {
-                enemy.BlitExplosion(renderer);
-
+            
+    
+            if (enemy.Current_HP <= 0) {
+                enemy.dead = true;
             }
             if(enemy.selected && show_enemies_range && details){
                 SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -980,7 +1160,7 @@ void Game::DrawEnemies(){
  * @param path le chemin de cellules à afficher.
  * @param color couleur que le chemin doit prendre.
 */
-void Game::DrawPath(std::vector<Cell> path, SDL_Color color){
+void Game::DrawPath(std::vector<Cell> path, SDL_Color color) {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     if (path.size() > 0){
         for (int i = 0; i < path.size() - 1; i++){
@@ -997,12 +1177,13 @@ void Game::DrawPath(std::vector<Cell> path, SDL_Color color){
 
 void Game::DrawBaseHealthBar(){
     // NB : IL faudra wrapper SetRender dans une autre fonction pour ne pas à avoir à mettre 5 paramètres à chaque fois !
-    SDL_Rect fond = {900,750,3 * base_HP, 10};
+   /*  SDL_Rect fond = {900,750,3 * base_HP, 10};
     SDL_SetRenderDrawColor(renderer, black.r, black.g, black.b, black.a);
-    SDL_RenderFillRect(renderer, &fond);
+    SDL_RenderFillRect(renderer, &fond); */
 
     if(current_HP >= 0){
-        SDL_Rect vie = {900,750,3 * current_HP, 10};
+                                                        
+        SDL_Rect vie = {GetWidget("life_bar")->getRect().x + 16, (WindowSize.h-100+16),(int)(540 * ((double)current_HP/100)), 20};
         SDL_SetRenderDrawColor(renderer, lime.r, lime.g, lime.b, lime.a);
         SDL_RenderFillRect(renderer, &vie);
     }
@@ -1294,6 +1475,18 @@ Widget* Game::GetWidget(std::string id) {
     for(Widget &widget : widgets) {
         if (widget.getId() == id) {return &widget;}
     }
+    for(Widget &widget : sfx) {
+        if (widget.getId() == id) {return &widget;}
+    }
+    
+    return NULL;
+}
+
+Widget* Game::GetWidgetAnimation(std::string id, int index) {
+    for(Widget &widget : animation[index]) {
+        if (widget.getId() == id) {return &widget;}
+    }
+    
     return NULL;
 }
 
@@ -1306,19 +1499,196 @@ void Game::AddTower(Tower_t type, AssetManager assetmanager){
     if ((mouse_X >= 0) &&
     (mouse_X < (map.GetWidth() * grid_cell_size)) && 
     (mouse_Y >= 0 && mouse_Y < (map.GetHeight() * grid_cell_size))) {
+        
         Cell* c = map.GetGridObject(cursor.x/grid_cell_size, cursor.y/grid_cell_size);
+
         if (c->type == '1' && c->tower_on == false) {
             Tower new_tower = Tower(type,
-            cursor.x/grid_cell_size * grid_cell_size + (grid_cell_size / 2),
-            cursor.y/grid_cell_size * grid_cell_size + (grid_cell_size / 2), assetmanager);
+            c->x * grid_cell_size + (grid_cell_size/2),
+            c->y * grid_cell_size + (grid_cell_size/2), assetmanager);
 
+
+            
             towers.push_back(new_tower);
             c->tower_on = true;
+        } 
+
+    }
+
+  
+}
+
+void Game::DrawSFX() {
+    for (Widget& effect : sfx) {
+        
+        if (effect.getId()[0] != 'a') {
+            if (effect.timer_actual > 0) {
+                BlitTexture(effect.getTexture(), renderer, effect.getRect().x, effect.getRect().y);
+                effect.timer_actual -= deltatime;
+            }
         }
     }
 }
+void Game::AddSfx(SDL_Texture* texture, int x, int y) {
+    
+    
+    SDL_Rect r = GetTextureSize(texture);
+    x = x-r.w/2;
+    y = y-r.h/2;
 
-/**
- * Récupère une tour dans la liste (vector) via son indexe.
- * @param id l'ennemi à rajouter.
-*/
+    std::string s = std::to_string(x)+", "+std::to_string(y);
+    Widget* w = GetWidget(s);
+    if (w==NULL) {
+        sfx.push_back(Widget(s, x, y, texture));
+
+    }
+    else {
+        w->timer_actual = w->timer_init;
+        std::cout << "OHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH MERDE" << std::endl;
+    }
+
+
+}
+
+void Game::InitAnimationImage(std::string tag, std::string path, int number, double anim_time, bool infinite) {
+    std::vector<Widget> t;
+    animation.push_back(t);
+    
+    for (int z=0; z<number; z++) {
+        std::string frame_name = "a-" + tag + "_" + std::to_string(z);
+        assetManager.AddTexture(
+            frame_name,
+            LoadTexture((path+tag+std::to_string(z)+".png").c_str(), renderer)
+        );
+        std::cout << "LOADED" << (path+tag+std::to_string(z)+".png")<< std::endl;
+        if (infinite) {
+            animation[animation.size()-1].push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, -1));
+            
+        }
+        else {
+            animation[animation.size()-1].push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, 0));
+        }
+    }
+    std::cout << "NUMBER" <<  animation.size() << " coin size: " << animation[0].size() << std::endl;
+
+}
+void Game::DrawAnimation(std::string tag, int x, int y) {
+    std::vector<int> c;
+    for (int i = 0; i < animation.size(); i++){
+        Widget effect = animation[i][0];
+        if (effect.getId()[0] == 'a' && (effect.getId().find(tag) != std::string::npos)) {
+            c.push_back(i);
+            
+        }
+    }
+
+    
+    //std::cout << "NUMBER : " << c.size() << std::endl;
+    //std::cout << " BLIT : X  : " << cursor.x << " Y :  " << cursor.y << std::endl;
+
+    for (int j : c) { 
+        for (int i = 0; i < animation[j].size(); i++){
+            Widget* effect = &animation[j][i];
+            
+            if (effect->getActive() && (effect->number_print > 0 || effect->number_print==-1)) {
+                if (effect->timer_actual > 0) {
+                    if (effect->number_print == -1) {
+                        BlitTexture(effect->getTexture(), renderer, x, y);
+
+                    }
+                    else {
+                        BlitTexture(effect->getTexture(), renderer, effect->getRect().x - GetTextureSize(effect->getTexture()).w/2, effect->getRect().y - GetTextureSize(effect->getTexture()).h/2);
+                    }
+                    effect->timer_actual -= deltatime; 
+
+                }
+                else {
+                    //std::cout << "first: " << effect->getId() << " active : " << effect->getActive() << std::endl;
+
+                    effect->timer_actual = effect->timer_init;
+                    effect->setActive(false);
+                    if (effect->number_print != -1) {
+                        effect->number_print -= 1;
+                    }
+                    GetWidgetAnimation("a-" + tag + "_" + std::to_string((i+1)%animation[j].size()), j)->setActive(true);
+                }
+
+            }
+        }
+    }
+
+}
+
+void Game::LaunchAnimation(std::string tag, int x, int y, int number) {
+    
+    bool found = false;
+    std::vector<Widget> t;
+    std::cout << "SIZE ANIMATION : " << animation.size() << std::endl;
+    for (int i = 0; i < animation.size(); i++){
+        //std::cout << "NAME 0 INDEX : " << animation[i][0].getId() << std::endl;
+        if (animation[i][0].getId()[0] == 'a' && (animation[i][0].getId().find(tag) != std::string::npos)) {
+            int total = 0;
+            
+            for (int j = 0; j < animation[i].size(); j++){
+                Widget* effect = &animation[i][j];
+                // std::cout << "NAME  : " << animation[i][0].getId() << " " << effect->number_print << std::endl;
+
+                total += effect->number_print;
+                
+            }
+            if (total == 0) {
+                found = true;
+                for (int z = 0; z < animation[i].size(); z++){
+                    Widget* effect = &animation[i][z];
+
+                    if (effect->getId()[0] == 'a' && (effect->getId().find(tag) != std::string::npos)) {
+
+                        effect->setX(x);
+                        effect->setY(y);                   
+                        effect->number_print = number;
+
+                    }
+                }
+                break;
+                
+            }
+            else {
+                t = animation[i];
+            }
+            
+        }
+        
+        
+    }
+
+    
+    if (found == false) {
+        std::cout << "CREATE NEWW  : " << std::endl;
+        for (int i = 0; i < t.size(); i++){
+            Widget* effect = &t[i];
+
+            effect->setX(x);
+            effect->setY(y);
+            effect->number_print = number;
+        }
+        animation.push_back(t);
+    }
+ 
+    
+
+}
+void Game::GameOver(){
+    
+    if(current_HP <= 0){
+        (*menu)->isRunning = true;
+        (*menu)->isSetting = true;
+        isRunning = false;
+
+        ResetEverything();
+    }
+}
+
+void Game::ResetEverything(){
+    
+    
+}

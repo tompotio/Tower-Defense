@@ -75,6 +75,7 @@ void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x , int y)
     // SDL_SetTextureAlphaMod(texture, 255);
     // Récupère les informations de la texture (width et height)
     SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
+
     // Copier (une partie de) la texture dans le renderer
     SDL_RenderCopy(renderer, texture, NULL, &dstcrect);
 }
@@ -89,6 +90,7 @@ void BlitTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x , int y)
 void BlitSprite(Sprite sprite, SDL_Renderer* renderer)
 {
     SDL_Rect r = sprite.GetRect();
+    
     // Copier (une partie de) la texture dans le renderer
     SDL_RenderCopy(renderer, sprite.GetTexture(), NULL, &r);
 }
