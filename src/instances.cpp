@@ -130,16 +130,16 @@ Orc::Orc(vec2<double> spawnPosition, AssetManager& assetmanager){
 }
 
 // Récupère la position de l'ennemi
-vec2<double>& Enemy::GetPosition(){
+vec2<double>& Entity::GetPosition(){
     return position;
 }
 
-void Enemy::SetDirection(vec2<double>  direction){
+void Entity::SetDirection(vec2<double> direction){
     this->direction = direction;
 }
 
 // Change la position de l'ennemi et met à jour sprite (à cause du rect)
-void Enemy::SetPosition(vec2<double>  pos){
+void Entity::SetPosition(vec2<double> pos){
     this->position = pos;
 
     // Met à jour le rect 
@@ -147,14 +147,14 @@ void Enemy::SetPosition(vec2<double>  pos){
 
     rect.w = this->sprite.GetRect().w;
     rect.h = this->sprite.GetRect().h;
-    rect.x = (int) position.x;
-    rect.y = (int) position.y;
+    rect.x = (int)position.x;
+    rect.y = (int)position.y;
 
     sprite.SetRect(rect);
 }
 
 // Déplace l'ennemi via un vecteur
-void Enemy::Move(vec2<double>  step){
+void Entity::Move(vec2<double>  step){
     SetPosition(step + position);
 }
 
@@ -266,84 +266,20 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
                 error += (tx - diameter);
             }
         }
-
         SDL_SetRenderDrawColor(renderer, r, g, b, a);
-
     }
 }
 
-void Tower::Fire(std::vector<Enemy> enemies, int seconds, double seconds_mil, double last_seconds_mil) {
-    switch (type) {
-        case FIRE:
-            
-            break;
 
-        case ICE:
-            if (seconds % cadence == 0 && (last_seconds_mil == seconds_mil)) {
-                std::cout << "FIREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" << std::endl;
-                Enemy* init = enemies.data();
-                for (int i = 0; i < enemies.size(); i++){
-                    Enemy* enemy = &init[i];
+HomingProjectile::HomingProjectile(vec2<double> pos, AssetManager& assetmanager, Enemy * target){
+    this->speed = 150;
+    this->target = target;
+    this->texture = assetmanager.GetTexture("fire_proj");
+    this->dmg = 100;
+    this->active = true;
+    this->position = pos;
+}
 
-                    if(!enemy->dead){
-                        int a = rect.x + rect.w/2;
-                        int b = rect.y + rect.h/2;
-                        double c = enemy->GetPosition().x;
-                        double d = enemy->GetPosition().y;
-
-                        //std::cout << "range " << int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) << " " << (range/2) << std::endl;
-
-                        if ( int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) <= range) {
-                            
-
-
-                            enemy->Current_HP = -5;
-                            //std::cout << "HIT" << enemy.Current_HP << std::endl;
-                            
-                            
-                        } 
-                        
-
-                    } 
-                }
-            }
-            
-            
-            break;
-        
-        case THUNDER:
-            {
-            /* if (cadence = time) {}
-            int closest = range/2;
-            Enemy* closest_enemy;
-            for (Enemy& enemy : enemies) {
-
-                if(!enemy.dead){
-                    int a = rect.x + rect.w/2;
-                    int b = rect.y + rect.h/2;
-                    double c = enemy.GetPosition().x;
-                    double d = enemy.GetPosition().y;
-
-                    int dist = pow(pow(c-a, 2) + pow(d-b, 2), 0.5);
-                    if ( dist <= closest) {
-                        closest = dist;
-                        closest_enemy = &enemy;
-                        
-                    } 
-                    
-
-                } 
-            }
-            closest_enemy->Current_HP -= this->degat;
-            closest_enemy->SetExplode(true); */
-
-
-            break;
-            }
-
-        default:
-            break;
-
-    }
-
+void HomingProjectile::UpdateDirection(vec2<double> direction){
+    this->direction = direction.normalize();
 }

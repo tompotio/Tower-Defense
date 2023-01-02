@@ -35,9 +35,6 @@ int main(int argc, char *args[])
     std::cout << "Game créé" << std::endl;
 
 
-
-
-
     while(body->running())
     {
         body->RenderClear();
@@ -65,6 +62,7 @@ int main(int argc, char *args[])
         frameTime = (SDL_GetTicks() - frameStart);
         game->deltatime = frameTime/1000.0f;
         CD+=1;
+
         if((CD - 150) == 0){
             CD = 0;
             game->fps = int(1000.0f/frameTime);

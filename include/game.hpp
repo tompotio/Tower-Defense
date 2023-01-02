@@ -7,7 +7,7 @@
 #include "grid.hpp"
 #include "body.hpp"
 
-#define INTERMITENCE_TIME 3
+#define INTERMITENCE_TIME 5
 
 class Audiomanager;
 
@@ -29,6 +29,10 @@ class Game
 
         void WaveManager();
 
+        void MoveProjectiles();
+
+        void TowerSelection();
+
         void MoveEnemies();
 
         void UpdateTime();
@@ -36,6 +40,10 @@ class Game
         void ResetValuesForWave();
 
         void UpdateIntermit();
+
+        void TowersAttack();
+
+        void TowerAttackCase(Tower & tower);
 
         void Draw();
 
@@ -58,12 +66,21 @@ class Game
         void DrawAnimation(std::string tag, int x, int y);
 
         void LaunchAnimation(std::string tag, int x, int y, int number);
+        void DrawCount();
+
+        void DrawDialogScreen();
+
+        void DrawProjectiles();
 
         void DrawInstances();
 
         void DrawInventory();
 
+        void DrawFPS();
+
         void PosEnemy(Enemy& enemy, int choice);
+
+        void SpawnProjectile(vec2<double> pos, Enemy* target);
 
         void SpawnEnemy(int choice, Entity_t type);
 
@@ -135,6 +152,7 @@ class Game
         double delta_s = 0; // temps en millisecondes de chaque frame
         double seconds_mil = 0; // Temps précis en secondes et millisecondes
         double last_seconds_mil = 0;
+        double CD_wave = 0;
         int seconds = 0; // Temps en secondes
         int cpt_intermit = -1; 
 
@@ -143,10 +161,17 @@ class Game
         bool isRunning;
         bool mouse_hover = true;
         bool showgrid = false;
+        bool details = false;
         bool pressing_key_k = false;
-        bool wave_ongoing = true;
-        bool intermit_screen = false;
+        bool wave_ongoing = false;
+        bool intermit_screen = true;
         bool intermit_count = false;
+        bool show_fps = false;
+        bool show_enemies_range = false;
+        bool leftMouseButtonDown;
+        bool tower1Selected;
+        bool tower2Selected;
+        bool tower3Selected;
 
         bool leftMouseButtonDown;
         bool tower1Selected;
@@ -172,6 +197,9 @@ class Game
         std::vector<std::vector<Widget>> animation;
         std::vector<Widget> sfx;
         
+            // Pour le moment je n'ai qu'un seul type de projectile. À voir comment on réorganisera les classes après :D
+        std::vector<HomingProjectile> projectiles;
+
 
         // Cursor
         SDL_Point cursor;

@@ -48,9 +48,17 @@ enum Tower_t
 class Entity
 {
     public: 
-        // Renvoie le sprite de l'ennemi
+        // Renvoie le sprite de l'entité
         Sprite& GetSprite(){return sprite;};
         vec2<double> GetDirection(){return this->direction;};
+
+        // Modifie la direction de l'entité
+        void SetDirection(vec2<double>  direction);
+        vec2<double>& GetPosition();
+        // Modifie la position de l'entité
+        void SetPosition(vec2<double> pos);
+        // Déplace l'entité
+        void Move(vec2<double>  step);
 
     protected:
         vec2<double>  direction;
@@ -82,12 +90,15 @@ class Enemy : public Entity
         int maxcell = 0;
         int i = 0;
         bool dead;
+        bool selected = true;
         int Max_HP;
         int Current_HP;
+        bool explode;
         std::vector<Cell>* path;
         SDL_Texture* explosion;
 
     protected:
+        SDL_Texture* explosion;
         int dmg;
         float speed;
         Entity_t type;
@@ -120,6 +131,7 @@ class Tower {
         SDL_Texture* effect_texture;
 
     private:
+        double CD;
         SDL_Texture* texture;
         SDL_Rect rect;
         bool showrange;
@@ -134,7 +146,24 @@ class Tower {
 
 };
 
+class HomingProjectile
+{
+    public: 
+        HomingProjectile(vec2<double> pos, AssetManager& assetmanager, Enemy * target);
+        void UpdateDirection(vec2<double> direction);
 
+        Enemy* target;
+        SDL_Texture* texture;
+        // Cooldown animation
+        double CD;
+        int speed;
+        int dmg;
+        int animationstep = 0;
+        vec2<double> position;
+        vec2<double> direction;
+
+        bool active;
+};
 
 class Elf : public Enemy
 {

@@ -26,6 +26,8 @@ class Sprite
 
 		SDL_Texture* GetTexture(){return texture;};
 
+		void SetTexture(SDL_Texture * texture){this->texture = texture;};
+
     private:
         SDL_Rect rect;
 

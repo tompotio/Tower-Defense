@@ -239,3 +239,4 @@ enemy assets explosion (reset explode to false et timer)     game.cpp 545
 
 SDL_Rect z = {enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2, enemy.GetSprite().GetRect().y+ enemy.GetSprite().GetRect().h/2,5,5};
 SDL_RenderFillRect(renderer, &z);
+enemy assets explosion (reset explode to false et timer)     game.cpp 545 
