@@ -1,6 +1,6 @@
 #include "../include/widget.hpp"
 
-Widget::Widget(std::string id, int x, int y, SDL_Texture* texture, bool active){
+Widget::Widget(std::string id, int x, int y, SDL_Texture* texture, bool active, double timer_init, int number_print){
     
     this->id = id;
     this->rect = GetTextureSize(texture);
@@ -8,7 +8,9 @@ Widget::Widget(std::string id, int x, int y, SDL_Texture* texture, bool active){
     this->rect.y = y;
     this->texture = texture;
     this->active = active;
-
+    this->timer_init = timer_init;
+    this->timer_actual = timer_init;
+    this->number_print = number_print;
 }
 
 // Widget Center

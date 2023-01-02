@@ -11,8 +11,7 @@ Goblin::Goblin(vec2<double> spawnPosition, AssetManager& assetmanager){
     this->dmg = 5;
     this->type = GOBLIN;
     this->dead = false;
-    this->explosion = assetmanager.GetTexture("enemy_explosion");
-    this->explode = false;
+    this->explosion = assetmanager.GetTexture("thunder");
     SDL_QueryTexture(texture,NULL,NULL,&w,&h);
 
     this->sprite = Sprite(
@@ -37,6 +36,8 @@ Elf::Elf(vec2<double> spawnPosition, AssetManager& assetmanager){
     this->dmg = 5;
     this->type = ELF;
     this->dead = false;
+    this->explosion = assetmanager.GetTexture("thunder");
+
     SDL_QueryTexture(texture,NULL,NULL,&w,&h);
 
     this->sprite = Sprite(
@@ -61,6 +62,8 @@ Golem::Golem(vec2<double> spawnPosition, AssetManager& assetmanager){
     this->dmg = 5;
     this->type = GOLEM;
     this->dead = false;
+    this->explosion = assetmanager.GetTexture("thunder");
+
     SDL_QueryTexture(texture,NULL,NULL,&w,&h);
 
     this->sprite = Sprite(
@@ -85,6 +88,8 @@ Knight::Knight(vec2<double> spawnPosition, AssetManager& assetmanager){
     this->dmg = 5;
     this->type = KNIGHT;
     this->dead = false;
+    this->explosion = assetmanager.GetTexture("thunder");
+
     SDL_QueryTexture(texture,NULL,NULL,&w,&h);
 
     this->sprite = Sprite(
@@ -109,6 +114,8 @@ Orc::Orc(vec2<double> spawnPosition, AssetManager& assetmanager){
     this->dmg = 5;
     this->type = ORC;
     this->dead = false;
+    this->explosion = assetmanager.GetTexture("thunder");
+
     SDL_QueryTexture(texture,NULL,NULL,&w,&h);
 
     this->sprite = Sprite(
@@ -151,35 +158,38 @@ void Enemy::Move(vec2<double>  step){
     SetPosition(step + position);
 }
 
-void Enemy::BlitExplosion(SDL_Renderer* renderer) {
-    BlitTexture(explosion, renderer, position.x, position.y);
-}
 
 Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
 
+    this->effect_texture = NULL;
     switch (type) {
         case FIRE:
             this->texture = assets.GetTexture("t1");
             this->range = 300;
-            this->cadence = 10; // tte les 3sec
+            this->cadence = 3; // tte les 3sec
             this->degat = 100;
+            this->price = 1000;
 
             break;
 
         case ICE:
             this->texture = assets.GetTexture("t3");
-            this->range = 100;
-            this->cadence = 10; // 1 fois par sec ou 2 / sec
-            this->degat = 1;
+            this->range = 150;
+            this->cadence = 1; // 1 fois par sec ou 2 / sec
+            this->degat = 5;
+            this->effect_texture = assets.GetTexture("ice");
+            this->price = 500;
 
 
             break;
         
         case THUNDER:
             this->texture = assets.GetTexture("t2");
-            this->range = 200;
-            this->cadence = 10; // tte les 2 sec
+            this->range = 250;
+            this->cadence = 2; // tte les 2 sec
             this->degat = 50;
+            this->effect_texture = assets.GetTexture("thunder");
+            this->price = 700;
 
 
             break;
@@ -192,24 +202,27 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
     this->showrange = false;
     this->type = type;
     this->rect = GetTextureSize(texture);
-    this->rect.x = x-rect.w/2;
-    this->rect.y = y-rect.h/2;
+    this->rect.x = x;
+    this->rect.y = y;
 }
 
 void Tower::BlitTower(SDL_Renderer* renderer) {
-    BlitTexture(this->texture, renderer, this->rect.x, this->rect.y);
+
+    BlitTexture(this->texture, renderer, this->rect.x - rect.w/2, this->rect.y - rect.h/2);
 
 }
 
 void Tower::GetGridCase(int* x, int* y, int grid_cell_size) {
-    *x = rect.x/grid_cell_size + 1;
-    *y = rect.y/grid_cell_size + 1;
+    *x = rect.x/grid_cell_size;
+    *y = rect.y/grid_cell_size;
 }
 
 
 void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
 {
+
     if (this->showrange) {
+        // std::cout << "TOWER X : " << rect.x << " Y : " << rect.y << std::endl;
         Uint8 r;
         Uint8 g;
         Uint8 b;
@@ -218,7 +231,7 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
 
         SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
         SDL_SetRenderDrawColor(renderer, 127, 255, 0, 255);
-        
+       
         const int32_t diameter = (range * 2);
 
         int32_t x = (range - 1);
@@ -230,14 +243,14 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
         while (x >= y)
         {
             //  Each of the following renders an octant of the circle
-            SDL_RenderDrawPoint(renderer, rect.x + x + rect.w/2, rect.y - y + rect.h/2);
-            SDL_RenderDrawPoint(renderer, rect.x + x + rect.w/2, rect.y + y + rect.h/2);
-            SDL_RenderDrawPoint(renderer, rect.x - x + rect.w/2, rect.y - y + rect.h/2);
-            SDL_RenderDrawPoint(renderer, rect.x - x + rect.w/2, rect.y + y + rect.h/2);
-            SDL_RenderDrawPoint(renderer, rect.x + y + rect.w/2, rect.y - x + rect.h/2);
-            SDL_RenderDrawPoint(renderer, rect.x + y + rect.w/2, rect.y + x + rect.h/2);
-            SDL_RenderDrawPoint(renderer, rect.x - y + rect.w/2, rect.y - x + rect.h/2);
-            SDL_RenderDrawPoint(renderer, rect.x - y + rect.w/2, rect.y + x + rect.h/2);
+            SDL_RenderDrawPoint(renderer, rect.x + x, rect.y - y);
+            SDL_RenderDrawPoint(renderer, rect.x + x, rect.y + y);
+            SDL_RenderDrawPoint(renderer, rect.x - x, rect.y - y);
+            SDL_RenderDrawPoint(renderer, rect.x - x, rect.y + y);
+            SDL_RenderDrawPoint(renderer, rect.x + y, rect.y - x);
+            SDL_RenderDrawPoint(renderer, rect.x + y, rect.y + x);
+            SDL_RenderDrawPoint(renderer, rect.x - y, rect.y - x);
+            SDL_RenderDrawPoint(renderer, rect.x - y, rect.y + x);
 
             if (error <= 0)
             {
@@ -259,34 +272,42 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
     }
 }
 
-void Tower::Fire(std::vector<Enemy> enemies) {
+void Tower::Fire(std::vector<Enemy> enemies, int seconds, double seconds_mil, double last_seconds_mil) {
     switch (type) {
         case FIRE:
             
             break;
 
         case ICE:
-            // if (cadence = time) {}
-            /* for (Enemy& enemy : enemies) {
+            if (seconds % cadence == 0 && (last_seconds_mil == seconds_mil)) {
+                std::cout << "FIREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" << std::endl;
+                Enemy* init = enemies.data();
+                for (int i = 0; i < enemies.size(); i++){
+                    Enemy* enemy = &init[i];
 
-                if(!enemy.dead){
-                    int a = rect.x + rect.w/2;
-                    int b = rect.y + rect.h/2;
-                    double c = enemy.GetPosition().x;
-                    double d = enemy.GetPosition().y;
+                    if(!enemy->dead){
+                        int a = rect.x + rect.w/2;
+                        int b = rect.y + rect.h/2;
+                        double c = enemy->GetPosition().x;
+                        double d = enemy->GetPosition().y;
 
-                    //std::cout << "range " << pow(pow(c-a, 2) + pow(d-b, 2), 0.5) << " " << range << std::endl;
+                        //std::cout << "range " << int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) << " " << (range/2) << std::endl;
 
-                    if ( pow(pow(c-a, 2) + pow(d-b, 2), 0.5) <= (range/2)) {
-                        enemy.Current_HP = 5;
-                        //std::cout << "HIT" << enemy.Current_HP << std::endl;
+                        if ( int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) <= range) {
+                            
+
+
+                            enemy->Current_HP = -5;
+                            //std::cout << "HIT" << enemy.Current_HP << std::endl;
+                            
+                            
+                        } 
                         
-                        
+
                     } 
-                    
-
-                } 
-            } */
+                }
+            }
+            
             
             break;
         

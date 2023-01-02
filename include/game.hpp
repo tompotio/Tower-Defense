@@ -25,6 +25,8 @@ class Game
 
         void UpdateGame();
 
+        void GameOver();
+
         void WaveManager();
 
         void MoveEnemies();
@@ -40,6 +42,8 @@ class Game
         void DrawTiles();
 
         void DrawEnemies();
+
+        void DrawSFX();
         
         void DrawPath(std::vector<Cell> path, SDL_Color color);
 
@@ -48,6 +52,12 @@ class Game
         void DrawGrid(Grid grid);
 
         void DrawCursor();
+
+        void InitAnimationImage(std::string tag, std::string path, int number, double anim_time, bool infinite);
+
+        void DrawAnimation(std::string tag, int x, int y);
+
+        void LaunchAnimation(std::string tag, int x, int y, int number);
 
         void DrawInstances();
 
@@ -72,8 +82,14 @@ class Game
 
         Widget* GetWidget(std::string id);
 
+        Widget* GetWidgetAnimation(std::string id, int index);
+
+        void AddSfx(SDL_Texture* texture, int x, int y);
+
         // Renvoie si le jeu est en cours
         bool running() {return isRunning; };
+
+        void ResetEverything();
 
         double deltatime;
         int fps = 60;
@@ -153,6 +169,9 @@ class Game
         std::vector<Tower> towers;
 
         std::vector<Widget> widgets;
+        std::vector<std::vector<Widget>> animation;
+        std::vector<Widget> sfx;
+        
 
         // Cursor
         SDL_Point cursor;

@@ -6,8 +6,8 @@ Menu::Menu(Body** body) {
     this->isSetting = false;
     this->music_volume_selected = false;
     this->leftMouseButtonDown = false;
-    this->music_volume = MIX_MAX_VOLUME;
-    this->sfx_volume = MIX_MAX_VOLUME;
+    this->music_volume = 60;
+    this->sfx_volume = 60;
     this->body = body;
     
     this->assets = AssetManager();
@@ -91,15 +91,19 @@ Menu::Menu(Body** body) {
 
     widgetsS.push_back(Widget("s-music_bar", ((WindowSize.w-GetTextureSize(assets.GetTexture("bar")).w)/2), (WindowSize.h/2), assets.GetTexture("bar")));
     widgetsS.push_back(Widget("s-sfx_bar", ((WindowSize.w-GetTextureSize(assets.GetTexture("bar")).w)/2), (WindowSize.h/2 + 200), assets.GetTexture("bar")));
-    widgetsS.push_back(Widget("s-music_drag_button", ((WindowSize.w+GetTextureSize(assets.GetTexture("bar")).w)/2 - GetTextureSize(assets.GetTexture("drag_button")).w), (WindowSize.h /2 - 10), assets.GetTexture("drag_button")));
-    widgetsS.push_back(Widget("s-sfx_drag_button", ((WindowSize.w+GetTextureSize(assets.GetTexture("bar")).w)/2 - GetTextureSize(assets.GetTexture("drag_button")).w), (WindowSize.h /2 + 190), assets.GetTexture("drag_button")));
+    widgetsS.push_back(Widget("s-music_drag_button", (*GetWidget("s-music_bar")).getRect().x  + ((GetTextureSize(assets.GetTexture("bar")).w - GetTextureSize(assets.GetTexture("drag_button")).w)*(music_volume*100/MIX_MAX_VOLUME)/100), (WindowSize.h /2 - 10), assets.GetTexture("drag_button")));
+    widgetsS.push_back(Widget("s-sfx_drag_button", (*GetWidget("s-sfx_bar")).getRect().x  + ((GetTextureSize(assets.GetTexture("bar")).w - GetTextureSize(assets.GetTexture("drag_button")).w)*(sfx_volume*100/MIX_MAX_VOLUME)/100), (WindowSize.h /2 + 190), assets.GetTexture("drag_button")));
     
     widgetsS.push_back(Widget("s-text_music", (*GetWidget("s-music_bar")).getRect().x - 150, (WindowSize.h/2 - 70), assets.GetTexture("music")));
     widgetsS.push_back(Widget("s-text_sfx", (*GetWidget("s-sfx_bar")).getRect().x - 150, (WindowSize.h/2 + 130), assets.GetTexture("effect")));
     widgetsS.push_back(Widget("s-text_sounds", ((WindowSize.w-GetTextureSize(assets.GetTexture("sounds")).w)/2), 80, assets.GetTexture("sounds")));
+    UpdateSound();
 
 }
+/* (music_volume*100/128)
+GetTextureSize(assets.GetTexture("bar")).x + GetTextureSize(assets.GetTexture("drag_button")).w
 
+GetTextureSize(assets.GetTexture("bar")).x  + (((WindowSize.w+GetTextureSize(assets.GetTexture("bar")).w)/2 - GetTextureSize(assets.GetTexture("drag_button")).w)*(music_volume*100/128)/100) */
 void Menu::HandleEvents()
 {
     SDL_Event event;
@@ -179,8 +183,7 @@ void Menu::HandleEvents()
 
 void Menu::Update(SDL_Renderer* renderer)
 {   
-    // SDL_RenderCopy(renderer, LoadTexture("../assets/PNG/Menu/bg1.jpg", renderer), NULL, NULL);
-
+    // BlitTexture(LoadTexture("../assets/PNG/Menu/bg1.jpg",renderer), renderer, 0,0);
     
     if (isSetting) {
         for(Widget &widget : widgetsS) {

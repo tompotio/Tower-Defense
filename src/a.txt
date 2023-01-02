@@ -1,5 +1,5 @@
 #include "../include/game.hpp"
-#include <typeinfo>
+
 /**
      * vague 1 : 5 goblins
      * vague 2 : 7 goblins et 2 elfes
@@ -349,8 +349,6 @@ void Game::HandleEvents()
                 }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
                 showgrid = !showgrid;
-                
-
             }
             break;
         // Position de la souris
@@ -1187,14 +1185,6 @@ Widget* Game::GetWidget(std::string id) {
     return NULL;
 }
 
-Widget* Game::GetWidgetAnimation(std::string id, int index) {
-    for(Widget &widget : animation[index]) {
-        if (widget.getId() == id) {return &widget;}
-    }
-    
-    return NULL;
-}
-
 /**
  * Rajoute une tour dans la liste des tours (vector).
  * @param indexe de la tour.
@@ -1256,129 +1246,72 @@ void Game::AddSfx(SDL_Texture* texture, int x, int y) {
 }
 
 void Game::InitAnimationImage(std::string tag, std::string path, int number, double anim_time, bool infinite) {
-    std::vector<Widget> t;
-    animation.push_back(t);
-    
     for (int z=0; z<number; z++) {
         std::string frame_name = "a-" + tag + "_" + std::to_string(z);
+        std::cout << frame_name << std::endl;
         assetManager.AddTexture(
             frame_name,
             LoadTexture((path+tag+std::to_string(z)+".png").c_str(), renderer)
         );
-        std::cout << "LOADED" << (path+tag+std::to_string(z)+".png")<< std::endl;
+        std::cout <<  (path+tag+std::to_string(z)+".png")<< std::endl;
+
         if (infinite) {
-            animation[animation.size()-1].push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, -1));
-            
+            sfx.push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, -1));
         }
         else {
-            animation[animation.size()-1].push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, 0));
+            sfx.push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, 0));
         }
     }
-    std::cout << "NUMBER" <<  animation.size() << " coin size: " << animation[0].size() << std::endl;
-
 }
 void Game::DrawAnimation(std::string tag, int x, int y) {
-    std::vector<int> c;
-    for (int i = 0; i < animation.size(); i++){
-        Widget effect = animation[i][0];
+    std::vector<Widget*> anim;
+    for (Widget& effect : sfx) {
+        // std::cout << "substring in :" << (effect.getId().find(tag) != std::string::npos) << std::endl;
         if (effect.getId()[0] == 'a' && (effect.getId().find(tag) != std::string::npos)) {
-            c.push_back(i);
-            
+            anim.push_back(&effect);
         }
-    }
-
+    }       
     
-    //std::cout << "NUMBER : " << c.size() << std::endl;
-    //std::cout << " BLIT : X  : " << cursor.x << " Y :  " << cursor.y << std::endl;
 
-    for (int j : c) { 
-        for (int i = 0; i < animation[j].size(); i++){
-            Widget* effect = &animation[j][i];
-            
-            if (effect->getActive() && (effect->number_print > 0 || effect->number_print==-1)) {
-                if (effect->timer_actual > 0) {
-                    if (effect->number_print == -1) {
-                        BlitTexture(effect->getTexture(), renderer, x, y);
-
-                    }
-                    else {
-                        BlitTexture(effect->getTexture(), renderer, effect->getRect().x, effect->getRect().y);
-                    }
-                    effect->timer_actual -= deltatime; 
+    for (int i = 0; i < anim.size(); i++){
+        Widget* effect = anim[i];
+        
+        //std::cout << "first: " << effect.getId() << " " << effect.timer_actual << std::endl;
+        if (effect->getActive() && (effect->number_print > 0 || effect->number_print==-1)) {
+            if (effect->timer_actual > 0) {
+                if (effect->number_print == -1) {
+                    BlitTexture(effect->getTexture(), renderer, x, y);
 
                 }
                 else {
-                    //std::cout << "first: " << effect->getId() << " active : " << effect->getActive() << std::endl;
-
-                    effect->timer_actual = effect->timer_init;
-                    effect->setActive(false);
-                    if (effect->number_print != -1) {
-                        effect->number_print -= 1;
-                    }
-                    GetWidgetAnimation("a-" + tag + "_" + std::to_string((i+1)%animation[j].size()), j)->setActive(true);
+                    BlitTexture(effect->getTexture(), renderer, effect->getRect().x, effect->getRect().y);
                 }
+                effect->timer_actual -= deltatime; 
 
             }
+            else {
+                //std::cout << "first: " << effect->getId() << " active : " << effect->getActive() << std::endl;
+
+                effect->timer_actual = effect->timer_init;
+                effect->setActive(false);
+                if (effect->number_print != -1) {
+                    effect->number_print -= 1;
+                }
+                GetWidget("a-" + tag + "_" + std::to_string((i+1)%anim.size()))->setActive(true);
+            }
+
         }
     }
-
 }
 
 void Game::LaunchAnimation(std::string tag, int x, int y, int number) {
-    
-    bool found = false;
-    std::vector<Widget> t;
-    std::cout << "SIZE ANIMATION : " << animation.size() << std::endl;
-    for (int i = 0; i < animation.size(); i++){
-        //std::cout << "NAME 0 INDEX : " << animation[i][0].getId() << std::endl;
-        if (animation[i][0].getId()[0] == 'a' && (animation[i][0].getId().find(tag) != std::string::npos)) {
-            int total = 0;
-            
-            for (int j = 0; j < animation[i].size(); j++){
-                Widget* effect = &animation[i][j];
-                // std::cout << "NAME  : " << animation[i][0].getId() << " " << effect->number_print << std::endl;
-
-                total += effect->number_print;
-                
-            }
-            if (total == 0) {
-                found = true;
-                for (int z = 0; z < animation[i].size(); z++){
-                    Widget* effect = &animation[i][z];
-
-                    if (effect->getId()[0] == 'a' && (effect->getId().find(tag) != std::string::npos)) {
-
-                        effect->setX(x);
-                        effect->setY(y);                   
-                        effect->number_print = number;
-
-                    }
-                }
-                break;
-                
-            }
-            else {
-                t = animation[i];
-            }
-            
+    for (Widget& effect : sfx) {
+        if (effect.getId()[0] == 'a' && (effect.getId().find(tag) != std::string::npos)) {
+            effect.setX(x);
+            effect.setY(y);
+            effect.number_print = number;
         }
-        
-        
-    }
-
-    
-    if (found == false) {
-        std::cout << "CREATE NEWW  : " << std::endl;
-        for (int i = 0; i < t.size(); i++){
-            Widget* effect = &t[i];
-
-            effect->setX(x);
-            effect->setY(y);
-            effect->number_print = number;
-        }
-        animation.push_back(t);
-    }
- 
+    }       
     
 
 }
