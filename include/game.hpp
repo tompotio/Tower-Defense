@@ -66,6 +66,7 @@ class Game
         void DrawAnimation(std::string tag, int x, int y);
 
         void LaunchAnimation(std::string tag, int x, int y, int number);
+        
         void DrawCount();
 
         void DrawDialogScreen();
@@ -173,10 +174,6 @@ class Game
         bool tower2Selected;
         bool tower3Selected;
 
-        bool leftMouseButtonDown;
-        bool tower1Selected;
-        bool tower2Selected;
-        bool tower3Selected;
 
         // Utilitaries classes
         AssetManager assetManager;

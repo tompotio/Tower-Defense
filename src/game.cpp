@@ -477,82 +477,7 @@ void Game::UpdateGraphics()
         tower.BlitTower(renderer);
 
         tower.DrawRange(renderer, grid_cell_size);
-        //tower.Fire(enemies, seconds, seconds_mil, last_seconds_mil);
-        switch (tower.type) {
-            case FIRE:
-                
-                break;
-
-            case ICE:
-            {
-                
-                if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
-                    //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
-                    LaunchAnimation("ice", tower.GetRect().x, tower.GetRect().y, 1);
-
-                    for (Enemy& enemy : enemies) {
-
-                        if(!enemy.dead){
-                            int a = tower.GetRect().x;
-                            int b = tower.GetRect().y;
-                            double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
-                            double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
-
-
-                            if ( int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) <= tower.range) {
-                                //enemy.Current_HP -= tower.degat;
-                                enemy.Current_HP = 0;
-                                
-
-                            } 
-                            
-
-                        } 
-                    }
-                }
-               
-                break;
-            }
-                
-            case THUNDER:
-            {
-
-                if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
-                    int closest = tower.range;
-                    Enemy* closest_enemy = NULL;
-                    for (Enemy& enemy : enemies) {
-
-                        if(!enemy.dead){
-                            int a = tower.GetRect().x;
-                            int b = tower.GetRect().y;
-                            double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
-                            double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
-
-                            int dist = int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5));
-                            if ( dist <= closest) {
-                                closest = dist;
-                                closest_enemy = &enemy;
-                                
-                            } 
-                            
-                            
-
-                        } 
-                    }
-                    if (closest_enemy != NULL) {
-                        closest_enemy->Current_HP -= tower.degat;
-                        //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
-                        AddSfx(closest_enemy->explosion, closest_enemy->GetSprite().GetRect().x + closest_enemy->GetSprite().GetRect().w/2, closest_enemy->GetSprite().GetRect().y + closest_enemy->GetSprite().GetRect().h/2);
-
-                    }
-
-                }
-                break;
-            }
-            default:
-                break;
         
-        }
     }
     for(Widget &widget : widgets) {
         if (widget.isHovering(cursor.x, cursor.y)) {
@@ -759,6 +684,7 @@ void Game::TowerSelection(){
 void Game::TowerAttackCase(Tower& tower){
     switch(tower.type){
         case FIRE:
+        {
             Enemy* closest_enemy = nullptr; // remplacer NULL par tower.FindNearestEnemy();
             //Cherche le plus proche ennemi
             for (Enemy& enemy : enemies) {
@@ -785,14 +711,13 @@ void Game::TowerAttackCase(Tower& tower){
                 }
             }
             break;
-
+        }
         case ICE:
         {
             
             if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
                 //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
-                LaunchAnimation("ice", tower.GetRect().x, tower.GetRect().y, 1);
-
+                std::vector<Enemy*> e;
                 for (Enemy& enemy : enemies) {
 
                     if(!enemy.dead){
@@ -803,15 +728,23 @@ void Game::TowerAttackCase(Tower& tower){
 
 
                         if ( int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) <= tower.range) {
-                            //enemy.Current_HP -= tower.degat;
-                            enemy.Current_HP = 0;
-                            
+                            e.push_back(&enemy);
 
                         } 
-                        
-
+                    
                     } 
                 }
+                std::cout << "ENEMY : NUM : " <<  e.size() << std::endl;
+                if (e.size() > 0) {
+                    LaunchAnimation("ice", tower.GetRect().x, tower.GetRect().y, 1);
+                    for (Enemy* enemy : e) {
+                        //enemy.Current_HP -= tower.degat;
+                        enemy->Current_HP = 0;
+                        
+                    }
+                }
+                
+                
             }
             
             break;
@@ -843,9 +776,13 @@ void Game::TowerAttackCase(Tower& tower){
                     } 
                 }
                 if (closest_enemy != NULL) {
-                    closest_enemy->Current_HP -= tower.degat;
-                    //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
-                    AddSfx(closest_enemy->explosion, closest_enemy->GetSprite().GetRect().x + closest_enemy->GetSprite().GetRect().w/2, closest_enemy->GetSprite().GetRect().y + closest_enemy->GetSprite().GetRect().h/2);
+                    if(tower.CD >= tower.cadence){
+                        tower.CD = 0;
+                        closest_enemy->Current_HP -= tower.degat;
+                        //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
+                        AddSfx(closest_enemy->explosion, closest_enemy->GetSprite().GetRect().x + closest_enemy->GetSprite().GetRect().w/2, closest_enemy->GetSprite().GetRect().y + closest_enemy->GetSprite().GetRect().h/2);
+                    }
+                    
 
                 }
 
@@ -1155,7 +1092,7 @@ void Game::DrawProjectiles(){
 }
 
 // Dessine les ennemis sur l'écran
-void Game::DrawEnemies(){
+void Game::DrawEnemies() {
     for (Enemy& enemy : enemies) {
         if(!enemy.dead){
             BlitSprite(
@@ -1166,7 +1103,7 @@ void Game::DrawEnemies(){
     
             if (enemy.Current_HP <= 0) {
                 enemy.dead = true;
-
+            }
             if(enemy.selected && show_enemies_range && details){
                 SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
                 
@@ -1655,7 +1592,7 @@ void Game::DrawAnimation(std::string tag, int x, int y) {
 
                     }
                     else {
-                        BlitTexture(effect->getTexture(), renderer, effect->getRect().x, effect->getRect().y);
+                        BlitTexture(effect->getTexture(), renderer, effect->getRect().x - GetTextureSize(effect->getTexture()).w/2, effect->getRect().y - GetTextureSize(effect->getTexture()).h/2);
                     }
                     effect->timer_actual -= deltatime; 
 

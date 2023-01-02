@@ -73,18 +73,12 @@ class Enemy : public Entity
         int GetSpeed(){return this->speed;};
         int GetDamage(){return this->dmg;};
         Entity_t GetType(){return this->type;};
-
+        
+        void BlitExplosion(SDL_Renderer* renderer);
         // Modifie la direction de l'ennemi
-        void SetDirection(vec2<double>  direction);
-
-        vec2<double>& GetPosition();
-
-        // Modifie la position de l'ennemi via un vecteur
-        void SetPosition(vec2<double> pos);
-        void SetHP(int hp) {this->Current_HP = hp;};
 
         // Déplace l'ennemi via un vecteur (exemple avance de 10 en x et 0 en y)
-        void Move(vec2<double>  step);
+        
 
 
         int maxcell = 0;
@@ -98,7 +92,7 @@ class Enemy : public Entity
         SDL_Texture* explosion;
 
     protected:
-        SDL_Texture* explosion;
+        
         int dmg;
         float speed;
         Entity_t type;
@@ -129,9 +123,9 @@ class Tower {
         int degat;
         int price;
         SDL_Texture* effect_texture;
+        double CD;
 
     private:
-        double CD;
         SDL_Texture* texture;
         SDL_Rect rect;
         bool showrange;

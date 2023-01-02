@@ -204,6 +204,7 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
     this->rect = GetTextureSize(texture);
     this->rect.x = x;
     this->rect.y = y;
+    this->CD = 0;
 }
 
 void Tower::BlitTower(SDL_Renderer* renderer) {
