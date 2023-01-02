@@ -1,5 +1,5 @@
 #include "../include/game.hpp"
-#include <typeinfo>
+
 /**
      * vague 1 : 5 goblins
      * vague 2 : 7 goblins et 2 elfes
@@ -39,51 +39,10 @@ Game::Game(Body** body, Menu** menu)
 
     // Champ de déclaration des assets du jeu 
     assetManager = AssetManager();
-    audio = AudioManager();
-    assetManager.AddSFX("sucess", "../assets/Sound/success.wav");
-    assetManager.AddSFX("explosion", "../assets/Sound/explosion1.ogg");
 
-    arial_font = load_font( "../assets/arial.ttf", 18);
-    fantasyfont = load_font( "../assets/fantasyfont.ttf", 25);
+    font = load_font( "../assets/arial.ttf", 14);
+    if (font == nullptr) std::cout << "ptdr null" << std::endl;
 
-
-    assetManager.AddTexture(
-        "sb",
-        LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
-    );
-
-    assetManager.AddTexture(
-        "sb2",
-        LoadTexture("../assets/PNG/Menu/settings/sbutton_bg.png", (*body)->GetRenderer())
-    );
-
-    assetManager.AddTexture(
-        "soldier",
-        LoadTexture("../assets/tiles/Default size/towerDefense_tile245.png",renderer)
-    );
-    assetManager.AddTexture(
-        "sb",
-        LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
-    );
-
-    assetManager.AddTexture(
-        "sb2",
-        LoadTexture("../assets/PNG/Menu/settings/sbutton_bg.png", (*body)->GetRenderer())
-    );
-
-    assetManager.AddTexture(
-        "soldier",
-        LoadTexture("../assets/tiles/Default size/towerDefense_tile245.png",renderer)
-    );
-    assetManager.AddTexture(
-        "fire_proj",
-        LoadTexture("../assets/fire_proj.png", (*body)->GetRenderer())
-    );
-
-    assetManager.AddTexture(
-        "commander",
-        LoadTexture("../assets/commander.png", (*body)->GetRenderer())
-    );
 
     assetManager.AddTexture(
         "sb",
@@ -271,6 +230,7 @@ Game::Game(Body** body, Menu** menu)
     );
     toppath_size = toppath.size();
     bottompath_size = bottompath.size();
+    wave_ongoing = true; // Je bougerai cette valeur plus tard qui se mettra true après une petite fenêtre de dialogue dans le jeu avant de débuter la partie ! 
     isRunning = true;
     playerMoney = 500;
 
@@ -328,7 +288,8 @@ void Game::HandleEvents()
 
                 grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
                 grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
-                
+                std::cout << "Position souris : {X = " << cursor.x / grid_cell_size << "; Y = " << cursor.y / grid_cell_size << " } " << std::endl;
+                std::cout << "X : " << cursor.x << "Y : "<< cursor.y << std::endl;
                 
                 // Lettre K enfoncée
 
@@ -388,8 +349,6 @@ void Game::HandleEvents()
                 }
             }else if (event.button.button == SDL_BUTTON_RIGHT){
                 showgrid = !showgrid;
-                details = !details;
-
             }
             break;
         // Position de la souris
@@ -421,21 +380,12 @@ void Game::HandleEvents()
             break;
         // Appuie une touche du clavier
         case SDL_KEYDOWN:
-            // Touche K pour créer un nouveau chemin de test
+            // Touche K
             if (event.key.keysym.sym == SDLK_k){
                 pressing_key_k = true;
             }
             if (event.key.keysym.sym == SDLK_ESCAPE){
                 isRunning = false;
-            }
-            if (event.key.keysym.sym == SDLK_f){
-                show_fps = !show_fps;
-            }
-            if (event.key.keysym.sym == SDLK_e){
-                show_enemies_range = !show_enemies_range;
-            }
-            if (event.key.keysym.sym == SDLK_g){
-                showgrid = !showgrid;
             }
             break;
         // Lache une touche du clavier
@@ -467,21 +417,23 @@ void Game::UpdateGraphics()
 
     DrawSFX();
 
-
-    
-    if (details){
+    apply_text(renderer,WindowSize.w/2,WindowSize.h/2,200,200,"MONEY",font);
+    if (showgrid){
         //Affiche le curseur de la grille
         DrawCursor();
 
-        if(showgrid){
-            // Affiche la grille map
-            map.DrawGrid(renderer);
-        }
+        // Affiche la grille map
+        map.DrawGrid(renderer);
+        int w;
+        int h;
+        TTF_SizeText(font, "FPS", &w, &h);
+        apply_text(renderer,50,50,w,h,"FPS",font);
 
-        if(show_fps){
-            //Affiche les FPS
-            DrawFPS();
-        }
+        char current_fps[100];
+        sprintf(current_fps,"%d",fps);
+
+        TTF_SizeText(font,current_fps, &w, &h);
+        apply_text(renderer,100,50,w,h,current_fps,font);
 
         //Dessine les lignes du chemin
         if (found_testing_path){
@@ -495,33 +447,82 @@ void Game::UpdateGraphics()
         tower.BlitTower(renderer);
 
         tower.DrawRange(renderer, grid_cell_size);
+        //tower.Fire(enemies, seconds, seconds_mil, last_seconds_mil);
+        switch (tower.type) {
+            case FIRE:
+                
+                break;
+
+            case ICE:
+            {
+                
+                if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
+                    //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
+                    LaunchAnimation("ice", tower.GetRect().x, tower.GetRect().y, 1);
+
+                    for (Enemy& enemy : enemies) {
+
+                        if(!enemy.dead){
+                            int a = tower.GetRect().x;
+                            int b = tower.GetRect().y;
+                            double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
+                            double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
+
+
+                            if ( int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) <= tower.range) {
+                                //enemy.Current_HP -= tower.degat;
+                                enemy.Current_HP = 0;
+                                
+
+                            } 
+                            
+
+                        } 
+                    }
+                }
+               
+                break;
+            }
+                
+            case THUNDER:
+            {
+
+                if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
+                    int closest = tower.range;
+                    Enemy* closest_enemy = NULL;
+                    for (Enemy& enemy : enemies) {
+
+                        if(!enemy.dead){
+                            int a = tower.GetRect().x;
+                            int b = tower.GetRect().y;
+                            double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
+                            double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
+
+                            int dist = int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5));
+                            if ( dist <= closest) {
+                                closest = dist;
+                                closest_enemy = &enemy;
+                                
+                            } 
+                            
+                            
+
+                        } 
+                    }
+                    if (closest_enemy != NULL) {
+                        closest_enemy->Current_HP -= tower.degat;
+                        //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
+                        AddSfx(closest_enemy->explosion, closest_enemy->GetSprite().GetRect().x + closest_enemy->GetSprite().GetRect().w/2, closest_enemy->GetSprite().GetRect().y + closest_enemy->GetSprite().GetRect().h/2);
+
+                    }
+
+                }
+                break;
+            }
+            default:
+                break;
         
-    }
-    for(Widget &widget : widgets) {
-        if (widget.isHovering(cursor.x, cursor.y)) {
-            if (widget.getId() == "s-i"){
-                widget.setTexture(assetManager.GetTexture("sb2"));
-            }
         }
-        else {
-            if (widget.getId() == "s-i"){
-                widget.setTexture(assetManager.GetTexture("sb"));
-            }
-        }
-        widget.BlitWidget(renderer);
-    }
-
-
-    // Affiche les projectiles
-    DrawProjectiles();
-
-    // Affiche une petite fenêtre de dialogue entre chaque wave
-    if(intermit_screen){
-        DrawDialogScreen();
-    }
-
-    if(intermit_count){
-        DrawCount();
     }
 
     // Affiche l'inventaire
@@ -552,8 +553,7 @@ void Game::UpdateGraphics()
         
     }
 
-    DrawAnimation("coin", 1200, 750);
-    DrawAnimation("coin", 200, 750);
+    DrawAnimation("coin", 1200, 800);
     DrawAnimation("ice", 500, 500);
 
     
@@ -614,223 +614,25 @@ void Game::UpdateGame(){
     }
 
     UpdateTime();
-    TowerSelection();
 
     if((wave_ongoing)){
         WaveManager();
+        // For each sur les tours 
+
         MoveEnemies();
-        MoveProjectiles();
-        TowersAttack();
-        // Si la wave s'est terminée, la fonction va remettre à niveau les valeurs
         ResetValuesForWave();
-    }else{
+    }
+    else{
         UpdateIntermit();
     }
 }
 
-void Game::DrawFPS(){
-    int w;
-    int h;
-    TTF_SizeText(arial_font, "FPS", &w, &h);
-    apply_text(renderer,50,50,w,h,"FPS",arial_font);
-
-    char current_fps[100];
-    sprintf(current_fps,"%d",fps);
-
-    TTF_SizeText(arial_font,current_fps, &w, &h);
-    apply_text(renderer,100,50,w,h,current_fps,arial_font);
-}
-
-// Dessine le compteur du temps avant le début de chaque wave à l'écran
-void Game::DrawCount(){
-    int w;
-    int h;
-
-    char current_count[100];
-    sprintf(current_count,"%d",cpt_intermit);
-
-    TTF_SizeText(arial_font, "La vague va commencer dans : ", &w, &h);
-    apply_text(renderer,1050,560,w,h,"La vague va commencer dans : ",arial_font);
-
-    TTF_SizeText(arial_font,current_count, &w, &h);
-    apply_text(renderer,1300,560,w,h,current_count,arial_font);
-}
-
-// Fonction qui gère la sélection des tours
-void Game::TowerSelection(){
-    for(int i = 0; i < inventory_grid_cells; i++) {
-        SDL_Rect rect = {
-            (i * (inventory_grid_cells_size + inventory_grid_offset)) + inventory_pos_x,
-            inventory_pos_y,
-            inventory_grid_cells_size,
-            inventory_grid_cells_size
-        };
-        if (SDL_PointInRect(&cursor, &rect) && leftMouseButtonDown) {
-            if(i==0 && tower2Selected == false && tower3Selected == false) {
-                tower1Selected = true;
-                GetWidget("tower1")->setActive(true);
-            }
-            if(i==1 && tower1Selected == false && tower3Selected == false) {
-                tower2Selected = true;
-                GetWidget("tower2")->setActive(true);
-            }
-            if(i==2 && tower1Selected == false && tower2Selected == false) {
-                tower3Selected = true;
-                GetWidget("tower3")->setActive(true);
-            }
-        }
-    }
-
-    if (tower1Selected) {
-        GetWidget("tower1")->setX(cursor.x - GetWidget("tower1")->getRect().w/2);
-        GetWidget("tower1")->setY(cursor.y - GetWidget("tower1")->getRect().h/2);
-    }
-
-    if (tower2Selected) {
-        GetWidget("tower2")->setX(cursor.x - GetWidget("tower2")->getRect().w/2);
-        GetWidget("tower2")->setY(cursor.y - GetWidget("tower2")->getRect().h/2);
-    }
-    if (tower3Selected) {
-        GetWidget("tower3")->setX(cursor.x - GetWidget("tower3")->getRect().w/2);
-        GetWidget("tower3")->setY(cursor.y - GetWidget("tower3")->getRect().h/2);
-    }
-}
-
 /**
- * En fonction du type de tour on lance un effet différent
- * @param tower attaque de la tour à lancer
-*/
-void Game::TowerAttackCase(Tower& tower){
-    switch(tower.type){
-        case FIRE:
-        {
-            Enemy* closest_enemy = nullptr; // remplacer NULL par tower.FindNearestEnemy();
-            int closest = tower.range;
-            //Cherche le plus proche ennemi
-            for (Enemy& enemy : enemies) {
-                
-                if(!enemy.dead){
-                    int a = tower.GetRect().x;
-                    int b = tower.GetRect().y;
-                    double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
-                    double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
-                    int dist = int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5));
-                    if (dist <= closest) {
-                        closest = dist;
-                        closest_enemy = &enemy;
-                    }
-                }
-            }
-            // Si on a trouvé un ennemi
-            if(!(closest_enemy == nullptr)){
-                // On vérifie le CD de la tour
-                if(tower.CD >= tower.cadence){
-                    tower.CD = 0;
-                    vec2<double> position = vec2<double>(tower.GetRect().x,tower.GetRect().y);
-                    audio.PlaySFX("explosion", &assetManager, 1);
-
-                    SpawnProjectile(position, closest_enemy);
-                }
-            }
-            break;
-        }
-        case ICE:
-        {
-            
-            if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
-                //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
-                std::vector<Enemy*> e;
-                for (Enemy& enemy : enemies) {
-
-                    if(!enemy.dead){
-                        int a = tower.GetRect().x;
-                        int b = tower.GetRect().y;
-                        double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
-                        double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
-
-
-                        if ( int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5)) <= tower.range) {
-                            e.push_back(&enemy);
-
-                        } 
-                    
-                    } 
-                }
-                if (e.size() > 0) {
-                    LaunchAnimation("ice", tower.GetRect().x, tower.GetRect().y, 1);
-                    for (Enemy* enemy : e) {
-                        enemy->Current_HP -= tower.degat;
-                        audio.PlaySFX("explosion", &assetManager, 1);
-                        
-                    }
-                }
-                
-                
-            }
-            
-            break;
-        }
-
-        case THUNDER:
-        {
-
-            if (seconds % tower.cadence == 0 && (last_seconds_mil == seconds_mil)) {
-                int closest = tower.range;
-                Enemy* closest_enemy = NULL;
-                for (Enemy& enemy : enemies) {
-
-                    if(!enemy.dead){
-                        int a = tower.GetRect().x;
-                        int b = tower.GetRect().y;
-                        double c = enemy.GetSprite().GetRect().x + enemy.GetSprite().GetRect().w/2;
-                        double d = enemy.GetSprite().GetRect().y + enemy.GetSprite().GetRect().h/2;
-
-                        int dist = int(pow(pow(c-a, 2) + pow(d-b, 2), 0.5));
-                        if ( dist <= closest) {
-                            closest = dist;
-                            closest_enemy = &enemy;
-                            
-                        } 
-                        
-                        
-
-                    } 
-                }
-                if (closest_enemy != NULL) {
-                    if(tower.CD >= tower.cadence){
-                        tower.CD = 0;
-                        closest_enemy->Current_HP -= tower.degat;
-                        //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
-                        AddSfx(closest_enemy->explosion, closest_enemy->GetSprite().GetRect().x + closest_enemy->GetSprite().GetRect().w/2, closest_enemy->GetSprite().GetRect().y + closest_enemy->GetSprite().GetRect().h/2);
-                        audio.PlaySFX("explosion", &assetManager, 1);
-
-                    }
-                    
-
-                }
-
-            }
-            break;
-        }
-        default:
-            break;
-    }
-}
-
-// Fonction qui gère les attaques de chaque tour en les parcourant
-void Game::TowersAttack(){
-    for(Tower& tower : towers){
-        tower.CD += deltatime;
-        TowerAttackCase(tower);
-    }
-}
-
-/**
- * Fonction où l'on hard-code chaque wave pour les ennemis
+ * Fonction où l'on hard-code chaque wave
  * @param
 **/
 void Game::WaveManager(){
-    Entity_t type; // type d'ennemis
+    Entity_t type; // type d'énnemis
     int path; // Génère un nombre "aléatoire" en 1 et 2 pour choisir le chemin
 
     // Crée un goblin toutes les 4 secondes
@@ -888,9 +690,10 @@ void Game::WaveManager(){
 //Reset les valeurs de chaque wave
 void Game::ResetValuesForWave(){
     bool endwave = true;
+
     if((golem_nb + knight_nb + orc_nb + goblin_nb + elf_nb) == 0) endwave = false;
 
-    // On vérifie si tous les ennemis sont morts, sinon on met endwave à falses
+    // On vérifie si tous les énnemis sont morts, sinon on met endwave à falses
     for(auto enemy: enemies){
         if(!(enemy.dead)){
             endwave = false;
@@ -977,79 +780,24 @@ void Game::ResetValuesForWave(){
     }
 }
 
-void Game::DrawDialogScreen(){
-    SDL_Rect fond = {100,490,1380, 150};
-    SDL_SetRenderDrawColor(renderer, black.r, black.g, black.b, 165);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_RenderFillRect(renderer, &fond);
-
-    BlitTexture(
-        assetManager.GetTexture("commander"),
-        renderer,
-        0,
-        440
-    );
-
-    int w;
-    int h;
-
-    if(wave_nb == 1){
-        TTF_SizeText(fantasyfont, "Preparez-vous, les ennemis arrivent !", &w, &h);
-        apply_text(renderer,250,525,w,h,"Preparez-vous, les ennemis arrivent !",fantasyfont);
-    }else if(wave_nb == 2){
-        TTF_SizeText(fantasyfont, "Des elfes ?", &w, &h);
-        apply_text(renderer,250,525,w,h,"Des elfes ?",fantasyfont);
-    }else if(wave_nb == 3){
-        TTF_SizeText(fantasyfont, "Attention plus d'ennemis !", &w, &h);
-        apply_text(renderer,250,525,w,h,"Attention plus d'ennemis !",fantasyfont);
-    }else if(wave_nb == 4){
-        TTF_SizeText(fantasyfont, "Une tres grosse vague de goblins arrive", &w, &h);
-        apply_text(renderer,250,525,w,h,"Une tres grosse vague de goblins arrive",fantasyfont);
-    }else if(wave_nb == 5){
-        TTF_SizeText(fantasyfont, "Qu'est-ce que c'est que ca ?!", &w, &h);
-        apply_text(renderer,250,525,w,h,"Qu'est-ce que c'est que ca ?!",fantasyfont);
-    }else if(wave_nb == 6){
-        TTF_SizeText(fantasyfont, "...", &w, &h);
-        apply_text(renderer,250,525,w,h,"...",fantasyfont);
-    }else if(wave_nb == 7){
-        TTF_SizeText(fantasyfont, "...", &w, &h);
-        apply_text(renderer,250,525,w,h,"...",fantasyfont);
-    }else if(wave_nb == 8){
-        TTF_SizeText(fantasyfont, "...", &w, &h);
-        apply_text(renderer,250,525,w,h,"...",fantasyfont);
-    }else if(wave_nb == 9){
-        TTF_SizeText(fantasyfont, "Une cavalerie on est fichu ! les ennemis sont trop rapides", &w, &h);
-        apply_text(renderer,250,525,w,h,"Une cavalerie on est fichu ! les ennemis sont trop rapides",fantasyfont);
-    }else if(wave_nb == 10){
-        TTF_SizeText(fantasyfont, "Le boss est en train d'arriver !", &w, &h);
-        apply_text(renderer,250,525,w,h,"Le boss est en train d'arriver !",fantasyfont);
-    }else if(wave_nb == 11){
-        TTF_SizeText(fantasyfont, "...", &w, &h);
-        apply_text(renderer,250,525,w,h,"...",fantasyfont);
-    }else if(wave_nb == 12){
-        TTF_SizeText(fantasyfont, "...", &w, &h);
-        apply_text(renderer,250,525,w,h,"...",fantasyfont);
-    }
-}
-
 void Game::UpdateIntermit(){
-    if(!intermit_count){
+    if(seconds <= 5){
+        // UpdateGraphics s'occupe d'afficher la fenêtre d'intermitence 
         intermit_screen = true;
-        cpt_intermit = INTERMITENCE_TIME;
-    }
-
-    if(cpt_intermit <= 0){
-        intermit_count = false;
+    }else{
         intermit_screen = false;
-        wave_ongoing = true;
+        intermit_count = true;
+        if(cpt_intermit == -1){
+            cpt_intermit = INTERMITENCE_TIME;
+        }else if(cpt_intermit == 0){
+            intermit_count = false;
+            wave_ongoing = true;
+        }else{
+            cpt_intermit -= 1;
+        }
     }
-    if(last_seconds_mil == seconds_mil){
-        cpt_intermit -= 1;
-    }
-    if(!intermit_count && cpt_intermit == INTERMITENCE_TIME) intermit_count = true;
 }
 
-// Met à jour le compteur du temps (secondes)
 void Game::UpdateTime(){
 
     // On met à jour le temps écoulé en milisecondes
@@ -1062,38 +810,7 @@ void Game::UpdateTime(){
     }
 }
 
-// Déplace tous les projectiles (en l'occurence les projectiles à tête chercheuse)
-void Game::MoveProjectiles(){
-    for(HomingProjectile & proj : projectiles){
-        // Si le missile n'a pas été désactivé alors le fait avancer
-        if(proj.active){
-            // On vérifie si le dernier déplacement n'a pas rapprocher suffisamment le missile de l'ennemi
-            vec2<double> vecteur_distance;
-            vec2<double> POS_ENNEMI = vec2<double>(proj.target->GetPosition().x, proj.target->GetPosition().y);
-            vecteur_distance = POS_ENNEMI - proj.position;
-            proj.UpdateDirection(vecteur_distance);
-
-            // Si l'ennemi est vivant
-            if(proj.target->dead){
-                proj.active = false;
-            }
-
-            // Le missile est suffisamment proche de l'ennemi pour le percuter, même si l'ennemi est mort
-            if(vecteur_distance.length() <= 16){
-                // Ajouter une animation d'explosion si possible
-                proj.target->Current_HP -= proj.dmg;
-                if(proj.target->Current_HP <= 0){
-                    proj.target->dead = true;
-                }
-                proj.active = false;
-            }else{
-                proj.position = (proj.direction * (deltatime * proj.speed)) + proj.position;
-            }
-        }   
-    }
-}
-
-// Déplace les ennemis 
+// Déplace les énnemis 
 void Game::MoveEnemies(){
     for (int i = 0; i < enemies.size(); i++){
         Enemy& enemy = enemies[i];
@@ -1123,7 +840,6 @@ void Game::MoveEnemies(){
 }
 
 void Game::DrawCursor(){
-    
     // Dessine le curseur uniquement s'il est dans la grille
     if ((mouse_X >= 0) &&
     (mouse_X < (map.GetWidth() * grid_cell_size)) && 
@@ -1134,29 +850,8 @@ void Game::DrawCursor(){
     }
 }
 
-void Game::DrawProjectiles(){
-    for (HomingProjectile& proj : projectiles) {
-        if(proj.active){
-            proj.animationstep = (proj.animationstep + 1) % 2;
-            SDL_Rect srcrect;
-            srcrect.w = 32;
-            srcrect.h = 32;
-            srcrect.x = 32 * proj.animationstep;
-            srcrect.y = 0;
-
-            SDL_Rect dstcrect;
-            dstcrect.w = 32;
-            dstcrect.h = 32;
-            dstcrect.x = proj.position.x + 16;
-            dstcrect.y = proj.position.y;
-        
-            SDL_RenderCopy(renderer, proj.texture, &srcrect, &dstcrect);
-        }
-    }
-}
-
 // Dessine les ennemis sur l'écran
-void Game::DrawEnemies() {
+void Game::DrawEnemies(){
     for (Enemy& enemy : enemies) {
         if(!enemy.dead){
             BlitSprite(
@@ -1168,48 +863,6 @@ void Game::DrawEnemies() {
             if (enemy.Current_HP <= 0) {
                 enemy.dead = true;
             }
-            if(enemy.selected && show_enemies_range && details){
-                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-                
-                int diameter = (32);
-
-                int x = (16 - 1);
-                int y = 0;
-                int tx = 1;
-                int ty = 1;
-                int error = (tx - diameter);
-
-                vec2<double> pos = enemy.GetPosition();
-                int w = enemy.GetSprite().GetRect().w;
-                int h = enemy.GetSprite().GetRect().h;
-
-                while (x >= y)
-                {
-                    //  Each of the following renders an octant of the circle
-                    SDL_RenderDrawPoint(renderer, pos.x + x + w/2, pos.y - y + h/2);
-                    SDL_RenderDrawPoint(renderer, pos.x + x + w/2, pos.y + y + h/2);
-                    SDL_RenderDrawPoint(renderer, pos.x - x + w/2, pos.y - y + h/2);
-                    SDL_RenderDrawPoint(renderer, pos.x - x + w/2, pos.y + y + h/2);
-                    SDL_RenderDrawPoint(renderer, pos.x + y + w/2, pos.y - x + h/2);
-                    SDL_RenderDrawPoint(renderer, pos.x + y + w/2, pos.y + x + h/2);
-                    SDL_RenderDrawPoint(renderer, pos.x - y + w/2, pos.y - x + h/2);
-                    SDL_RenderDrawPoint(renderer, pos.x - y + w/2, pos.y + x + h/2);
-
-                    if (error <= 0)
-                    {
-                        ++y;
-                        error += ty;
-                        ty += 2;
-                    }
-
-                    if (error > 0)
-                    {
-                        --x;
-                        tx += 2;
-                        error += (tx - diameter);
-                    }
-                }
-            }
         }
     }
 }
@@ -1219,7 +872,7 @@ void Game::DrawEnemies() {
  * @param path le chemin de cellules à afficher.
  * @param color couleur que le chemin doit prendre.
 */
-void Game::DrawPath(std::vector<Cell> path, SDL_Color color) {
+void Game::DrawPath(std::vector<Cell> path, SDL_Color color){
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     if (path.size() > 0){
         for (int i = 0; i < path.size() - 1; i++){
@@ -1245,7 +898,11 @@ void Game::DrawBaseHealthBar(){
         SDL_Rect vie = {GetWidget("life_bar")->getRect().x + 16, (WindowSize.h-100+16),(int)(540 * ((double)current_HP/100)), 20};
         SDL_SetRenderDrawColor(renderer, lime.r, lime.g, lime.b, lime.a);
         SDL_RenderFillRect(renderer, &vie);
+    }else{
+        //BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
     }
+
+    //BlitTexture(assetManager.GetTexture("blur"),renderer,0,0);
 }
 
 void Game::DrawInventory(){
@@ -1446,20 +1103,6 @@ void Game::PosEnemy(Enemy& enemy, int choice){
     );
 }
 
-void Game::SpawnProjectile(vec2<double> pos, Enemy* target){
-    // On parcourt la liste des ennemis et on vérifie si un ennemi est déjà inactif en fonction de son type
-    for (HomingProjectile& proj : projectiles){
-        if (!proj.active){
-            proj.position = pos;
-            proj.target = target;
-            proj.active = true;
-            return; // On sort de la fonction
-        }
-    }
-    HomingProjectile newproj = HomingProjectile(pos, assetManager, target);
-    projectiles.push_back(newproj);
-}
-
 void Game::SpawnEnemy(int choice, Entity_t type){
     // On parcourt la liste des ennemis et on vérifie si un ennemi est déjà inactif en fonction de son type
     for (Enemy& enemy : enemies){
@@ -1473,6 +1116,7 @@ void Game::SpawnEnemy(int choice, Entity_t type){
             }
         }
     }
+
     if(type == GOBLIN){
         Enemy goblin = Goblin(vec2<double>(0,0), assetManager);
         PosEnemy(goblin, choice);
@@ -1541,14 +1185,6 @@ Widget* Game::GetWidget(std::string id) {
     return NULL;
 }
 
-Widget* Game::GetWidgetAnimation(std::string id, int index) {
-    for(Widget &widget : animation[index]) {
-        if (widget.getId() == id) {return &widget;}
-    }
-    
-    return NULL;
-}
-
 /**
  * Rajoute une tour dans la liste des tours (vector).
  * @param indexe de la tour.
@@ -1603,133 +1239,79 @@ void Game::AddSfx(SDL_Texture* texture, int x, int y) {
     }
     else {
         w->timer_actual = w->timer_init;
+        std::cout << "OHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH MERDE" << std::endl;
     }
 
 
 }
 
 void Game::InitAnimationImage(std::string tag, std::string path, int number, double anim_time, bool infinite) {
-    std::vector<Widget> t;
-    animation.push_back(t);
-    
     for (int z=0; z<number; z++) {
         std::string frame_name = "a-" + tag + "_" + std::to_string(z);
+        std::cout << frame_name << std::endl;
         assetManager.AddTexture(
             frame_name,
             LoadTexture((path+tag+std::to_string(z)+".png").c_str(), renderer)
         );
+        std::cout <<  (path+tag+std::to_string(z)+".png")<< std::endl;
+
         if (infinite) {
-            animation[animation.size()-1].push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, -1));
-            
+            sfx.push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, -1));
         }
         else {
-            animation[animation.size()-1].push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, 0));
+            sfx.push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, 0));
         }
     }
-
 }
 void Game::DrawAnimation(std::string tag, int x, int y) {
-    std::vector<int> c;
-    for (int i = 0; i < animation.size(); i++){
-        Widget effect = animation[i][0];
+    std::vector<Widget*> anim;
+    for (Widget& effect : sfx) {
+        // std::cout << "substring in :" << (effect.getId().find(tag) != std::string::npos) << std::endl;
         if (effect.getId()[0] == 'a' && (effect.getId().find(tag) != std::string::npos)) {
-            c.push_back(i);
-            
+            anim.push_back(&effect);
         }
-    }
-
+    }       
     
-    //std::cout << "NUMBER : " << c.size() << std::endl;
-    //std::cout << " BLIT : X  : " << cursor.x << " Y :  " << cursor.y << std::endl;
 
-    for (int j : c) { 
-        for (int i = 0; i < animation[j].size(); i++){
-            Widget* effect = &animation[j][i];
-            
-            if (effect->getActive() && (effect->number_print > 0 || effect->number_print==-1)) {
-                if (effect->timer_actual > 0) {
-                    if (effect->number_print == -1) {
-                        BlitTexture(effect->getTexture(), renderer, x, y);
-
-                    }
-                    else {
-                        BlitTexture(effect->getTexture(), renderer, effect->getRect().x - GetTextureSize(effect->getTexture()).w/2, effect->getRect().y - GetTextureSize(effect->getTexture()).h/2);
-                    }
-                    effect->timer_actual -= deltatime; 
+    for (int i = 0; i < anim.size(); i++){
+        Widget* effect = anim[i];
+        
+        //std::cout << "first: " << effect.getId() << " " << effect.timer_actual << std::endl;
+        if (effect->getActive() && (effect->number_print > 0 || effect->number_print==-1)) {
+            if (effect->timer_actual > 0) {
+                if (effect->number_print == -1) {
+                    BlitTexture(effect->getTexture(), renderer, x, y);
 
                 }
                 else {
-                    //std::cout << "first: " << effect->getId() << " active : " << effect->getActive() << std::endl;
-
-                    effect->timer_actual = effect->timer_init;
-                    effect->setActive(false);
-                    if (effect->number_print != -1) {
-                        effect->number_print -= 1;
-                    }
-                    GetWidgetAnimation("a-" + tag + "_" + std::to_string((i+1)%animation[j].size()), j)->setActive(true);
+                    BlitTexture(effect->getTexture(), renderer, effect->getRect().x, effect->getRect().y);
                 }
+                effect->timer_actual -= deltatime; 
 
             }
+            else {
+                //std::cout << "first: " << effect->getId() << " active : " << effect->getActive() << std::endl;
+
+                effect->timer_actual = effect->timer_init;
+                effect->setActive(false);
+                if (effect->number_print != -1) {
+                    effect->number_print -= 1;
+                }
+                GetWidget("a-" + tag + "_" + std::to_string((i+1)%anim.size()))->setActive(true);
+            }
+
         }
     }
-
 }
 
 void Game::LaunchAnimation(std::string tag, int x, int y, int number) {
-    
-    bool found = false;
-    std::vector<Widget> t;
-    std::cout << "SIZE ANIMATION : " << animation.size() << std::endl;
-    for (int i = 0; i < animation.size(); i++){
-        //std::cout << "NAME 0 INDEX : " << animation[i][0].getId() << std::endl;
-        if (animation[i][0].getId()[0] == 'a' && (animation[i][0].getId().find(tag) != std::string::npos)) {
-            int total = 0;
-            
-            for (int j = 0; j < animation[i].size(); j++){
-                Widget* effect = &animation[i][j];
-                // std::cout << "NAME  : " << animation[i][0].getId() << " " << effect->number_print << std::endl;
-
-                total += effect->number_print;
-                
-            }
-            if (total == 0) {
-                found = true;
-                for (int z = 0; z < animation[i].size(); z++){
-                    Widget* effect = &animation[i][z];
-
-                    if (effect->getId()[0] == 'a' && (effect->getId().find(tag) != std::string::npos)) {
-
-                        effect->setX(x);
-                        effect->setY(y);                   
-                        effect->number_print = number;
-
-                    }
-                }
-                break;
-                
-            }
-            else {
-                t = animation[i];
-            }
-            
+    for (Widget& effect : sfx) {
+        if (effect.getId()[0] == 'a' && (effect.getId().find(tag) != std::string::npos)) {
+            effect.setX(x);
+            effect.setY(y);
+            effect.number_print = number;
         }
-        
-        
-    }
-
-    
-    if (found == false) {
-        std::cout << "CREATE NEWW  : " << std::endl;
-        for (int i = 0; i < t.size(); i++){
-            Widget* effect = &t[i];
-
-            effect->setX(x);
-            effect->setY(y);
-            effect->number_print = number;
-        }
-        animation.push_back(t);
-    }
- 
+    }       
     
 
 }

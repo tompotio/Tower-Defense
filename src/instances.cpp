@@ -176,7 +176,7 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
             this->texture = assets.GetTexture("t3");
             this->range = 150;
             this->cadence = 1; // 1 fois par sec ou 2 / sec
-            this->degat = 5;
+            this->degat = 30;
             this->effect_texture = assets.GetTexture("ice");
             this->price = 500;
 
@@ -273,7 +273,7 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
 
 
 HomingProjectile::HomingProjectile(vec2<double> pos, AssetManager& assetmanager, Enemy * target){
-    this->speed = 150;
+    this->speed = 175;
     this->target = target;
     this->texture = assetmanager.GetTexture("fire_proj");
     this->dmg = 100;

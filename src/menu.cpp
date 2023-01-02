@@ -16,9 +16,8 @@ Menu::Menu(Body** body) {
     
     audio = AudioManager();
     assets.AddMusic("boss", "../assets/Sound/Boss_Music.mp3");
-    assets.AddSFX("sucess", "../assets/Sound/success.wav");
-    // audio.PlayMusic("boss", &assets, 1);
-    // audio.PlaySFX("sucess", &assets, 5);
+    
+    audio.PlayMusic("boss", &assets, 1);
     
     assets.AddTexture(
         "sb",
@@ -75,6 +74,12 @@ Menu::Menu(Body** body) {
         "effect",
         LoadTexture("../assets/PNG/Menu/settings/sfx.png", (*body)->GetRenderer())
     );
+
+    assets.AddTexture(
+        "background",
+        LoadTexture("../assets/PNG/Menu/settings/background.png", (*body)->GetRenderer())
+    );
+
 
     /* assets.AddTexture(
         "play",
@@ -183,7 +188,7 @@ void Menu::HandleEvents()
 
 void Menu::Update(SDL_Renderer* renderer)
 {   
-    // BlitTexture(LoadTexture("../assets/PNG/Menu/bg1.jpg",renderer), renderer, 0,0);
+    BlitTexture(assets.GetTexture("background"),renderer, 0,0);
     
     if (isSetting) {
         for(Widget &widget : widgetsS) {

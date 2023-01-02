@@ -174,8 +174,11 @@ class Game
         bool tower2Selected;
         bool tower3Selected;
 
+
         // Utilitaries classes
         AssetManager assetManager;
+        AudioManager audio;
+
 
         // Grid
         Grid map;
