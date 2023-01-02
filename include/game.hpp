@@ -177,6 +177,8 @@ class Game
 
         // Utilitaries classes
         AssetManager assetManager;
+        AudioManager audio;
+
 
         // Grid
         Grid map;

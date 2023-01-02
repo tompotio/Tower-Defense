@@ -39,6 +39,9 @@ Game::Game(Body** body, Menu** menu)
 
     // Champ de déclaration des assets du jeu 
     assetManager = AssetManager();
+    audio = AudioManager();
+    assetManager.AddSFX("sucess", "../assets/Sound/success.wav");
+    assetManager.AddSFX("explosion", "../assets/Sound/explosion1.ogg");
 
     font = load_font( "../assets/arial.ttf", 14);
     if (font == nullptr) std::cout << "ptdr null" << std::endl;
@@ -372,6 +375,7 @@ void Game::HandleEvents()
             }else if (event.button.button == SDL_BUTTON_RIGHT){
                 showgrid = !showgrid;
                 details = !details;
+
             }
             break;
         // Position de la souris
@@ -449,7 +453,6 @@ void Game::UpdateGraphics()
 
     DrawSFX();
 
-    apply_text(renderer,WindowSize.w/2,WindowSize.h/2,200,200,"MONEY",font);
 
     if (details){
         //Affiche le curseur de la grille
@@ -534,7 +537,8 @@ void Game::UpdateGraphics()
         
     }
 
-    DrawAnimation("coin", 1200, 800);
+    DrawAnimation("coin", 1200, 750);
+    DrawAnimation("coin", 200, 750);
     DrawAnimation("ice", 500, 500);
 
     
@@ -707,6 +711,8 @@ void Game::TowerAttackCase(Tower& tower){
                 if(tower.CD >= tower.cadence){
                     tower.CD = 0;
                     vec2<double> position = vec2<double>(tower.GetRect().x,tower.GetRect().y);
+                    audio.PlaySFX("explosion", &assetManager, 1);
+
                     SpawnProjectile(position, closest_enemy);
                 }
             }
@@ -734,12 +740,11 @@ void Game::TowerAttackCase(Tower& tower){
                     
                     } 
                 }
-                std::cout << "ENEMY : NUM : " <<  e.size() << std::endl;
                 if (e.size() > 0) {
                     LaunchAnimation("ice", tower.GetRect().x, tower.GetRect().y, 1);
                     for (Enemy* enemy : e) {
-                        //enemy.Current_HP -= tower.degat;
-                        enemy->Current_HP = 0;
+                        enemy->Current_HP -= tower.degat;
+                        audio.PlaySFX("explosion", &assetManager, 1);
                         
                     }
                 }
@@ -781,6 +786,8 @@ void Game::TowerAttackCase(Tower& tower){
                         closest_enemy->Current_HP -= tower.degat;
                         //AddSfx(tower.effect_texture, tower.GetRect().x, tower.GetRect().y);
                         AddSfx(closest_enemy->explosion, closest_enemy->GetSprite().GetRect().x + closest_enemy->GetSprite().GetRect().w/2, closest_enemy->GetSprite().GetRect().y + closest_enemy->GetSprite().GetRect().h/2);
+                        audio.PlaySFX("explosion", &assetManager, 1);
+
                     }
                     
 
@@ -1539,7 +1546,6 @@ void Game::AddSfx(SDL_Texture* texture, int x, int y) {
     }
     else {
         w->timer_actual = w->timer_init;
-        std::cout << "OHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH MERDE" << std::endl;
     }
 
 
@@ -1555,7 +1561,6 @@ void Game::InitAnimationImage(std::string tag, std::string path, int number, dou
             frame_name,
             LoadTexture((path+tag+std::to_string(z)+".png").c_str(), renderer)
         );
-        std::cout << "LOADED" << (path+tag+std::to_string(z)+".png")<< std::endl;
         if (infinite) {
             animation[animation.size()-1].push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, -1));
             
@@ -1564,7 +1569,6 @@ void Game::InitAnimationImage(std::string tag, std::string path, int number, dou
             animation[animation.size()-1].push_back(Widget(frame_name, 0, 0, assetManager.GetTexture(frame_name), (z==0), anim_time/number, 0));
         }
     }
-    std::cout << "NUMBER" <<  animation.size() << " coin size: " << animation[0].size() << std::endl;
 
 }
 void Game::DrawAnimation(std::string tag, int x, int y) {
