@@ -176,7 +176,7 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
             this->texture = assets.GetTexture("t3");
             this->range = 150;
             this->cadence = 1; // 1 fois par sec ou 2 / sec
-            this->degat = 10;
+            this->degat = 30;
             this->effect_texture = assets.GetTexture("ice");
             this->price = 500;
 

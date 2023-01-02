@@ -43,10 +43,24 @@ Game::Game(Body** body, Menu** menu)
     assetManager.AddSFX("sucess", "../assets/Sound/success.wav");
     assetManager.AddSFX("explosion", "../assets/Sound/explosion1.ogg");
 
-    font = load_font( "../assets/arial.ttf", 14);
-    if (font == nullptr) std::cout << "ptdr null" << std::endl;
+    arial_font = load_font( "../assets/arial.ttf", 18);
+    fantasyfont = load_font( "../assets/fantasyfont.ttf", 25);
 
 
+    assetManager.AddTexture(
+        "sb",
+        LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
+    );
+
+    assetManager.AddTexture(
+        "sb2",
+        LoadTexture("../assets/PNG/Menu/settings/sbutton_bg.png", (*body)->GetRenderer())
+    );
+
+    assetManager.AddTexture(
+        "soldier",
+        LoadTexture("../assets/tiles/Default size/towerDefense_tile245.png",renderer)
+    );
     assetManager.AddTexture(
         "sb",
         LoadTexture("../assets/PNG/Menu/settings/settings_button1.png", (*body)->GetRenderer())
@@ -454,6 +468,7 @@ void Game::UpdateGraphics()
     DrawSFX();
 
 
+    
     if (details){
         //Affiche le curseur de la grille
         DrawCursor();
@@ -616,14 +631,14 @@ void Game::UpdateGame(){
 void Game::DrawFPS(){
     int w;
     int h;
-    TTF_SizeText(font, "FPS", &w, &h);
-    apply_text(renderer,50,50,w,h,"FPS",font);
+    TTF_SizeText(arial_font, "FPS", &w, &h);
+    apply_text(renderer,50,50,w,h,"FPS",arial_font);
 
     char current_fps[100];
     sprintf(current_fps,"%d",fps);
 
-    TTF_SizeText(font,current_fps, &w, &h);
-    apply_text(renderer,100,50,w,h,current_fps,font);
+    TTF_SizeText(arial_font,current_fps, &w, &h);
+    apply_text(renderer,100,50,w,h,current_fps,arial_font);
 }
 
 // Dessine le compteur du temps avant le début de chaque wave à l'écran
@@ -634,11 +649,11 @@ void Game::DrawCount(){
     char current_count[100];
     sprintf(current_count,"%d",cpt_intermit);
 
-    TTF_SizeText(font, "The wave will start in : ", &w, &h);
-    apply_text(renderer,1100,500,w,h,"The wave will start in : ",font);
+    TTF_SizeText(arial_font, "La vague va commencer dans : ", &w, &h);
+    apply_text(renderer,1050,560,w,h,"La vague va commencer dans : ",arial_font);
 
-    TTF_SizeText(font,current_count, &w, &h);
-    apply_text(renderer,1250,500,w,h,current_count,font);
+    TTF_SizeText(arial_font,current_count, &w, &h);
+    apply_text(renderer,1300,560,w,h,current_count,arial_font);
 }
 
 // Fonction qui gère la sélection des tours
@@ -690,9 +705,10 @@ void Game::TowerAttackCase(Tower& tower){
         case FIRE:
         {
             Enemy* closest_enemy = nullptr; // remplacer NULL par tower.FindNearestEnemy();
+            int closest = tower.range;
             //Cherche le plus proche ennemi
             for (Enemy& enemy : enemies) {
-                int closest = tower.range;
+                
                 if(!enemy.dead){
                     int a = tower.GetRect().x;
                     int b = tower.GetRect().y;
@@ -973,6 +989,47 @@ void Game::DrawDialogScreen(){
         0,
         440
     );
+
+    int w;
+    int h;
+
+    if(wave_nb == 1){
+        TTF_SizeText(fantasyfont, "Preparez-vous, les ennemis arrivent !", &w, &h);
+        apply_text(renderer,250,525,w,h,"Preparez-vous, les ennemis arrivent !",fantasyfont);
+    }else if(wave_nb == 2){
+        TTF_SizeText(fantasyfont, "Des elfes ?", &w, &h);
+        apply_text(renderer,250,525,w,h,"Des elfes ?",fantasyfont);
+    }else if(wave_nb == 3){
+        TTF_SizeText(fantasyfont, "Attention plus d'ennemis !", &w, &h);
+        apply_text(renderer,250,525,w,h,"Attention plus d'ennemis !",fantasyfont);
+    }else if(wave_nb == 4){
+        TTF_SizeText(fantasyfont, "Une tres grosse vague de goblins arrive", &w, &h);
+        apply_text(renderer,250,525,w,h,"Une tres grosse vague de goblins arrive",fantasyfont);
+    }else if(wave_nb == 5){
+        TTF_SizeText(fantasyfont, "Qu'est-ce que c'est que ça ?!", &w, &h);
+        apply_text(renderer,250,525,w,h,"Qu'est-ce que c'est que ça ?!",fantasyfont);
+    }else if(wave_nb == 6){
+        TTF_SizeText(fantasyfont, "...", &w, &h);
+        apply_text(renderer,250,525,w,h,"...",fantasyfont);
+    }else if(wave_nb == 7){
+        TTF_SizeText(fantasyfont, "...", &w, &h);
+        apply_text(renderer,250,525,w,h,"...",fantasyfont);
+    }else if(wave_nb == 8){
+        TTF_SizeText(fantasyfont, "...", &w, &h);
+        apply_text(renderer,250,525,w,h,"...",fantasyfont);
+    }else if(wave_nb == 9){
+        TTF_SizeText(fantasyfont, "Une cavalerie on est fichu ! les ennemis sont trop rapides", &w, &h);
+        apply_text(renderer,250,525,w,h,"Une cavalerie on est fichu ! les ennemis sont trop rapides",fantasyfont);
+    }else if(wave_nb == 10){
+        TTF_SizeText(fantasyfont, "Le boss est en train d'arriver !", &w, &h);
+        apply_text(renderer,250,525,w,h,"Le boss est en train d'arriver !",fantasyfont);
+    }else if(wave_nb == 11){
+        TTF_SizeText(fantasyfont, "...", &w, &h);
+        apply_text(renderer,250,525,w,h,"...",fantasyfont);
+    }else if(wave_nb == 12){
+        TTF_SizeText(fantasyfont, "...", &w, &h);
+        apply_text(renderer,250,525,w,h,"...",fantasyfont);
+    }
 }
 
 void Game::UpdateIntermit(){

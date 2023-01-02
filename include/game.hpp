@@ -208,7 +208,9 @@ class Game
         // Screen
         SDL_Renderer *renderer;
         SDL_Window *window;
-        TTF_Font* font;
+        TTF_Font* arial_font;
+        TTF_Font* fantasyfont;
+        TTF_Font* roboto;
 
         // Colors (bientôt deprecated)
         SDL_Color grid_background = {22, 22, 22, 255};
