@@ -86,12 +86,6 @@ class Enemy : public Entity
         Entity_t type;
 };
 
-class Goblin : public Enemy
-{
-    public: 
-        Goblin(vec2<double> spawnPosition, AssetManager& assetmanager); 
-};
-
 class Tower {
     public: 
         Tower(Tower_t type, int x, int y, AssetManager assetmanager);
@@ -104,7 +98,9 @@ class Tower {
         void SetShowRange(bool show) {this->showrange = show;};
         bool GetShowRange() {return showrange;}
         /* void AttackEnemy();
-        void RotateSprite(); //Modifie l'angle de rotation du sprite      */   
+        void RotateSprite(); //Modifie l'angle de rotation du sprite 
+        */
+
         Tower_t type;
         double CD;
         int range; // euclidian distance
@@ -141,6 +137,14 @@ class HomingProjectile
         vec2<double> direction;
 
         bool active;
+};
+
+// Sous classes des ennemis
+
+class Goblin : public Enemy
+{
+    public: 
+        Goblin(vec2<double> spawnPosition, AssetManager& assetmanager); 
 };
 
 class Elf : public Enemy

@@ -187,6 +187,7 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
     this->rect = GetTextureSize(texture);
     this->rect.x = x-rect.w/2;
     this->rect.y = y-rect.h/2;
+    this->CD = 0;
 }
 
 void Tower::BlitTower(SDL_Renderer* renderer) {
@@ -253,7 +254,8 @@ HomingProjectile::HomingProjectile(vec2<double> pos, AssetManager& assetmanager,
     this->speed = 150;
     this->target = target;
     this->texture = assetmanager.GetTexture("fire_proj");
-    this->dmg = 100;
+    this->dmg = 30;
+    this->CD = 0;
     this->active = true;
     this->position = pos;
 }

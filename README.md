@@ -47,9 +47,21 @@ Il suffit donc de passer la souris dessus pour afficher une description (marche 
 
 Comment jouer
 ```
-    Le but du jeu est de défendre sa base contre les ennemis. 
-    Afin de se défendre il faut placer des tours sur la carte. Pour se faire il suffit de cliquer sur une des tours et de la positionner sur la carte en maintenant le clic droit enfoncé.
+    Le but du jeu est de défendre sa base contre les ennemis.
+    Afin de se défendre il faut placer des tours sur la carte.
+    Pour se faire il suffit de cliquer sur une des tours et de la positionner sur la carte en maintenant le clic gauche enfoncé.
 
+```
+
+Commandes du jeu
+```
+    Pour afficher les détails visuels clic droit.
+    Les détails visuels ne s'affichent pas directement, après avoir clic droit, il suffit d'appuyer sur les touches : 
+        G : Affiche la grille du jeu
+        E : Affiche la hitbox des ennemis
+        F : Affiche les FPS
+        K : Maintenir la lettre appuyée et cliquer sur l'endroit où l'on souhaite générer un chemin de test
+        (C'est un chemin pour faire la démo du système de pathfinding *A, attention, le chemin ne se génère que sur les routes des ennemis)
 ```
 
 ## Authors
