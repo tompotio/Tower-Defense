@@ -51,5 +51,5 @@ Commandes du jeu
 ## Authors
 
 Tompotio - CLEMENT Aïssa
-Vopexx - HADIBI Neil
+Vopexx
 ## Version History
