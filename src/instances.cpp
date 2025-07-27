@@ -147,8 +147,8 @@ void Entity::SetPosition(vec2<double> pos){
 
     rect.w = this->sprite.GetRect().w;
     rect.h = this->sprite.GetRect().h;
-    rect.x = (int)position.x;
-    rect.y = (int)position.y;
+    rect.x = (int) position.x;
+    rect.y = (int) position.y;
 
     sprite.SetRect(rect);
 }
@@ -197,6 +197,7 @@ Tower::Tower(Tower_t type, int x, int y, AssetManager assets) {
         default:
             break;
 
+
     }
     this->target = nullptr;
     this->showrange = false;
@@ -230,6 +231,8 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
         Uint8 a;
         
 
+        
+
         SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
         SDL_SetRenderDrawColor(renderer, 127, 255, 0, 255);
        
@@ -260,6 +263,7 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
                 ty += 2;
             }
 
+
             if (error > 0)
             {
                 --x;
@@ -267,13 +271,15 @@ void Tower::DrawRange(SDL_Renderer * renderer, int cell_size)
                 error += (tx - diameter);
             }
         }
+
         SDL_SetRenderDrawColor(renderer, r, g, b, a);
+
     }
 }
 
 
 HomingProjectile::HomingProjectile(vec2<double> pos, AssetManager& assetmanager, Enemy * target){
-    this->speed = 150;
+    this->speed = 50;
     this->target = target;
     this->texture = assetmanager.GetTexture("fire_proj");
     this->dmg = 100;

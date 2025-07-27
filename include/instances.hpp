@@ -84,7 +84,6 @@ class Enemy : public Entity
         int maxcell = 0;
         int i = 0;
         bool dead;
-        bool selected = true;
         int Max_HP;
         int Current_HP;
         bool explode;

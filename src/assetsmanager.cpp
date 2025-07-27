@@ -54,7 +54,7 @@ void BlitTextureTransparent(SDL_Texture* texture, SDL_Renderer* renderer, int x 
 
     // Récupère les informations de la texture (width et height)
     SDL_QueryTexture(texture, NULL, NULL, &dstcrect.w, &dstcrect.h);
-    SDL_SetTextureAlphaMod(texture, 165);
+    SDL_SetTextureAlphaMod(texture, 150);
     // Copier (une partie de) la texture dans le renderer
     SDL_RenderCopy(renderer, texture, NULL, &dstcrect);
 }
